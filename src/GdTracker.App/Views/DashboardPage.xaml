@@ -1,12 +1,153 @@
 <Page x:Class="GdTracker.App.Views.DashboardPage"
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:vm="clr-namespace:GdTracker.ViewModels;assembly=GdTracker.ViewModels"
       Title="DashboardPage">
+
     <Grid Margin="24">
-        <StackPanel VerticalAlignment="Top">
-            <TextBlock Text="{Binding Title}" FontSize="28" FontWeight="SemiBold" />
-            <TextBlock Margin="0,8,0,0" Opacity="0.7"
-                       Text="Здесь появится список уровней и прогресс (Фаза 1)." />
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <!-- Заголовок -->
+        <TextBlock Grid.Row="0" Text="Уровни" FontSize="28" FontWeight="SemiBold" Margin="0,0,0,12" />
+
+        <!-- Панель добавления уровня -->
+        <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,0,0,12">
+            <TextBox Width="280" Text="{Binding NewLevelName, UpdateSourceTrigger=PropertyChanged}"
+                     ToolTip="Название уровня" VerticalContentAlignment="Center" />
+            <ComboBox Width="130" Margin="8,0,0,0"
+                      ItemsSource="{Binding Sources}" SelectedItem="{Binding NewLevelSource}" />
+            <Button Margin="8,0,0,0" Content="Добавить уровень" Command="{Binding AddLevelCommand}" />
+            <Button Margin="8,0,0,0" Content="Удалить выбранный"
+                    Command="{Binding DeleteSelectedLevelCommand}" IsEnabled="{Binding HasSelection}" />
+            <TextBlock Margin="12,0,0,0" VerticalAlignment="Center" Foreground="IndianRed"
+                       Text="{Binding Error}" />
         </StackPanel>
+
+        <!-- Master-detail -->
+        <Grid Grid.Row="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="1.2*" MinWidth="360" />
+                <ColumnDefinition Width="8" />
+                <ColumnDefinition Width="2*" />
+            </Grid.ColumnDefinitions>
+
+            <!-- Список уровней -->
+            <DataGrid Grid.Column="0"
+                      ItemsSource="{Binding Levels}"
+                      SelectedItem="{Binding SelectedLevel}"
+                      AutoGenerateColumns="False"
+                      IsReadOnly="True"
+                      CanUserAddRows="False"
+                      HeadersVisibility="Column"
+                      GridLinesVisibility="Horizontal">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="Уровень" Binding="{Binding Name}" Width="*" />
+                    <DataGridTextColumn Header="Источник" Binding="{Binding Source}" Width="Auto" />
+                    <DataGridTextColumn Header="Normal %" Binding="{Binding BestNormalPercent}" Width="Auto" />
+                    <DataGridTextColumn Header="Practice %" Binding="{Binding BestPracticePercent}" Width="Auto" />
+                    <DataGridTextColumn Header="Попытки" Binding="{Binding TotalAttempts}" Width="Auto" />
+                    <DataGridCheckBoxColumn Header="Пройден" Binding="{Binding IsCompleted}" Width="Auto" />
+                </DataGrid.Columns>
+            </DataGrid>
+
+            <GridSplitter Grid.Column="1" Width="8" HorizontalAlignment="Stretch" Background="Transparent" />
+
+            <!-- Деталь выбранного уровня -->
+            <ContentControl Grid.Column="2" Content="{Binding Detail}">
+                <ContentControl.Resources>
+                    <DataTemplate DataType="{x:Type vm:LevelDetailViewModel}">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="*" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+
+                            <!-- Шапка деталей -->
+                            <StackPanel Grid.Row="0" Margin="0,0,0,12">
+                                <TextBlock Text="{Binding Level.Name}" FontSize="20" FontWeight="SemiBold" />
+                                <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
+                                    <TextBlock Text="{Binding Level.BestNormalPercent, StringFormat='Normal: {0}%'}" Margin="0,0,16,0" />
+                                    <TextBlock Text="{Binding Level.BestPracticePercent, StringFormat='Practice: {0}%'}" Margin="0,0,16,0" />
+                                    <TextBlock Text="{Binding Level.TotalAttempts, StringFormat='Попытки: {0}'}" Margin="0,0,16,0" />
+                                    <TextBlock Text="{Binding Level.IsCompleted, StringFormat='Пройден: {0}'}" />
+                                </StackPanel>
+                            </StackPanel>
+
+                            <!-- Таблица записей прогресса -->
+                            <DataGrid Grid.Row="1"
+                                      ItemsSource="{Binding Records}"
+                                      AutoGenerateColumns="False"
+                                      IsReadOnly="True"
+                                      CanUserAddRows="False"
+                                      HeadersVisibility="Column"
+                                      GridLinesVisibility="Horizontal">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="Дата" Binding="{Binding Date, StringFormat='dd.MM.yyyy HH:mm'}" Width="Auto" />
+                                    <DataGridTextColumn Header="Тип" Binding="{Binding Type}" Width="Auto" />
+                                    <DataGridTextColumn Header="Режим" Binding="{Binding Mode}" Width="Auto" />
+                                    <DataGridTextColumn Header="С %" Binding="{Binding StartPercent}" Width="Auto" />
+                                    <DataGridTextColumn Header="До %" Binding="{Binding ReachedPercent}" Width="Auto" />
+                                    <DataGridTextColumn Header="Попытки" Binding="{Binding Attempts}" Width="Auto" />
+                                    <DataGridTextColumn Header="Заметка" Binding="{Binding Note}" Width="*" />
+                                    <DataGridTemplateColumn Header="" Width="Auto">
+                                        <DataGridTemplateColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <Button Content="✕"
+                                                        Command="{Binding DataContext.DeleteProgressCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                                                        CommandParameter="{Binding}" />
+                                            </DataTemplate>
+                                        </DataGridTemplateColumn.CellTemplate>
+                                    </DataGridTemplateColumn>
+                                </DataGrid.Columns>
+                            </DataGrid>
+
+                            <!-- Форма добавления прогресса -->
+                            <Border Grid.Row="2" Margin="0,12,0,0" Padding="12" CornerRadius="6"
+                                    BorderThickness="1" BorderBrush="#33888888">
+                                <StackPanel>
+                                    <TextBlock Text="Добавить прогресс" FontWeight="SemiBold" Margin="0,0,0,8" />
+                                    <WrapPanel>
+                                        <StackPanel Margin="0,0,12,8">
+                                            <TextBlock Text="Тип" />
+                                            <ComboBox Width="120" ItemsSource="{Binding RunTypes}" SelectedItem="{Binding NewRunType}" />
+                                        </StackPanel>
+                                        <StackPanel Margin="0,0,12,8">
+                                            <TextBlock Text="Режим" />
+                                            <ComboBox Width="110" ItemsSource="{Binding Modes}" SelectedItem="{Binding NewMode}" />
+                                        </StackPanel>
+                                        <StackPanel Margin="0,0,12,8">
+                                            <TextBlock Text="С %" />
+                                            <TextBox Width="70" Text="{Binding NewStartPercent}" IsEnabled="{Binding IsSegment}" />
+                                        </StackPanel>
+                                        <StackPanel Margin="0,0,12,8">
+                                            <TextBlock Text="До %" />
+                                            <TextBox Width="70" Text="{Binding NewReachedPercent}" />
+                                        </StackPanel>
+                                        <StackPanel Margin="0,0,12,8">
+                                            <TextBlock Text="Попытки" />
+                                            <TextBox Width="80" Text="{Binding NewAttempts, UpdateSourceTrigger=PropertyChanged}" />
+                                        </StackPanel>
+                                        <StackPanel Margin="0,0,12,8">
+                                            <TextBlock Text="Заметка" />
+                                            <TextBox Width="220" Text="{Binding NewNote, UpdateSourceTrigger=PropertyChanged}" />
+                                        </StackPanel>
+                                    </WrapPanel>
+                                    <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
+                                        <Button Content="Добавить прогресс" Command="{Binding AddProgressCommand}" />
+                                        <TextBlock Margin="12,0,0,0" VerticalAlignment="Center" Foreground="IndianRed"
+                                                   Text="{Binding FormError}" />
+                                    </StackPanel>
+                                </StackPanel>
+                            </Border>
+                        </Grid>
+                    </DataTemplate>
+                </ContentControl.Resources>
+            </ContentControl>
+        </Grid>
     </Grid>
 </Page>

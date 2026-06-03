@@ -480,3 +480,8 @@ $RECYCLE.BIN/
 
 # Vim temporary swap files
 *.swp
+
+# Local verification artifacts
+app_stderr.log
+app_stdout.log
+phase1_ui.png

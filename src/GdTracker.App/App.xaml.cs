@@ -1,7 +1,9 @@
 using System.Windows;
 using GdTracker.App.Services;
 using GdTracker.App.Views;
+using GdTracker.Core.Abstractions;
 using GdTracker.Data;
+using GdTracker.Data.Repositories;
 using GdTracker.ViewModels;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -28,6 +30,10 @@ public partial class App : Application
                 services.AddDbContextFactory<AppDbContext>(options =>
                     options.UseSqlite(AppPaths.ConnectionString));
 
+                // Репозитории.
+                services.AddSingleton<ILevelRepository, LevelRepository>();
+                services.AddSingleton<IProgressRepository, ProgressRepository>();
+
                 // Навигация WPF UI: провайдер страниц из DI + сервис навигации.
                 services.AddSingleton<INavigationViewPageProvider, PageProvider>();
                 services.AddSingleton<INavigationService, NavigationService>();
@@ -37,7 +43,7 @@ public partial class App : Application
 
                 // Страницы и их view-модели.
                 services.AddTransient<DashboardPage>();
-                services.AddTransient<DashboardViewModel>();
+                services.AddTransient<LevelsViewModel>();
                 services.AddTransient<SettingsPage>();
                 services.AddTransient<SettingsViewModel>();
             })
