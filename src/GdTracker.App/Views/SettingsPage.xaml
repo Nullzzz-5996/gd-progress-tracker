@@ -1,0 +1,14 @@
+<Page x:Class="GdTracker.App.Views.SettingsPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      Title="SettingsPage">
+    <Grid Margin="24">
+        <StackPanel VerticalAlignment="Top">
+            <TextBlock Text="Настройки" FontSize="28" FontWeight="SemiBold" />
+            <TextBlock Margin="0,8,0,0" Opacity="0.7"
+                       Text="{Binding AppVersion, StringFormat='Версия приложения: {0}'}" />
+            <TextBlock Margin="0,4,0,0" Opacity="0.7"
+                       Text="Путь к сейв-файлу GD и параметры импорта появятся в Фазе 2." />
+        </StackPanel>
+    </Grid>
+</Page>

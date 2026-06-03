@@ -1,0 +1,72 @@
+using System.Windows;
+using GdTracker.App.Services;
+using GdTracker.App.Views;
+using GdTracker.Data;
+using GdTracker.ViewModels;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Wpf.Ui;
+using Wpf.Ui.Abstractions;
+
+namespace GdTracker.App;
+
+/// <summary>
+/// Точка входа приложения. Конфигурирует DI через Generic Host,
+/// применяет миграции БД и показывает главное окно.
+/// </summary>
+public partial class App : Application
+{
+    private readonly IHost _host;
+
+    public App()
+    {
+        _host = Host.CreateDefaultBuilder()
+            .ConfigureServices((_, services) =>
+            {
+                // Данные: фабрика контекстов (короткоживущие контексты — рекомендуемый паттерн для десктопа).
+                services.AddDbContextFactory<AppDbContext>(options =>
+                    options.UseSqlite(AppPaths.ConnectionString));
+
+                // Навигация WPF UI: провайдер страниц из DI + сервис навигации.
+                services.AddSingleton<INavigationViewPageProvider, PageProvider>();
+                services.AddSingleton<INavigationService, NavigationService>();
+
+                // Окна.
+                services.AddSingleton<MainWindow>();
+
+                // Страницы и их view-модели.
+                services.AddTransient<DashboardPage>();
+                services.AddTransient<DashboardViewModel>();
+                services.AddTransient<SettingsPage>();
+                services.AddTransient<SettingsViewModel>();
+            })
+            .Build();
+    }
+
+    protected override async void OnStartup(StartupEventArgs e)
+    {
+        base.OnStartup(e);
+
+        AppPaths.EnsureDirectories();
+
+        // Применяем миграции: создаём/обновляем БД при запуске.
+        using (var db = _host.Services
+                   .GetRequiredService<IDbContextFactory<AppDbContext>>()
+                   .CreateDbContext())
+        {
+            db.Database.Migrate();
+        }
+
+        await _host.StartAsync();
+
+        _host.Services.GetRequiredService<MainWindow>().Show();
+    }
+
+    protected override async void OnExit(ExitEventArgs e)
+    {
+        await _host.StopAsync();
+        _host.Dispose();
+        base.OnExit(e);
+    }
+}

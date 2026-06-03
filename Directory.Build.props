@@ -1,0 +1,13 @@
+<Project>
+
+  <!-- Общие свойства для всех проектов решения GdTracker -->
+  <PropertyGroup>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <!-- Сборка только x64 (требование ScreenRecorderLib и чтения памяти, Фазы 5-6) -->
+    <PlatformTarget>x64</PlatformTarget>
+    <Deterministic>true</Deterministic>
+  </PropertyGroup>
+
+</Project>
