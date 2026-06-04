@@ -15,11 +15,20 @@ public partial class LevelsViewModel : ViewModelBase
 {
     private readonly ILevelRepository _levels;
     private readonly IProgressRepository _progress;
+    private readonly ISaveFileReader _saveReader;
+    private readonly ISaveImportService _importer;
 
-    public LevelsViewModel(ILevelRepository levels, IProgressRepository progress)
+    public LevelsViewModel(
+        ILevelRepository levels,
+        IProgressRepository progress,
+        ISaveFileReader saveReader,
+        ISaveImportService importer)
     {
         _levels = levels;
         _progress = progress;
+        _saveReader = saveReader;
+        _importer = importer;
+        _saveFilePath = saveReader.DefaultSaveFilePath ?? string.Empty;
     }
 
     public ObservableCollection<Level> Levels { get; } = new();
@@ -36,6 +45,10 @@ public partial class LevelsViewModel : ViewModelBase
     [ObservableProperty] private string _newLevelName = string.Empty;
     [ObservableProperty] private LevelSource _newLevelSource = LevelSource.Custom;
     [ObservableProperty] private string? _error;
+
+    [ObservableProperty] private string _saveFilePath = string.Empty;
+    [ObservableProperty] private string? _importStatus;
+    [ObservableProperty] private bool _isBusy;
 
     public bool HasSelection => SelectedLevel is not null;
 
@@ -102,5 +115,37 @@ public partial class LevelsViewModel : ViewModelBase
         SelectedLevel = null;
         Detail = null;
         await LoadAsync();
+    }
+
+    [RelayCommand]
+    private async Task ImportFromGameAsync()
+    {
+        ImportStatus = null;
+
+        if (string.IsNullOrWhiteSpace(SaveFilePath) || !File.Exists(SaveFilePath))
+        {
+            ImportStatus = "Файл сейва не найден. Проверьте путь.";
+            return;
+        }
+
+        IsBusy = true;
+        try
+        {
+            var path = SaveFilePath;
+            // Декодирование и парсинг (CPU/IO) — вне UI-потока.
+            var dtos = await Task.Run(() => _saveReader.ReadLevels(path));
+            var result = await _importer.ImportAsync(dtos);
+            await LoadAsync();
+            ImportStatus =
+                $"Импортировано {result.Total} уровней (новых: {result.LevelsAdded}, обновлено: {result.LevelsUpdated}).";
+        }
+        catch (Exception ex)
+        {
+            ImportStatus = $"Ошибка импорта: {ex.Message}";
+        }
+        finally
+        {
+            IsBusy = false;
+        }
     }
 }

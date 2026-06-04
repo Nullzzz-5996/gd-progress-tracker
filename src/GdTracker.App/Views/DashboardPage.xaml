@@ -8,14 +8,26 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
         <!-- Заголовок -->
         <TextBlock Grid.Row="0" Text="Уровни" FontSize="28" FontWeight="SemiBold" Margin="0,0,0,12" />
 
+        <!-- Панель импорта из игры -->
+        <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,0,0,8">
+            <Button Content="Импорт из игры" Command="{Binding ImportFromGameCommand}"
+                    AutomationProperties.AutomationId="ImportButton" />
+            <TextBox Width="430" Margin="8,0,0,0" VerticalContentAlignment="Center"
+                     Text="{Binding SaveFilePath, UpdateSourceTrigger=PropertyChanged}"
+                     ToolTip="Путь к CCGameManager.dat" />
+            <TextBlock Margin="12,0,0,0" VerticalAlignment="Center" Opacity="0.85"
+                       Text="{Binding ImportStatus}" />
+        </StackPanel>
+
         <!-- Панель добавления уровня -->
-        <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,0,0,12">
+        <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="0,0,0,12">
             <TextBox Width="280" Text="{Binding NewLevelName, UpdateSourceTrigger=PropertyChanged}"
                      ToolTip="Название уровня" VerticalContentAlignment="Center" />
             <ComboBox Width="130" Margin="8,0,0,0"
@@ -28,7 +40,7 @@
         </StackPanel>
 
         <!-- Master-detail -->
-        <Grid Grid.Row="2">
+        <Grid Grid.Row="3">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="1.2*" MinWidth="360" />
                 <ColumnDefinition Width="8" />

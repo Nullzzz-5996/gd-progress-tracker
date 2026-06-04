@@ -2,12 +2,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\GdTracker.Core\GdTracker.Core.csproj" />
-    <ProjectReference Include="..\GdTracker.Data\GdTracker.Data.csproj" />
-    <ProjectReference Include="..\GdTracker.GameSync\GdTracker.GameSync.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
   </ItemGroup>
 
   <PropertyGroup>

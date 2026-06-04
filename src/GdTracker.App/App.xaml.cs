@@ -4,6 +4,7 @@ using GdTracker.App.Views;
 using GdTracker.Core.Abstractions;
 using GdTracker.Data;
 using GdTracker.Data.Repositories;
+using GdTracker.GameSync;
 using GdTracker.ViewModels;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -33,6 +34,10 @@ public partial class App : Application
                 // Репозитории.
                 services.AddSingleton<ILevelRepository, LevelRepository>();
                 services.AddSingleton<IProgressRepository, ProgressRepository>();
+
+                // Импорт из сейв-файла GD.
+                services.AddSingleton<ISaveFileReader, SaveFileReader>();
+                services.AddSingleton<ISaveImportService, SaveImportService>();
 
                 // Навигация WPF UI: провайдер страниц из DI + сервис навигации.
                 services.AddSingleton<INavigationViewPageProvider, PageProvider>();

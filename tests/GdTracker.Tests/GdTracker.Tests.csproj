@@ -23,6 +23,7 @@
     <ProjectReference Include="..\..\src\GdTracker.Core\GdTracker.Core.csproj" />
     <ProjectReference Include="..\..\src\GdTracker.Data\GdTracker.Data.csproj" />
     <ProjectReference Include="..\..\src\GdTracker.ViewModels\GdTracker.ViewModels.csproj" />
+    <ProjectReference Include="..\..\src\GdTracker.GameSync\GdTracker.GameSync.csproj" />
   </ItemGroup>
 
 </Project>

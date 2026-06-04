@@ -3,6 +3,7 @@ using GdTracker.Core;
 using GdTracker.Core.Models;
 using GdTracker.Data;
 using GdTracker.Data.Repositories;
+using GdTracker.GameSync;
 using GdTracker.ViewModels;
 using Microsoft.EntityFrameworkCore;
 
@@ -47,7 +48,7 @@ public class LevelsWorkflowTests : IDisposable
             var levels = new LevelRepository(factory);
             var progress = new ProgressRepository(factory);
 
-            var levelsVm = new LevelsViewModel(levels, progress);
+            var levelsVm = new LevelsViewModel(levels, progress, new SaveFileReader(), new SaveImportService(factory));
             await levelsVm.LoadAsync();
 
             levelsVm.NewLevelName = "Bloodbath";

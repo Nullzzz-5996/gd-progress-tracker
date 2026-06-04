@@ -484,4 +484,6 @@ $RECYCLE.BIN/
 # Local verification artifacts
 app_stderr.log
 app_stdout.log
-phase1_ui.png
+phase*_ui.png
+_decoded_*.xml
+_real_summary.txt

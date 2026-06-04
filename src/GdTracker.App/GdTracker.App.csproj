@@ -4,6 +4,7 @@
     <ProjectReference Include="..\GdTracker.ViewModels\GdTracker.ViewModels.csproj" />
     <ProjectReference Include="..\GdTracker.Core\GdTracker.Core.csproj" />
     <ProjectReference Include="..\GdTracker.Data\GdTracker.Data.csproj" />
+    <ProjectReference Include="..\GdTracker.GameSync\GdTracker.GameSync.csproj" />
   </ItemGroup>
 
   <ItemGroup>
