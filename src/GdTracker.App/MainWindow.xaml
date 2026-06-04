@@ -22,6 +22,8 @@
             <ui:NavigationView.MenuItems>
                 <ui:NavigationViewItem Content="Уровни"
                                        TargetPageType="{x:Type views:DashboardPage}" />
+                <ui:NavigationViewItem Content="Статистика"
+                                       TargetPageType="{x:Type views:StatsPage}" />
             </ui:NavigationView.MenuItems>
             <ui:NavigationView.FooterMenuItems>
                 <ui:NavigationViewItem Content="Настройки"

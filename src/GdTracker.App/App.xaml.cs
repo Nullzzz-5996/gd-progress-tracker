@@ -53,6 +53,8 @@ public partial class App : Application
                 // Страницы и их view-модели.
                 services.AddTransient<DashboardPage>();
                 services.AddTransient<LevelsViewModel>();
+                services.AddTransient<StatsPage>();
+                services.AddTransient<StatsViewModel>();
                 services.AddTransient<SettingsPage>();
                 services.AddTransient<SettingsViewModel>();
             })
