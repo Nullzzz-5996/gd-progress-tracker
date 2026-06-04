@@ -48,7 +48,9 @@ public class LevelsWorkflowTests : IDisposable
             var levels = new LevelRepository(factory);
             var progress = new ProgressRepository(factory);
 
-            var levelsVm = new LevelsViewModel(levels, progress, new SaveFileReader(), new SaveImportService(factory));
+            var levelsVm = new LevelsViewModel(
+                levels, progress, new SaveFileReader(), new SaveImportService(factory),
+                new ProgressSharingService(factory), new NullFileDialog());
             await levelsVm.LoadAsync();
 
             levelsVm.NewLevelName = "Bloodbath";

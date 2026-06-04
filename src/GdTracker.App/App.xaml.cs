@@ -39,6 +39,10 @@ public partial class App : Application
                 services.AddSingleton<ISaveFileReader, SaveFileReader>();
                 services.AddSingleton<ISaveImportService, SaveImportService>();
 
+                // Обмен прогрессом (экспорт/импорт файлами) + файловые диалоги.
+                services.AddSingleton<IProgressSharingService, ProgressSharingService>();
+                services.AddSingleton<IFileDialogService, FileDialogService>();
+
                 // Навигация WPF UI: провайдер страниц из DI + сервис навигации.
                 services.AddSingleton<INavigationViewPageProvider, PageProvider>();
                 services.AddSingleton<INavigationService, NavigationService>();

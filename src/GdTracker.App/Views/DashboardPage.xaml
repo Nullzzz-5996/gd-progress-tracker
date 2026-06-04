@@ -9,6 +9,7 @@
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
@@ -26,8 +27,14 @@
                        Text="{Binding ImportStatus}" />
         </StackPanel>
 
+        <!-- Панель обмена прогрессом -->
+        <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="0,0,0,8">
+            <Button Content="Экспорт прогресса" Command="{Binding ExportCommand}" />
+            <Button Content="Импорт из файла" Command="{Binding ImportFromFileCommand}" Margin="8,0,0,0" />
+        </StackPanel>
+
         <!-- Панель добавления уровня -->
-        <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="0,0,0,12">
+        <StackPanel Grid.Row="3" Orientation="Horizontal" Margin="0,0,0,12">
             <TextBox Width="280" Text="{Binding NewLevelName, UpdateSourceTrigger=PropertyChanged}"
                      ToolTip="Название уровня" VerticalContentAlignment="Center" />
             <ComboBox Width="130" Margin="8,0,0,0"
@@ -40,7 +47,7 @@
         </StackPanel>
 
         <!-- Master-detail -->
-        <Grid Grid.Row="3">
+        <Grid Grid.Row="4">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="1.2*" MinWidth="360" />
                 <ColumnDefinition Width="8" />

@@ -4,6 +4,7 @@
     <Project Path="src/GdTracker.Core/GdTracker.Core.csproj" />
     <Project Path="src/GdTracker.Data/GdTracker.Data.csproj" />
     <Project Path="src/GdTracker.GameSync/GdTracker.GameSync.csproj" />
+    <Project Path="src/GdTracker.Sharing/GdTracker.Sharing.csproj" />
     <Project Path="src/GdTracker.ViewModels/GdTracker.ViewModels.csproj" />
   </Folder>
   <Folder Name="/tests/">

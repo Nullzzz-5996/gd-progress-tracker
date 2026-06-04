@@ -1,8 +1,16 @@
 using GdTracker.Data;
+using GdTracker.ViewModels;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 
 namespace GdTracker.Tests;
+
+/// <summary>Заглушка файловых диалогов для тестов (всегда «отмена»).</summary>
+internal sealed class NullFileDialog : IFileDialogService
+{
+    public string? PickSaveFile(string suggestedName, string filter) => null;
+    public string? PickOpenFile(string filter) => null;
+}
 
 /// <summary>Фабрика контекстов над общим открытым SQLite in-memory соединением (для тестов).</summary>
 internal sealed class InMemorySqlite : IDbContextFactory<AppDbContext>, IDisposable

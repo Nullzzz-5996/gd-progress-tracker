@@ -17,17 +17,23 @@ public partial class LevelsViewModel : ViewModelBase
     private readonly IProgressRepository _progress;
     private readonly ISaveFileReader _saveReader;
     private readonly ISaveImportService _importer;
+    private readonly IProgressSharingService _sharing;
+    private readonly IFileDialogService _fileDialog;
 
     public LevelsViewModel(
         ILevelRepository levels,
         IProgressRepository progress,
         ISaveFileReader saveReader,
-        ISaveImportService importer)
+        ISaveImportService importer,
+        IProgressSharingService sharing,
+        IFileDialogService fileDialog)
     {
         _levels = levels;
         _progress = progress;
         _saveReader = saveReader;
         _importer = importer;
+        _sharing = sharing;
+        _fileDialog = fileDialog;
         _saveFilePath = saveReader.DefaultSaveFilePath ?? string.Empty;
     }
 
@@ -138,6 +144,54 @@ public partial class LevelsViewModel : ViewModelBase
             await LoadAsync();
             ImportStatus =
                 $"Импортировано {result.Total} уровней (новых: {result.LevelsAdded}, обновлено: {result.LevelsUpdated}).";
+        }
+        catch (Exception ex)
+        {
+            ImportStatus = $"Ошибка импорта: {ex.Message}";
+        }
+        finally
+        {
+            IsBusy = false;
+        }
+    }
+
+    [RelayCommand]
+    private async Task ExportAsync()
+    {
+        var path = _fileDialog.PickSaveFile("gd-progress.json", "JSON (*.json)|*.json|Все файлы (*.*)|*.*");
+        if (path is null)
+            return;
+
+        IsBusy = true;
+        try
+        {
+            await _sharing.ExportAsync(path);
+            ImportStatus = $"Экспортировано в {Path.GetFileName(path)}.";
+        }
+        catch (Exception ex)
+        {
+            ImportStatus = $"Ошибка экспорта: {ex.Message}";
+        }
+        finally
+        {
+            IsBusy = false;
+        }
+    }
+
+    [RelayCommand]
+    private async Task ImportFromFileAsync()
+    {
+        var path = _fileDialog.PickOpenFile("JSON (*.json)|*.json|Все файлы (*.*)|*.*");
+        if (path is null)
+            return;
+
+        IsBusy = true;
+        try
+        {
+            var summary = await _sharing.ImportAsync(path);
+            await LoadAsync();
+            ImportStatus =
+                $"Импорт из файла: уровней +{summary.LevelsAdded}, обновлено {summary.LevelsUpdated}, записей +{summary.RecordsAdded}.";
         }
         catch (Exception ex)
         {

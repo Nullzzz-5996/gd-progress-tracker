@@ -2,6 +2,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\GdTracker.Core\GdTracker.Core.csproj" />
+    <ProjectReference Include="..\GdTracker.Sharing\GdTracker.Sharing.csproj" />
   </ItemGroup>
 
   <ItemGroup>
