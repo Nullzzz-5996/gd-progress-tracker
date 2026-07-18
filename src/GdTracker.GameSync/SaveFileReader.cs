@@ -15,6 +15,16 @@ public sealed class SaveFileReader : ISaveFileReader
         return SaveFileParser.Parse(xml);
     }
 
+    public AccountStats? ReadAccountStats(string saveFilePath)
+    {
+        var bytes = ReadAllBytesShared(saveFilePath);
+        var xml = SaveFileCodec.Decode(bytes);
+        return AccountStatsParser.Parse(xml);
+    }
+
+    public DateTime? GetLastWriteTimeUtc(string saveFilePath)
+        => File.Exists(saveFilePath) ? File.GetLastWriteTimeUtc(saveFilePath) : null;
+
     /// <summary>
     /// Читает файл с <see cref="FileShare.ReadWrite"/>, чтобы прочитать даже когда
     /// Geometry Dash держит сейв открытым. Приложение только читает, никогда не пишет сейв.

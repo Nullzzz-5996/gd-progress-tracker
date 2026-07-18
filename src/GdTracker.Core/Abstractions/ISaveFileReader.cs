@@ -10,4 +10,13 @@ public interface ISaveFileReader
 
     /// <summary>Декодирует и парсит сейв-файл, возвращая уровни с прогрессом.</summary>
     IReadOnlyList<SaveLevelDto> ReadLevels(string saveFilePath);
+
+    /// <summary>
+    /// Декодирует сейв и возвращает счётчики аккаунта.
+    /// Возвращает null, если блока GS_value в файле нет.
+    /// </summary>
+    AccountStats? ReadAccountStats(string saveFilePath);
+
+    /// <summary>Время последней записи сейв-файла (UTC), либо null, если файла нет.</summary>
+    DateTime? GetLastWriteTimeUtc(string saveFilePath);
 }
