@@ -1,3 +1,4 @@
+using System.Threading;
 using FluentAssertions;
 using GdTracker.Core.Abstractions;
 using GdTracker.Core.Models;
@@ -22,11 +23,16 @@ internal sealed class FakeSaveReader : ISaveFileReader
     public bool ThrowOnRead { get; set; }
     public string? DefaultSaveFilePath { get; set; } = @"C:\fake\CCGameManager.dat";
 
+    /// <summary>Если задан, ReadAccountStats блокируется на нём после увеличения ReadCount —
+    /// позволяет тесту гарантированно свести во времени два параллельных вызова команды.</summary>
+    public ManualResetEventSlim? ReadGate { get; set; }
+
     public IReadOnlyList<SaveLevelDto> ReadLevels(string saveFilePath) => [];
 
     public AccountStats? ReadAccountStats(string saveFilePath)
     {
         ReadCount++;
+        ReadGate?.Wait();
         if (ThrowOnRead)
             throw new IOException("файл занят");
         return _stats;
@@ -184,5 +190,44 @@ public class StatsViewModelTests
 
         vm.HasAccountStats.Should().BeTrue();
         reader.ReadCount.Should().Be(1);
+    }
+
+    [Fact]
+    public async Task Second_refresh_click_is_blocked_while_first_is_still_reading()
+    {
+        // ВАЖНО: AsyncRelayCommand.ExecuteAsync/Execute всегда запускают делегат заново,
+        // какими бы ни были AsyncRelayCommandOptions, — это подтверждено исходниками
+        // CommunityToolkit.Mvvm 8.4.2 (AsyncRelayCommand.cs, ExecuteAsync ничего не проверяет
+        // перед вызовом execute()). AllowConcurrentExecutions = false влияет только на
+        // CanExecute(): пока команда выполняется, CanExecute возвращает false, и именно на
+        // это опирается настоящая кнопка «Обновить» в приложении — её ICommand-биндинг
+        // перед вызовом Execute всегда проверяет CanExecute и сам отключает кнопку по
+        // CanExecuteChanged. Поэтому здесь мы эмулируем ровно то, что делает реальная
+        // кнопка: проверяем CanExecute и не вызываем Execute повторно, если он вернул false.
+        using var factory = new InMemorySqlite();
+        var reader = new FakeSaveReader(Stats());
+        using var gate = new ManualResetEventSlim(initialState: false);
+        reader.ReadGate = gate;
+        var vm = Build(factory, reader);
+        var command = vm.RefreshAccountCommand;
+
+        command.CanExecute(null).Should().BeTrue();
+
+        // Первый клик «Обновить» уходит в чтение сейва и зависает на шлюзе...
+        var first = command.ExecuteAsync(null);
+        SpinWait.SpinUntil(() => reader.ReadCount > 0, TimeSpan.FromSeconds(5))
+            .Should().BeTrue("первое чтение должно было начаться");
+
+        // ...и пока оно не завершилось, повторный клик должен быть заблокирован на уровне
+        // команды: кнопка в реальном приложении в этот момент уже отключена.
+        command.CanExecute(null).Should().BeFalse("во время чтения повторный клик должен игнорироваться");
+        reader.ReadCount.Should().Be(1);
+
+        gate.Set();
+        await first;
+
+        // После завершения — второго чтения не случилось, а команда снова доступна.
+        reader.ReadCount.Should().Be(1);
+        command.CanExecute(null).Should().BeTrue();
     }
 }

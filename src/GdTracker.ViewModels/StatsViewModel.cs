@@ -139,19 +139,30 @@ public partial class StatsViewModel : ViewModelBase
     }
 
     /// <summary>Перечитывает сейв безусловно, игнорируя проверку времени записи.</summary>
-    [RelayCommand]
+    /// <remarks>
+    /// Чтение сейва — операция на секунду и сотни мегабайт памяти, поэтому повторный клик
+    /// по «Обновить» во время выполнения не должен запускать второе параллельное чтение.
+    /// </remarks>
+    [RelayCommand(AllowConcurrentExecutions = false)]
     private async Task RefreshAccountAsync() => await LoadAccountAsync(force: true);
 
     /// <summary>Выбор сейв-файла вручную; путь сохраняется между запусками.</summary>
-    [RelayCommand]
+    [RelayCommand(AllowConcurrentExecutions = false)]
     private async Task PickSaveFileAsync()
     {
-        var picked = _fileDialog.PickOpenFile("Сейв Geometry Dash (*.dat)|*.dat|Все файлы (*.*)|*.*");
-        if (picked is null)
-            return;
+        try
+        {
+            var picked = _fileDialog.PickOpenFile("Сейв Geometry Dash (*.dat)|*.dat|Все файлы (*.*)|*.*");
+            if (picked is null)
+                return;
 
-        _settings.SetSaveFilePath(picked);
-        await LoadAccountAsync(force: true);
+            _settings.SetSaveFilePath(picked);
+            await LoadAccountAsync(force: true);
+        }
+        catch (Exception ex)
+        {
+            AccountStatus = $"Не удалось выбрать сейв-файл: {ex.Message}";
+        }
     }
 
     private async Task LoadAccountAsync(bool force)
