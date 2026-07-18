@@ -45,7 +45,13 @@ internal sealed class FakeSaveReader : ISaveFileReader
 internal sealed class FakeSettings : ISettingsService
 {
     public string? SaveFilePath { get; private set; }
-    public void SetSaveFilePath(string? path) => SaveFilePath = path;
+    public int SetSaveFilePathCallCount { get; set; }
+
+    public void SetSaveFilePath(string? path)
+    {
+        SaveFilePath = path;
+        SetSaveFilePathCallCount++;
+    }
 }
 
 public class StatsViewModelTests

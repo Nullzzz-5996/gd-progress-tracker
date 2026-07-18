@@ -121,6 +121,46 @@ public class LevelsWorkflowTests : IDisposable
         detail.Records.Should().BeEmpty();
     }
 
+    [Fact]
+    public async Task Levels_vm_construction_with_saved_path_does_not_call_set_save_file_path()
+    {
+        var factory = new FileFactory(_dbPath);
+        var levels = new LevelRepository(factory);
+        var progress = new ProgressRepository(factory);
+        var settings = new FakeSettings();
+        settings.SetSaveFilePath(@"C:\custom\CCGameManager.dat");
+        settings.SetSaveFilePathCallCount = 0; // сбрасываем счётчик
+
+        var vm = new LevelsViewModel(
+            levels, progress, new SaveFileReader(), new SaveImportService(factory),
+            new ProgressSharingService(factory), new NullFileDialog(), settings);
+
+        // При конструировании не должно быть вызовов SetSaveFilePath.
+        settings.SetSaveFilePathCallCount.Should().Be(0);
+        vm.SaveFilePath.Should().Be(@"C:\custom\CCGameManager.dat");
+    }
+
+    [Fact]
+    public async Task Levels_vm_property_change_calls_set_save_file_path()
+    {
+        var factory = new FileFactory(_dbPath);
+        var levels = new LevelRepository(factory);
+        var progress = new ProgressRepository(factory);
+        var settings = new FakeSettings();
+        settings.SetSaveFilePath(@"C:\initial\CCGameManager.dat");
+        settings.SetSaveFilePathCallCount = 0;
+
+        var vm = new LevelsViewModel(
+            levels, progress, new SaveFileReader(), new SaveImportService(factory),
+            new ProgressSharingService(factory), new NullFileDialog(), settings);
+
+        // Изменение свойства после конструирования должно вызвать SetSaveFilePath.
+        vm.SaveFilePath = @"C:\new\CCGameManager.dat";
+
+        settings.SetSaveFilePathCallCount.Should().Be(1);
+        settings.SaveFilePath.Should().Be(@"C:\new\CCGameManager.dat");
+    }
+
     public void Dispose()
     {
         foreach (var f in new[] { _dbPath, _dbPath + "-wal", _dbPath + "-shm" })
