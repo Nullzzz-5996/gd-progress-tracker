@@ -66,6 +66,17 @@ public static class AccountStatsParser
         if (start < 0)
             return null;
 
+        // Проверяем, что значение GS_value — действительно словарь.
+        // Если это не <d> или <dict>, возвращаем null, не сканируя дальше.
+        var firstGt = xml.IndexOf('>', start);
+        if (firstGt < 0)
+            return null;
+
+        var firstTag = xml.Substring(start + 1, firstGt - start - 1).Trim();
+        var firstTagName = firstTag.Trim('/', ' ');
+        if (firstTagName is not "d" and not "dict")
+            return null;
+
         var depth = 0;
         var i = start;
         while (i < xml.Length)

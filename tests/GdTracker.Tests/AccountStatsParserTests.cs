@@ -136,4 +136,22 @@ public class AccountStatsParserTests
         stats.Should().NotBeNull();
         stats!.RawValues.Should().BeEmpty();
     }
+
+    [Fact]
+    public void Non_dict_gs_value_returns_null_without_throwing()
+    {
+        // Если значением GS_value оказывается не словарь, а скажем целое число,
+        // сканер должен вернуть null, не цепляясь за следующий попавшийся словарь.
+        // Раньше это приводило к XmlException: There are multiple root elements.
+        var xml = "<?xml version=\"1.0\"?><plist version=\"1.0\"><dict>" +
+                  "<k>GS_value</k><i>5</i>" +
+                  "<k>after</k><d><k>x</k><i>1</i></d>" +
+                  "</dict></plist>";
+
+        var act = () => AccountStatsParser.Parse(xml);
+
+        act.Should().NotThrow();
+        var stats = act();
+        stats.Should().BeNull();
+    }
 }
