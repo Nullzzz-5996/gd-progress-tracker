@@ -20,6 +20,7 @@ public partial class LevelsViewModel : ViewModelBase
     private readonly ISaveImportService _importer;
     private readonly IProgressSharingService _sharing;
     private readonly IFileDialogService _fileDialog;
+    private readonly ISettingsService _settings;
 
     private readonly List<LevelRowViewModel> _allRows = new();
 
@@ -29,7 +30,8 @@ public partial class LevelsViewModel : ViewModelBase
         ISaveFileReader saveReader,
         ISaveImportService importer,
         IProgressSharingService sharing,
-        IFileDialogService fileDialog)
+        IFileDialogService fileDialog,
+        ISettingsService settings)
     {
         _levels = levels;
         _progress = progress;
@@ -37,7 +39,8 @@ public partial class LevelsViewModel : ViewModelBase
         _importer = importer;
         _sharing = sharing;
         _fileDialog = fileDialog;
-        _saveFilePath = saveReader.DefaultSaveFilePath ?? string.Empty;
+        _settings = settings;
+        _saveFilePath = settings.SaveFilePath ?? saveReader.DefaultSaveFilePath ?? string.Empty;
     }
 
     /// <summary>Отфильтрованный список строк, отображаемый в сетке.</summary>
@@ -62,6 +65,10 @@ public partial class LevelsViewModel : ViewModelBase
     [ObservableProperty] private bool _isBusy;
 
     public bool HasSelection => SelectedRow is not null;
+
+    /// <summary>Сохраняет изменённый пользователем путь, чтобы он пережил перезапуск.</summary>
+    partial void OnSaveFilePathChanged(string value)
+        => _settings.SetSaveFilePath(string.IsNullOrWhiteSpace(value) ? null : value);
 
     public async Task LoadAsync()
     {

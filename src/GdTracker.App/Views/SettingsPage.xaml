@@ -7,8 +7,10 @@
             <TextBlock Text="Настройки" FontSize="28" FontWeight="SemiBold" />
             <TextBlock Margin="0,8,0,0" Opacity="0.7"
                        Text="{Binding AppVersion, StringFormat='Версия приложения: {0}'}" />
-            <TextBlock Margin="0,4,0,0" Opacity="0.7"
-                       Text="Путь к сейв-файлу GD и параметры импорта появятся в Фазе 2." />
+            <TextBlock Margin="0,16,0,4" Text="Путь к сейв-файлу Geometry Dash" />
+            <TextBox Text="{Binding SaveFilePath, UpdateSourceTrigger=LostFocus}" />
+            <TextBlock Margin="0,4,0,0" Opacity="0.6" TextWrapping="Wrap"
+                       Text="Используется вкладками «Уровни» и «Статистика». Сохраняется между запусками." />
         </StackPanel>
     </Grid>
 </Page>

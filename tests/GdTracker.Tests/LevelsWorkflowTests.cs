@@ -50,7 +50,7 @@ public class LevelsWorkflowTests : IDisposable
 
             var levelsVm = new LevelsViewModel(
                 levels, progress, new SaveFileReader(), new SaveImportService(factory),
-                new ProgressSharingService(factory), new NullFileDialog());
+                new ProgressSharingService(factory), new NullFileDialog(), new FakeSettings());
             await levelsVm.LoadAsync();
 
             levelsVm.NewLevelName = "Bloodbath";
