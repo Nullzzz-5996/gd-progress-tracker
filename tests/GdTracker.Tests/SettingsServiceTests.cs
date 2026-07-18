@@ -47,6 +47,21 @@ public class SettingsServiceTests : IDisposable
         settings.SaveFilePath.Should().BeNull();
     }
 
+    [Fact]
+    public void Save_does_not_leave_temp_file()
+    {
+        Directory.CreateDirectory(_dir);
+        var settings = new SettingsService(SettingsPath);
+
+        settings.SetSaveFilePath(@"C:\games\CCGameManager.dat");
+
+        var tempPath = SettingsPath + ".tmp";
+        File.Exists(tempPath).Should().BeFalse("временный файл должен быть удалён после успешного сохранения");
+
+        var filesInDir = Directory.GetFiles(_dir);
+        filesInDir.Should().HaveCount(1).And.Contain(SettingsPath);
+    }
+
     public void Dispose()
     {
         if (Directory.Exists(_dir))

@@ -45,13 +45,41 @@ public sealed class SettingsService : ISettingsService
         }
     }
 
+    /// <summary>
+    /// Сохраняет настройки в файл атомарно: пишет во временный файл, затем заменяет целевой.
+    /// Ошибки сохранения не прерывают работу приложения (оно продолжит со значениями в памяти).
+    /// </summary>
     private void Save()
     {
-        var dir = Path.GetDirectoryName(_filePath);
-        if (!string.IsNullOrEmpty(dir))
-            Directory.CreateDirectory(dir);
+        try
+        {
+            var dir = Path.GetDirectoryName(_filePath);
+            if (!string.IsNullOrEmpty(dir))
+                Directory.CreateDirectory(dir);
 
-        File.WriteAllText(_filePath, JsonSerializer.Serialize(_settings, JsonOptions));
+            var tmpPath = _filePath + ".tmp";
+            File.WriteAllText(tmpPath, JsonSerializer.Serialize(_settings, JsonOptions));
+            File.Move(tmpPath, _filePath, overwrite: true);
+        }
+        catch (Exception e) when (e is IOException or UnauthorizedAccessException)
+        {
+            // Ошибки сохранения настроек не должны мешать работе приложения.
+            // Приложение продолжит работать с текущими значениями в памяти.
+        }
+        finally
+        {
+            // Постарайся убрать временный файл, но неудача уборки не должна ронять исключение.
+            try
+            {
+                var tmpPath = _filePath + ".tmp";
+                if (File.Exists(tmpPath))
+                    File.Delete(tmpPath);
+            }
+            catch
+            {
+                // Игнорируем ошибки уборки временного файла
+            }
+        }
     }
 
     private static readonly JsonSerializerOptions JsonOptions = new() { WriteIndented = true };
