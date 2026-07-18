@@ -13,6 +13,7 @@ public class AppDbContext : DbContext
     public DbSet<Level> Levels => Set<Level>();
     public DbSet<ProgressRecord> ProgressRecords => Set<ProgressRecord>();
     public DbSet<VideoClip> VideoClips => Set<VideoClip>();
+    public DbSet<AccountStatsSnapshot> AccountStatsSnapshots => Set<AccountStatsSnapshot>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -55,6 +56,13 @@ public class AppDbContext : DbContext
                 .WithMany()
                 .HasForeignKey(x => x.LevelId)
                 .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<AccountStatsSnapshot>(e =>
+        {
+            e.HasKey(x => x.Id);
+            e.Property(x => x.RawValuesJson).IsRequired();
+            e.HasIndex(x => x.CapturedAt);
         });
     }
 }
