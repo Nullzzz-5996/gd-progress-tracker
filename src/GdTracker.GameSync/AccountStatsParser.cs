@@ -85,9 +85,16 @@ public static class AccountStatsParser
             var closing = tag.StartsWith('/');
             var name = tag.Trim('/', ' ');
 
-            if (!selfClosing && name is "d" or "dict")
+            if (name is "d" or "dict")
             {
-                if (closing)
+                if (selfClosing)
+                {
+                    // <d/> — открытие и закрытие одним тегом, суммарная глубина не меняется.
+                    // Если это и есть значение GS_value (глубина ещё 0), фрагмент — сам этот тег.
+                    if (depth == 0)
+                        return xml.Substring(start, gt - start + 1);
+                }
+                else if (closing)
                 {
                     depth--;
                     if (depth == 0)

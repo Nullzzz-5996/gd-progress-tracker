@@ -94,4 +94,46 @@ public class AccountStatsParserTests
 
         AccountStatsParser.Parse(xml).Should().BeNull();
     }
+
+    [Fact]
+    public void Self_closing_empty_gs_value_yields_zeroed_stats_not_null()
+    {
+        // GS_value — самозакрывающийся пустой словарь <d/>: блок есть, просто пуст.
+        // null здесь означал бы «блока нет», что неверно.
+        var xml = "<?xml version=\"1.0\"?><plist version=\"1.0\"><dict>" +
+                  "<k>GS_value</k><d/></dict></plist>";
+
+        var stats = AccountStatsParser.Parse(xml);
+
+        stats.Should().NotBeNull();
+        stats!.Jumps.Should().Be(0);
+        stats.Attempts.Should().Be(0);
+        stats.OfficialLevelsCompleted.Should().Be(0);
+        stats.OnlineLevelsCompleted.Should().Be(0);
+        stats.Demons.Should().Be(0);
+        stats.Stars.Should().Be(0);
+        stats.SecretCoins.Should().Be(0);
+        stats.TotalOrbs.Should().Be(0);
+        stats.Moons.Should().Be(0);
+        stats.RawValues.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void Self_closing_empty_gs_value_followed_by_other_dict_keys_does_not_throw()
+    {
+        // После пустого GS_value в документе идут другие ключи со словарями —
+        // ровно как в реальном CCGameManager.dat. Скан не должен «уехать» дальше
+        // самозакрывающегося <d/> и склеить следующий словарь в тот же фрагмент.
+        var xml = "<?xml version=\"1.0\"?><plist version=\"1.0\"><dict>" +
+                  "<k>GS_value</k><d/>" +
+                  "<k>after</k><d><k>x</k><i>1</i></d>" +
+                  "</dict></plist>";
+
+        var act = () => AccountStatsParser.Parse(xml);
+
+        act.Should().NotThrow();
+        var stats = act();
+        stats.Should().NotBeNull();
+        stats!.RawValues.Should().BeEmpty();
+    }
 }
