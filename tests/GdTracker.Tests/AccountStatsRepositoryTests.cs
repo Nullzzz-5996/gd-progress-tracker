@@ -111,9 +111,50 @@ public class AccountStatsRepositoryTests
         using var factory = new InMemorySqlite();
         var repo = new AccountStatsRepository(factory);
 
-        await repo.AddIfChangedAsync(Sample(), new DateTime(2026, 7, 18, 10, 0, 0, DateTimeKind.Utc));
-        await repo.AddIfChangedAsync(Sample(), new DateTime(2026, 7, 18, 12, 0, 0, DateTimeKind.Utc));
+        var time1 = new DateTime(2026, 7, 18, 10, 0, 0, DateTimeKind.Utc);
+        var time2 = new DateTime(2026, 7, 18, 12, 0, 0, DateTimeKind.Utc);
 
+        await repo.AddIfChangedAsync(Sample(), time1);
+        await repo.AddIfChangedAsync(Sample(), time2);
+
+        // Проверяем, что строк осталось одна
+        await using var db = factory.CreateDbContext();
+        db.AccountStatsSnapshots.Count().Should().Be(1);
+
+        // Проверяем, что SaveFileWrittenAt действительно обновился в БД через свежий запрос
+        var latest = await repo.GetLatestAsync();
+        latest.Should().NotBeNull();
+        latest!.SaveFileWrittenAt.Should().Be(time2);
+    }
+
+    [Fact]
+    public async Task Raw_values_change_alone_does_not_create_a_new_row()
+    {
+        using var factory = new InMemorySqlite();
+        var repo = new AccountStatsRepository(factory);
+
+        // Первый снимок с RawValues { "6": 886, "99": 7 }
+        var stats1 = Sample(886);
+        await repo.AddIfChangedAsync(stats1, null);
+
+        // Второй снимок: все девять метрик те же, но добавился ключ "100" в RawValues
+        var stats2 = new AccountStats
+        {
+            Stars = 886,
+            Moons = 84,
+            Demons = 17,
+            OnlineLevelsCompleted = 322,
+            OfficialLevelsCompleted = 27,
+            SecretCoins = 84,
+            Attempts = 43329,
+            Jumps = 258487,
+            TotalOrbs = 49359,
+            RawValues = new Dictionary<string, long> { ["6"] = 886, ["99"] = 7, ["100"] = 999 },
+        };
+
+        await repo.AddIfChangedAsync(stats2, null);
+
+        // Проверяем, что новая строка не создалась
         await using var db = factory.CreateDbContext();
         db.AccountStatsSnapshots.Count().Should().Be(1);
     }

@@ -9,7 +9,9 @@ public interface IAccountStatsRepository
     Task<AccountStatsSnapshot?> GetLatestAsync(CancellationToken ct = default);
 
     /// <summary>
-    /// Сохраняет снимок, если хоть одна метрика отличается от последнего.
+    /// Сохраняет новый снимок, если хоть одна из девяти метрик отличается от последнего.
+    /// Если метрики не изменились, но передано значение <paramref name="saveFileWrittenAt"/>,
+    /// обновляет это поле у существующего снимка в БД.
     /// В любом случае возвращает актуальный снимок — новый или существующий.
     /// </summary>
     Task<AccountStatsSnapshot> AddIfChangedAsync(
