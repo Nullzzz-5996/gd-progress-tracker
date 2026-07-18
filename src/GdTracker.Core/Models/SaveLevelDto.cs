@@ -23,4 +23,11 @@ public sealed record SaveLevelDto
 
     /// <summary>Звёзды за уровень (k26), если присутствуют.</summary>
     public int? Stars { get; init; }
+
+    /// <summary>Имя создателя (k5), если присутствует.</summary>
+    public string? Creator { get; init; }
+
+    /// <summary>Вычисленная метка сложности.</summary>
+    public string? Difficulty { get; init; }
 }
+

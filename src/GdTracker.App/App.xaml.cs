@@ -43,6 +43,9 @@ public partial class App : Application
                 services.AddSingleton<IProgressSharingService, ProgressSharingService>();
                 services.AddSingleton<IFileDialogService, FileDialogService>();
 
+                // Онлайн-поиск уровней на серверах GD.
+                services.AddSingleton<IGdLevelSearch, GdLevelSearchClient>();
+
                 // Навигация WPF UI: провайдер страниц из DI + сервис навигации.
                 services.AddSingleton<INavigationViewPageProvider, PageProvider>();
                 services.AddSingleton<INavigationService, NavigationService>();
@@ -55,6 +58,8 @@ public partial class App : Application
                 services.AddTransient<LevelsViewModel>();
                 services.AddTransient<StatsPage>();
                 services.AddTransient<StatsViewModel>();
+                services.AddTransient<OnlineSearchPage>();
+                services.AddTransient<OnlineSearchViewModel>();
                 services.AddTransient<SettingsPage>();
                 services.AddTransient<SettingsViewModel>();
             })

@@ -50,6 +50,8 @@ public class SaveImportService : ISaveImportService
 
             level.Source = dto.Source;
             level.Stars = dto.Stars;
+            level.Creator = dto.Creator;
+            level.Difficulty = dto.Difficulty;
             level.UpdatedAt = now;
 
             // Удаляем прежние импортные записи (идемпотентность), ручные не трогаем.

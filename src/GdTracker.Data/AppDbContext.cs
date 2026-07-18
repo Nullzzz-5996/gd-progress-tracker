@@ -21,6 +21,8 @@ public class AppDbContext : DbContext
             e.HasKey(x => x.Id);
             e.Property(x => x.Name).IsRequired().HasMaxLength(200);
             e.Property(x => x.Source).HasConversion<string>().HasMaxLength(20);
+            e.Property(x => x.Creator).HasMaxLength(100);
+            e.Property(x => x.Difficulty).HasMaxLength(40);
             e.HasIndex(x => x.GdLevelId);
 
             e.HasMany(x => x.ProgressRecords)

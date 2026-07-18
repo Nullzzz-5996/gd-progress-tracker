@@ -27,6 +27,13 @@ public class LevelRepository : ILevelRepository
             .FirstOrDefaultAsync(l => l.Id == id, ct);
     }
 
+    public async Task<Level?> GetByGdLevelIdAsync(long gdLevelId, CancellationToken ct = default)
+    {
+        await using var db = await _factory.CreateDbContextAsync(ct);
+        return await db.Levels.AsNoTracking()
+            .FirstOrDefaultAsync(l => l.GdLevelId == gdLevelId, ct);
+    }
+
     public async Task<Level> AddAsync(Level level, CancellationToken ct = default)
     {
         await using var db = await _factory.CreateDbContextAsync(ct);
@@ -53,5 +60,15 @@ public class LevelRepository : ILevelRepository
 
         db.Levels.Remove(level);
         await db.SaveChangesAsync(ct);
+    }
+
+    public async Task DeleteManyAsync(IReadOnlyCollection<int> ids, CancellationToken ct = default)
+    {
+        if (ids.Count == 0)
+            return;
+
+        await using var db = await _factory.CreateDbContextAsync(ct);
+        // ExecuteDelete + каскад на уровне БД удалит связанные записи прогресса/видео.
+        await db.Levels.Where(l => ids.Contains(l.Id)).ExecuteDeleteAsync(ct);
     }
 }

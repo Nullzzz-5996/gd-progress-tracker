@@ -18,7 +18,8 @@ public class SaveFileParserTests
         "</d>" +
         "<k>GLM_03</k><d>" +
             "<k>13519</k><d><k>k1</k><i>13519</i><k>k18</k><i>158</i><k>k19</k><i>72</i>" +
-                "<k>k20</k><i>88</i><k>k26</k><i>10</i><k>k2</k><s>The Nightmare</s></d>" +
+                "<k>k20</k><i>88</i><k>k26</k><i>10</i><k>k25</k><t /><k>k76</k><i>6</i>" +
+                "<k>k5</k><s>Jax</s><k>k2</k><s>The Nightmare</s></d>" +
         "</d>" +
         "</dict></plist>";
 
@@ -40,7 +41,10 @@ public class SaveFileParserTests
         sm.BestNormalPercent.Should().Be(100);
         sm.BestPracticePercent.Should().Be(100);
         sm.Attempts.Should().Be(30);
-        sm.Stars.Should().Be(1);
+        sm.Creator.Should().Be("RobTop");
+        // k26 у официальных уровней — это индекс, а не звёзды, поэтому Stars/Difficulty не выводим.
+        sm.Stars.Should().BeNull();
+        sm.Difficulty.Should().BeNull();
     }
 
     [Fact]
@@ -55,6 +59,8 @@ public class SaveFileParserTests
         nightmare.BestPracticePercent.Should().Be(88);
         nightmare.Attempts.Should().Be(158);
         nightmare.Stars.Should().Be(10);
+        nightmare.Creator.Should().Be("Jax");
+        nightmare.Difficulty.Should().Be("Extreme Demon"); // k25 demon + k76=6
     }
 
     [Fact]

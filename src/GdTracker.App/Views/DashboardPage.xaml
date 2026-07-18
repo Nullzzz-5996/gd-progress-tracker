@@ -1,6 +1,7 @@
 <Page x:Class="GdTracker.App.Views.DashboardPage"
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
       xmlns:vm="clr-namespace:GdTracker.ViewModels;assembly=GdTracker.ViewModels"
       Title="DashboardPage">
 
@@ -16,60 +17,76 @@
         <!-- Заголовок -->
         <TextBlock Grid.Row="0" Text="Уровни" FontSize="28" FontWeight="SemiBold" Margin="0,0,0,12" />
 
-        <!-- Панель импорта из игры -->
+        <!-- Данные: импорт из игры + обмен файлами -->
         <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,0,0,8">
-            <Button Content="Импорт из игры" Command="{Binding ImportFromGameCommand}"
-                    AutomationProperties.AutomationId="ImportButton" />
-            <TextBox Width="430" Margin="8,0,0,0" VerticalContentAlignment="Center"
+            <Button Content="Импорт из игры" Command="{Binding ImportFromGameCommand}" />
+            <TextBox Width="330" Margin="8,0,0,0" VerticalContentAlignment="Center"
                      Text="{Binding SaveFilePath, UpdateSourceTrigger=PropertyChanged}"
                      ToolTip="Путь к CCGameManager.dat" />
-            <TextBlock Margin="12,0,0,0" VerticalAlignment="Center" Opacity="0.85"
-                       Text="{Binding ImportStatus}" />
-        </StackPanel>
-
-        <!-- Панель обмена прогрессом -->
-        <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="0,0,0,8">
-            <Button Content="Экспорт прогресса" Command="{Binding ExportCommand}" />
+            <Button Content="Экспорт" Command="{Binding ExportCommand}" Margin="8,0,0,0" />
             <Button Content="Импорт из файла" Command="{Binding ImportFromFileCommand}" Margin="8,0,0,0" />
+            <TextBlock Margin="12,0,0,0" VerticalAlignment="Center" Opacity="0.85"
+                       Text="{Binding ImportStatus}" TextTrimming="CharacterEllipsis" MaxWidth="240" />
         </StackPanel>
 
-        <!-- Панель добавления уровня -->
-        <StackPanel Grid.Row="3" Orientation="Horizontal" Margin="0,0,0,12">
-            <TextBox Width="280" Text="{Binding NewLevelName, UpdateSourceTrigger=PropertyChanged}"
-                     ToolTip="Название уровня" VerticalContentAlignment="Center" />
-            <ComboBox Width="130" Margin="8,0,0,0"
-                      ItemsSource="{Binding Sources}" SelectedItem="{Binding NewLevelSource}" />
+        <!-- Добавление уровня -->
+        <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="0,0,0,8">
+            <TextBox Width="260" Text="{Binding NewLevelName, UpdateSourceTrigger=PropertyChanged}"
+                     VerticalContentAlignment="Center" ToolTip="Название уровня" />
+            <ComboBox Width="130" Margin="8,0,0,0" ItemsSource="{Binding Sources}" SelectedItem="{Binding NewLevelSource}" />
             <Button Margin="8,0,0,0" Content="Добавить уровень" Command="{Binding AddLevelCommand}" />
-            <Button Margin="8,0,0,0" Content="Удалить выбранный"
-                    Command="{Binding DeleteSelectedLevelCommand}" IsEnabled="{Binding HasSelection}" />
-            <TextBlock Margin="12,0,0,0" VerticalAlignment="Center" Foreground="IndianRed"
-                       Text="{Binding Error}" />
+            <Button Margin="8,0,0,0" Content="Удалить уровень" Command="{Binding DeleteCurrentLevelCommand}"
+                    IsEnabled="{Binding HasSelection}" />
+            <TextBlock Margin="12,0,0,0" VerticalAlignment="Center" Foreground="IndianRed" Text="{Binding Error}" />
+        </StackPanel>
+
+        <!-- Фильтр + групповые операции -->
+        <StackPanel Grid.Row="3" Orientation="Horizontal" Margin="0,0,0,8">
+            <ui:TextBox Width="300" PlaceholderText="Фильтр: имя, создатель, сложность, ID"
+                        Text="{Binding Filter, UpdateSourceTrigger=PropertyChanged}" />
+            <Button Margin="8,0,0,0" Content="Выделить всё" Command="{Binding SelectAllCommand}" />
+            <Button Margin="8,0,0,0" Content="Снять выделение" Command="{Binding ClearSelectionCommand}" />
+            <Button Margin="8,0,0,0" Command="{Binding DeleteSelectedCommand}"
+                    Content="{Binding SelectedCount, StringFormat='Удалить выбранные ({0})'}" />
         </StackPanel>
 
         <!-- Master-detail -->
         <Grid Grid.Row="4">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="1.2*" MinWidth="360" />
+                <ColumnDefinition Width="1.4*" MinWidth="420" />
                 <ColumnDefinition Width="8" />
                 <ColumnDefinition Width="2*" />
             </Grid.ColumnDefinitions>
 
             <!-- Список уровней -->
             <DataGrid Grid.Column="0"
+                      x:Name="LevelsGrid"
                       ItemsSource="{Binding Levels}"
-                      SelectedItem="{Binding SelectedLevel}"
+                      SelectedItem="{Binding SelectedRow}"
+                      SelectionMode="Extended"
+                      SelectionChanged="OnLevelsSelectionChanged"
                       AutoGenerateColumns="False"
                       IsReadOnly="True"
                       CanUserAddRows="False"
                       HeadersVisibility="Column"
                       GridLinesVisibility="Horizontal">
                 <DataGrid.Columns>
-                    <DataGridTextColumn Header="Уровень" Binding="{Binding Name}" Width="*" />
-                    <DataGridTextColumn Header="Источник" Binding="{Binding Source}" Width="Auto" />
-                    <DataGridTextColumn Header="Normal %" Binding="{Binding BestNormalPercent}" Width="Auto" />
-                    <DataGridTextColumn Header="Practice %" Binding="{Binding BestPracticePercent}" Width="Auto" />
-                    <DataGridTextColumn Header="Попытки" Binding="{Binding TotalAttempts}" Width="Auto" />
-                    <DataGridCheckBoxColumn Header="Пройден" Binding="{Binding IsCompleted}" Width="Auto" />
+                    <DataGridTemplateColumn Width="Auto">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <CheckBox HorizontalAlignment="Center"
+                                          IsChecked="{Binding IsSelected, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                    <DataGridTextColumn Header="Уровень" Binding="{Binding Level.Name}" Width="*" />
+                    <DataGridTextColumn Header="Сложность" Binding="{Binding Level.Difficulty}" Width="Auto" />
+                    <DataGridTextColumn Header="Создатель" Binding="{Binding Level.Creator}" Width="Auto" />
+                    <DataGridTextColumn Header="★" Binding="{Binding Level.Stars}" Width="Auto" />
+                    <DataGridTextColumn Header="Norm%" Binding="{Binding Level.BestNormalPercent}" Width="Auto" />
+                    <DataGridTextColumn Header="Pract%" Binding="{Binding Level.BestPracticePercent}" Width="Auto" />
+                    <DataGridTextColumn Header="Попыт." Binding="{Binding Level.TotalAttempts}" Width="Auto" />
+                    <DataGridCheckBoxColumn Header="✓" Binding="{Binding Level.IsCompleted}" Width="Auto" />
                 </DataGrid.Columns>
             </DataGrid>
 
@@ -86,9 +103,12 @@
                                 <RowDefinition Height="Auto" />
                             </Grid.RowDefinitions>
 
-                            <!-- Шапка деталей -->
                             <StackPanel Grid.Row="0" Margin="0,0,0,12">
                                 <TextBlock Text="{Binding Level.Name}" FontSize="20" FontWeight="SemiBold" />
+                                <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
+                                    <TextBlock Text="{Binding Level.Difficulty}" Margin="0,0,16,0" Opacity="0.85" />
+                                    <TextBlock Text="{Binding Level.Creator, StringFormat='by {0}'}" Margin="0,0,16,0" Opacity="0.85" />
+                                </StackPanel>
                                 <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
                                     <TextBlock Text="{Binding Level.BestNormalPercent, StringFormat='Normal: {0}%'}" Margin="0,0,16,0" />
                                     <TextBlock Text="{Binding Level.BestPracticePercent, StringFormat='Practice: {0}%'}" Margin="0,0,16,0" />
@@ -97,7 +117,6 @@
                                 </StackPanel>
                             </StackPanel>
 
-                            <!-- Таблица записей прогресса -->
                             <DataGrid Grid.Row="1"
                                       ItemsSource="{Binding Records}"
                                       AutoGenerateColumns="False"
@@ -125,7 +144,6 @@
                                 </DataGrid.Columns>
                             </DataGrid>
 
-                            <!-- Форма добавления прогресса -->
                             <Border Grid.Row="2" Margin="0,12,0,0" Padding="12" CornerRadius="6"
                                     BorderThickness="1" BorderBrush="#33888888">
                                 <StackPanel>

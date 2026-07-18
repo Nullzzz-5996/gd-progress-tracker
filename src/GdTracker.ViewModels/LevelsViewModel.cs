@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using GdTracker.Core;
@@ -8,8 +9,8 @@ using GdTracker.Core.Models;
 namespace GdTracker.ViewModels;
 
 /// <summary>
-/// Главная страница «Уровни»: список уровней (master), деталь выбранного уровня,
-/// форма добавления уровня.
+/// Страница «Уровни»: список с локальным фильтром и групповым выделением/удалением,
+/// деталь выбранного уровня, добавление, импорт из игры и обмен файлами.
 /// </summary>
 public partial class LevelsViewModel : ViewModelBase
 {
@@ -19,6 +20,8 @@ public partial class LevelsViewModel : ViewModelBase
     private readonly ISaveImportService _importer;
     private readonly IProgressSharingService _sharing;
     private readonly IFileDialogService _fileDialog;
+
+    private readonly List<LevelRowViewModel> _allRows = new();
 
     public LevelsViewModel(
         ILevelRepository levels,
@@ -37,16 +40,18 @@ public partial class LevelsViewModel : ViewModelBase
         _saveFilePath = saveReader.DefaultSaveFilePath ?? string.Empty;
     }
 
-    public ObservableCollection<Level> Levels { get; } = new();
+    /// <summary>Отфильтрованный список строк, отображаемый в сетке.</summary>
+    public ObservableCollection<LevelRowViewModel> Levels { get; } = new();
 
     public LevelSource[] Sources { get; } = Enum.GetValues<LevelSource>();
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(HasSelection))]
-    private Level? _selectedLevel;
+    private LevelRowViewModel? _selectedRow;
 
-    [ObservableProperty]
-    private LevelDetailViewModel? _detail;
+    [ObservableProperty] private LevelDetailViewModel? _detail;
+    [ObservableProperty] private int _selectedCount;
+    [ObservableProperty] private string _filter = string.Empty;
 
     [ObservableProperty] private string _newLevelName = string.Empty;
     [ObservableProperty] private LevelSource _newLevelSource = LevelSource.Custom;
@@ -56,22 +61,58 @@ public partial class LevelsViewModel : ViewModelBase
     [ObservableProperty] private string? _importStatus;
     [ObservableProperty] private bool _isBusy;
 
-    public bool HasSelection => SelectedLevel is not null;
+    public bool HasSelection => SelectedRow is not null;
 
     public async Task LoadAsync()
     {
-        var selectedId = SelectedLevel?.Id;
+        var selectedId = SelectedRow?.Level.Id;
 
         var all = await _levels.GetAllAsync();
-        Levels.Clear();
+        _allRows.Clear();
         foreach (var level in all)
-            Levels.Add(level);
+        {
+            var row = new LevelRowViewModel(level);
+            row.PropertyChanged += OnRowPropertyChanged;
+            _allRows.Add(row);
+        }
+
+        ApplyFilter();
+        UpdateSelectedCount();
 
         if (selectedId is not null)
-            SelectedLevel = Levels.FirstOrDefault(l => l.Id == selectedId);
+            SelectedRow = Levels.FirstOrDefault(r => r.Level.Id == selectedId);
     }
 
-    partial void OnSelectedLevelChanged(Level? value) => _ = LoadDetailAsync(value);
+    private void OnRowPropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == nameof(LevelRowViewModel.IsSelected))
+            UpdateSelectedCount();
+    }
+
+    private void UpdateSelectedCount() => SelectedCount = _allRows.Count(r => r.IsSelected);
+
+    partial void OnFilterChanged(string value) => ApplyFilter();
+
+    private void ApplyFilter()
+    {
+        var f = Filter?.Trim();
+        IEnumerable<LevelRowViewModel> rows = _allRows;
+
+        if (!string.IsNullOrEmpty(f))
+        {
+            rows = _allRows.Where(r =>
+                r.Level.Name.Contains(f, StringComparison.OrdinalIgnoreCase)
+                || (r.Level.Creator?.Contains(f, StringComparison.OrdinalIgnoreCase) ?? false)
+                || (r.Level.Difficulty?.Contains(f, StringComparison.OrdinalIgnoreCase) ?? false)
+                || (r.Level.GdLevelId?.ToString().Contains(f) ?? false));
+        }
+
+        Levels.Clear();
+        foreach (var r in rows)
+            Levels.Add(r);
+    }
+
+    partial void OnSelectedRowChanged(LevelRowViewModel? value) => _ = LoadDetailAsync(value?.Level);
 
     private async Task LoadDetailAsync(Level? level)
     {
@@ -100,27 +141,58 @@ public partial class LevelsViewModel : ViewModelBase
             return;
         }
 
-        var level = await _levels.AddAsync(new Level
-        {
-            Name = name,
-            Source = NewLevelSource,
-        });
-
+        var level = await _levels.AddAsync(new Level { Name = name, Source = NewLevelSource });
         NewLevelName = string.Empty;
         await LoadAsync();
-        SelectedLevel = Levels.FirstOrDefault(l => l.Id == level.Id);
+        SelectedRow = Levels.FirstOrDefault(r => r.Level.Id == level.Id);
     }
 
     [RelayCommand]
-    private async Task DeleteSelectedLevelAsync()
+    private void SelectAll()
     {
-        if (SelectedLevel is null)
-            return;
+        foreach (var row in Levels)
+            row.IsSelected = true;
+    }
 
-        await _levels.DeleteAsync(SelectedLevel.Id);
-        SelectedLevel = null;
+    [RelayCommand]
+    private void ClearSelection()
+    {
+        foreach (var row in _allRows)
+            row.IsSelected = false;
+    }
+
+    [RelayCommand]
+    private async Task DeleteCurrentLevelAsync()
+    {
+        Error = null;
+        if (SelectedRow is null)
+        {
+            Error = "Сначала выберите уровень.";
+            return;
+        }
+
+        await _levels.DeleteAsync(SelectedRow.Level.Id);
+        SelectedRow = null;
         Detail = null;
         await LoadAsync();
+    }
+
+    [RelayCommand]
+    private async Task DeleteSelectedAsync()
+    {
+        Error = null;
+        var ids = _allRows.Where(r => r.IsSelected).Select(r => r.Level.Id).ToList();
+        if (ids.Count == 0)
+        {
+            Error = "Не выбрано ни одного уровня.";
+            return;
+        }
+
+        await _levels.DeleteManyAsync(ids);
+        SelectedRow = null;
+        Detail = null;
+        await LoadAsync();
+        ImportStatus = $"Удалено уровней: {ids.Count}.";
     }
 
     [RelayCommand]
@@ -138,7 +210,6 @@ public partial class LevelsViewModel : ViewModelBase
         try
         {
             var path = SaveFilePath;
-            // Декодирование и парсинг (CPU/IO) — вне UI-потока.
             var dtos = await Task.Run(() => _saveReader.ReadLevels(path));
             var result = await _importer.ImportAsync(dtos);
             await LoadAsync();

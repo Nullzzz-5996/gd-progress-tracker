@@ -1,0 +1,50 @@
+<Page x:Class="GdTracker.App.Views.OnlineSearchPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+      Title="OnlineSearchPage">
+
+    <Grid Margin="24">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <TextBlock Grid.Row="0" Text="Поиск уровней онлайн" FontSize="28" FontWeight="SemiBold" Margin="0,0,0,12" />
+
+        <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,0,0,8">
+            <ui:TextBox Width="360" PlaceholderText="Название уровня или его ID"
+                        Text="{Binding Query, UpdateSourceTrigger=PropertyChanged}" />
+            <Button Margin="8,0,0,0" Content="Искать" Command="{Binding SearchCommand}" />
+            <TextBlock Margin="12,0,0,0" VerticalAlignment="Center" Opacity="0.85" Text="{Binding Status}" />
+        </StackPanel>
+
+        <DataGrid Grid.Row="2"
+                  ItemsSource="{Binding Results}"
+                  AutoGenerateColumns="False"
+                  IsReadOnly="True"
+                  CanUserAddRows="False"
+                  HeadersVisibility="Column"
+                  GridLinesVisibility="Horizontal">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="Auto" />
+                <DataGridTextColumn Header="Название" Binding="{Binding Name}" Width="*" />
+                <DataGridTextColumn Header="Создатель" Binding="{Binding Creator}" Width="Auto" />
+                <DataGridTextColumn Header="Сложность" Binding="{Binding Difficulty}" Width="Auto" />
+                <DataGridTextColumn Header="★" Binding="{Binding Stars}" Width="Auto" />
+                <DataGridTextColumn Header="Загрузки" Binding="{Binding Downloads}" Width="Auto" />
+                <DataGridTextColumn Header="Лайки" Binding="{Binding Likes}" Width="Auto" />
+                <DataGridTemplateColumn Header="" Width="Auto">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <Button Content="Добавить"
+                                    Command="{Binding DataContext.AddToTrackerCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                                    CommandParameter="{Binding}" />
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+            </DataGrid.Columns>
+        </DataGrid>
+    </Grid>
+</Page>

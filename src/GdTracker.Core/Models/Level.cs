@@ -22,6 +22,12 @@ public class Level
     /// <summary>Сколько звёзд стоит уровень (k26 из сейва), если известно.</summary>
     public int? Stars { get; set; }
 
+    /// <summary>Имя создателя уровня (k5 из сейва / онлайн-поиск), если известно.</summary>
+    public string? Creator { get; set; }
+
+    /// <summary>Метка сложности (например «Easy», «Insane», «Extreme Demon»), если известна.</summary>
+    public string? Difficulty { get; set; }
+
     /// <summary>Лучший достигнутый процент в обычном режиме (0–100).</summary>
     public int BestNormalPercent { get; set; }
 

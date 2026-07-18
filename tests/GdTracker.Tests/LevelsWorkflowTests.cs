@@ -58,8 +58,8 @@ public class LevelsWorkflowTests : IDisposable
             await levelsVm.AddLevelCommand.ExecuteAsync(null);
 
             levelsVm.Levels.Should().ContainSingle();
-            levelsVm.SelectedLevel.Should().NotBeNull();
-            levelId = levelsVm.SelectedLevel!.Id;
+            levelsVm.SelectedRow.Should().NotBeNull();
+            levelId = levelsVm.SelectedRow!.Level.Id;
 
             // Деталь грузим явно (в UI это делает OnSelectedLevelChanged).
             var detail = new LevelDetailViewModel(levels, progress);

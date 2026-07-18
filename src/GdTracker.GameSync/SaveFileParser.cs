@@ -39,6 +39,22 @@ public static class SaveFileParser
             var map = ToMap(levelEl);
             var id = GetLong(map, "k1") ?? (long.TryParse(idKey, out var k) ? k : 0);
 
+            // k26 у официальных уровней — это их порядковый номер, а не звёзды,
+            // поэтому звёзды и сложность из сейва достоверны только для online-уровней.
+            var isOnline = source == LevelSource.Online;
+            var rawStars = GetLong(map, "k26");
+            var validStars = isOnline && rawStars is >= 0 and <= 10;
+            var stars = validStars ? (int)rawStars!.Value : 0;
+
+            var creator = GetString(map, "k5");
+            if (string.IsNullOrEmpty(creator) && source == LevelSource.Official)
+                creator = "RobTop";
+
+            var difficulty = isOnline
+                ? SaveDifficulty.Resolve(
+                    GetBool(map, "k33"), GetBool(map, "k25"), (int)(GetLong(map, "k76") ?? 0), stars)
+                : null;
+
             output.Add(new SaveLevelDto
             {
                 GdLevelId = id,
@@ -47,7 +63,9 @@ public static class SaveFileParser
                 BestNormalPercent = (int)(GetLong(map, "k19") ?? 0),
                 BestPracticePercent = (int)(GetLong(map, "k20") ?? 0),
                 Attempts = (int)(GetLong(map, "k18") ?? 0),
-                Stars = GetLong(map, "k26") is { } stars ? (int)stars : null,
+                Stars = validStars ? stars : null,
+                Creator = creator,
+                Difficulty = difficulty,
             });
         }
     }
@@ -90,6 +108,12 @@ public static class SaveFileParser
 
     private static long? GetLong(Dictionary<string, XElement> map, string key)
         => map.TryGetValue(key, out var el) && long.TryParse(el.Value, out var v) ? v : null;
+
+    /// <summary>Булев ключ: в plist GD true = &lt;t /&gt;, false опускается.</summary>
+    private static bool GetBool(Dictionary<string, XElement> map, string key)
+        => map.TryGetValue(key, out var el)
+           && el.Name.LocalName != "f"
+           && (el.Name.LocalName == "t" || el.Value is "1" or "true");
 
     private static string? GetString(Dictionary<string, XElement> map, string key)
         => map.TryGetValue(key, out var el) ? el.Value : null;
