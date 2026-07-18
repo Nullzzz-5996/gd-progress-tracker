@@ -22,6 +22,14 @@ public partial class StatsViewModel : ViewModelBase
 
     private DateTime? _loadedSaveFileWrittenAt;
 
+    /// <summary>
+    /// Сериализует само чтение сейва: обработчик Loaded страницы и команда «Обновить» —
+    /// разные пути вызова, поэтому AllowConcurrentExecutions на команде их друг от друга
+    /// не защищает. Без этого лока два почти одновременных чтения удваивают пиковую
+    /// память (~1,2 ГБ) и рискуют дважды вставить снимок в архив на пустой таблице.
+    /// </summary>
+    private readonly SemaphoreSlim _accountLoadLock = new(1, 1);
+
     public StatsViewModel(
         ILevelRepository levels,
         IAccountStatsRepository accountStats,
@@ -173,6 +181,12 @@ public partial class StatsViewModel : ViewModelBase
             if (latest is not null)
                 Apply(latest);
 
+            // Вью-модели транзиентные и создаются заново при каждом заходе на вкладку,
+            // поэтому маркер прочитанного времени записи файла нужно засеять из последнего
+            // снимка БД, а не полагаться на поле экземпляра (оно всегда null на новой вью-модели).
+            // "??=" не перетирает значение, как только оно выставлено настоящим чтением ниже.
+            _loadedSaveFileWrittenAt ??= latest?.SaveFileWrittenAt;
+
             var path = _settings.SaveFilePath ?? _saveReader.DefaultSaveFilePath;
             if (string.IsNullOrWhiteSpace(path))
             {
@@ -191,26 +205,53 @@ public partial class StatsViewModel : ViewModelBase
             // Без этой проверки переключение туда-обратно каждый раз стоило бы ~1,2 с
             // и всплеска памяти в сотни мегабайт на неизменившемся файле.
             if (!force && _loadedSaveFileWrittenAt == writtenAt)
+            {
+                // Успешный пропуск чтения — тоже успешная ветка: висящее предупреждение
+                // с прошлой (неудачной) попытки не должно оставаться поверх корректных данных.
+                AccountStatus = null;
                 return;
+            }
 
-            IsAccountBusy = true;
+            await _accountLoadLock.WaitAsync();
             try
             {
-                var stats = await Task.Run(() => _saveReader.ReadAccountStats(path));
-                if (stats is null)
+                // Повторная проверка после входа в критическую секцию: пока мы ждали лок,
+                // конкурентное чтение (например, Loaded и «Обновить» почти одновременно)
+                // уже могло прочитать сейв и обновить _loadedSaveFileWrittenAt этим значением.
+                if (!force && _loadedSaveFileWrittenAt == writtenAt)
                 {
-                    AccountStatus = "В сейв-файле нет блока статистики (GS_value).";
+                    AccountStatus = null;
                     return;
                 }
 
-                var snapshot = await _accountStats.AddIfChangedAsync(stats, writtenAt);
-                _loadedSaveFileWrittenAt = writtenAt;
-                Apply(snapshot);
-                AccountStatus = null;
+                IsAccountBusy = true;
+                try
+                {
+                    var stats = await Task.Run(() => _saveReader.ReadAccountStats(path));
+                    if (stats is null)
+                    {
+                        // Parse возвращает null и когда блока GS_value нет вовсе, и когда он
+                        // есть, но повреждён/оборван — различить это на уровне вью-модели
+                        // нельзя без изменения контракта ISaveFileReader, поэтому сообщение
+                        // честно описывает оба случая.
+                        AccountStatus = "Не удалось получить статистику из сейва: блок GS_value отсутствует или повреждён.";
+                        return;
+                    }
+
+                    var readAt = DateTime.UtcNow;
+                    var snapshot = await _accountStats.AddIfChangedAsync(stats, writtenAt);
+                    _loadedSaveFileWrittenAt = writtenAt;
+                    Apply(snapshot, readAt);
+                    AccountStatus = null;
+                }
+                finally
+                {
+                    IsAccountBusy = false;
+                }
             }
             finally
             {
-                IsAccountBusy = false;
+                _accountLoadLock.Release();
             }
         }
         catch (Exception ex)
@@ -220,7 +261,15 @@ public partial class StatsViewModel : ViewModelBase
         }
     }
 
-    private void Apply(AccountStatsSnapshot snapshot)
+    /// <param name="snapshot">Снимок, которым наполняются карточки.</param>
+    /// <param name="readAt">
+    /// Момент последнего успешного чтения сейва, если оно произошло в этом вызове.
+    /// Нужен отдельно от <see cref="AccountStatsSnapshot.CapturedAt"/>: при дедупликации
+    /// репозиторий возвращает существующую строку с датой её первого создания, и подпись
+    /// «данные на …» иначе показывала бы дату месячной давности сразу после успешного
+    /// «Обновить», из-за чего кнопка выглядела бы сломанной.
+    /// </param>
+    private void Apply(AccountStatsSnapshot snapshot, DateTime? readAt = null)
     {
         AccountStars = snapshot.Stars;
         AccountMoons = snapshot.Moons;
@@ -231,7 +280,9 @@ public partial class StatsViewModel : ViewModelBase
         AccountAttempts = snapshot.Attempts;
         AccountJumps = snapshot.Jumps;
         AccountTotalOrbs = snapshot.TotalOrbs;
-        AccountUpdatedAt = $"данные на {snapshot.CapturedAt.ToLocalTime():dd.MM.yyyy HH:mm}";
+
+        var asOf = readAt ?? snapshot.CapturedAt;
+        AccountUpdatedAt = $"данные на {asOf.ToLocalTime():dd.MM.yyyy HH:mm}";
         HasAccountStats = true;
     }
 }

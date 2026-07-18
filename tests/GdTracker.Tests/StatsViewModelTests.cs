@@ -4,6 +4,7 @@ using GdTracker.Core.Abstractions;
 using GdTracker.Core.Models;
 using GdTracker.Data.Repositories;
 using GdTracker.ViewModels;
+using Microsoft.EntityFrameworkCore;
 
 namespace GdTracker.Tests;
 
@@ -103,15 +104,26 @@ public class StatsViewModelTests
     [Fact]
     public async Task Skips_reading_when_save_file_has_not_changed()
     {
+        // Страницы и вью-модели зарегистрированы AddTransient, кеш страниц выключен —
+        // каждый заход на вкладку создаёт НОВЫЙ экземпляр StatsViewModel поверх той же БД.
+        // Вызывать LoadAsync() дважды на одном экземпляре (как было раньше) не воспроизводит
+        // реальный сценарий: поле экземпляра _loadedSaveFileWrittenAt в реальном приложении
+        // всегда null на старте, потому что вью-модель всегда новая.
         using var factory = new InMemorySqlite();
         var reader = new FakeSaveReader(Stats());
-        var vm = Build(factory, reader);
+        var settings = new FakeSettings();
 
-        await vm.LoadAsync();
-        await vm.LoadAsync();
+        var firstVisit = Build(factory, reader, settings);
+        await firstVisit.LoadAsync();
+
+        var secondVisit = Build(factory, reader, settings);
+        await secondVisit.LoadAsync();
 
         // Второй заход на вкладку не должен стоить секунды и всплеска памяти.
         reader.ReadCount.Should().Be(1);
+        // И данные всё равно должны быть на экране — просто взятые из БД, а не перечитанные.
+        secondVisit.HasAccountStats.Should().BeTrue();
+        secondVisit.AccountStars.Should().Be(886);
     }
 
     [Fact]
@@ -181,6 +193,11 @@ public class StatsViewModelTests
 
         vm.HasAccountStats.Should().BeFalse();
         vm.AccountStatus.Should().NotBeNullOrEmpty();
+        // AccountStatsParser.Parse возвращает null и когда блока GS_value нет вовсе, и когда
+        // он есть, но повреждён/оборван, — сообщение должно честно покрывать оба случая,
+        // а не звучать так, будто блока точно нет.
+        vm.AccountStatus.Should().Contain("GS_value");
+        vm.AccountStatus.Should().Contain("повреждён");
     }
 
     [Fact]
@@ -235,5 +252,124 @@ public class StatsViewModelTests
         // После завершения — второго чтения не случилось, а команда снова доступна.
         reader.ReadCount.Should().Be(1);
         command.CanExecute(null).Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task Loaded_and_refresh_racing_do_not_overlap_and_do_not_duplicate_snapshot()
+    {
+        // Сценарий из ревью: пользователь открывает вкладку (LoadAsync из Loaded уходит в
+        // чтение) и через долю секунды жмёт «Обновить» (RefreshAccountCommand, отдельный
+        // путь вызова мимо LoadAsync). Без сериализации внутри LoadAccountAsync это были бы
+        // два параллельных чтения (до 1,2 ГБ суммарно) и риск дважды вставить снимок в архив.
+        using var factory = new InMemorySqlite();
+        var reader = new FakeSaveReader(Stats());
+        using var gate = new ManualResetEventSlim(initialState: false);
+        reader.ReadGate = gate;
+        var vm = Build(factory, reader);
+
+        var loadTask = vm.LoadAsync();
+        SpinWait.SpinUntil(() => reader.ReadCount > 0, TimeSpan.FromSeconds(5))
+            .Should().BeTrue("первое чтение (из Loaded) должно было начаться");
+
+        var refreshTask = vm.RefreshAccountCommand.ExecuteAsync(null);
+        await Task.Delay(150);
+        reader.ReadCount.Should().Be(1,
+            "второе чтение не должно стартовать, пока первое держит семафор");
+
+        gate.Set();
+        await loadTask;
+        await refreshTask;
+
+        // «Обновить» обязано перечитать сейв безусловно, но не параллельно с первым чтением.
+        reader.ReadCount.Should().Be(2);
+
+        // Значения не менялись между чтениями — дубликата строки в архиве быть не должно.
+        await using var db = factory.CreateDbContext();
+        db.AccountStatsSnapshots.Count().Should().Be(1);
+    }
+
+    [Fact]
+    public async Task Second_concurrent_load_is_skipped_by_recheck_after_the_lock()
+    {
+        // Loaded в WPF может сработать повторно на одном и том же экземпляре страницы
+        // (переприсоединение к визуальному дереву). Если второй заход, дождавшись семафора,
+        // не перепроверит условие пропуска, он впустую перечитает уже прочитанный файл.
+        using var factory = new InMemorySqlite();
+        var reader = new FakeSaveReader(Stats());
+        using var gate = new ManualResetEventSlim(initialState: false);
+        reader.ReadGate = gate;
+        var vm = Build(factory, reader);
+
+        var first = vm.LoadAsync();
+        SpinWait.SpinUntil(() => reader.ReadCount > 0, TimeSpan.FromSeconds(5)).Should().BeTrue();
+
+        var second = vm.LoadAsync();
+        await Task.Delay(150);
+        reader.ReadCount.Should().Be(1, "второй заход не должен начинать своё чтение первым");
+
+        gate.Set();
+        await first;
+        await second;
+
+        // Второй вызов, получив семафор, должен увидеть уже обновлённый маркер и пропустить
+        // собственное чтение — а не прочитать сейв второй раз впустую.
+        reader.ReadCount.Should().Be(1);
+    }
+
+    [Fact]
+    public async Task Refresh_updates_timestamp_label_even_when_stats_did_not_change()
+    {
+        // Дедупликация репозитория возвращает существующую строку с CapturedAt первого
+        // сохранения. Если подпись брать оттуда, после «Обновить» месяц спустя она покажет
+        // прошлый месяц, хотя чтение только что реально произошло, — кнопка будет выглядеть
+        // сломанной.
+        using var factory = new InMemorySqlite();
+        var reader = new FakeSaveReader(Stats());
+        var vm = Build(factory, reader);
+        await vm.LoadAsync();
+
+        var staleCapturedAt = DateTime.UtcNow.AddDays(-30);
+        await using (var db = factory.CreateDbContext())
+        {
+            var row = await db.AccountStatsSnapshots.SingleAsync();
+            row.CapturedAt = staleCapturedAt;
+            await db.SaveChangesAsync();
+        }
+
+        // Файл «переписан» игрой (новое время записи), но значения счётчиков те же самые —
+        // дедупликация в репозитории вернёт старую строку с месячной давности CapturedAt.
+        reader.WrittenAt = new DateTime(2026, 7, 18, 12, 0, 0, DateTimeKind.Utc);
+        await vm.RefreshAccountCommand.ExecuteAsync(null);
+
+        var staleLabel = $"данные на {staleCapturedAt.ToLocalTime():dd.MM.yyyy HH:mm}";
+        vm.AccountUpdatedAt.Should().NotBe(staleLabel,
+            "подпись должна отражать момент последнего успешного чтения сейва, а не дату создания снимка");
+    }
+
+    [Fact]
+    public async Task Skip_branch_clears_a_stale_warning_from_an_earlier_failed_refresh()
+    {
+        // Loaded срабатывает повторно на том же экземпляре (см. предыдущий тест). Между
+        // заходами пользователь жмёт «Обновить», а файл в этот момент временно занят —
+        // предупреждение остаётся. Когда файл снова доступен, но время записи совпадает
+        // с уже прочитанным, срабатывает ранний возврат по пропуску, и он не должен
+        // оставлять старое предупреждение поверх корректных данных.
+        using var factory = new InMemorySqlite();
+        var reader = new FakeSaveReader(Stats());
+        var vm = Build(factory, reader);
+
+        await vm.LoadAsync();
+        vm.AccountStatus.Should().BeNull();
+
+        reader.ThrowOnRead = true;
+        await vm.RefreshAccountCommand.ExecuteAsync(null);
+        vm.AccountStatus.Should().NotBeNullOrEmpty("временный сбой чтения должен быть виден");
+
+        reader.ThrowOnRead = false; // файл снова доступен; WrittenAt не менялся
+        await vm.LoadAsync(); // повторный Loaded на том же экземпляре — ветка пропуска
+
+        vm.AccountStatus.Should().BeNull(
+            "успешный пропуск чтения не должен оставлять старое предупреждение поверх данных");
+        vm.AccountStars.Should().Be(886);
     }
 }
