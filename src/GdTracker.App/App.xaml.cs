@@ -34,6 +34,8 @@ public partial class App : Application
                 // Репозитории.
                 services.AddSingleton<ILevelRepository, LevelRepository>();
                 services.AddSingleton<IProgressRepository, ProgressRepository>();
+                services.AddSingleton<IAccountStatsRepository, AccountStatsRepository>();
+                services.AddSingleton<ISettingsService, SettingsService>();
 
                 // Импорт из сейв-файла GD.
                 services.AddSingleton<ISaveFileReader, SaveFileReader>();

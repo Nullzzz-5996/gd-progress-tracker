@@ -17,6 +17,89 @@
         <StackPanel Margin="24">
             <TextBlock Text="Статистика" FontSize="28" FontWeight="SemiBold" Margin="0,0,0,16" />
 
+            <!-- Аккаунт: данные из сейв-файла игры, не зависят от таблицы уровней -->
+            <TextBlock Text="Аккаунт" FontSize="18" FontWeight="SemiBold" Margin="0,0,0,8" />
+
+            <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                <Button Content="Обновить" Command="{Binding RefreshAccountCommand}" Margin="0,0,8,0" />
+                <Button Content="Указать файл" Command="{Binding PickSaveFileCommand}" Margin="0,0,8,0" />
+                <TextBlock Text="{Binding AccountUpdatedAt}" Opacity="0.6" VerticalAlignment="Center" />
+            </StackPanel>
+
+            <TextBlock Text="{Binding AccountStatus}" Foreground="#FFC107" TextWrapping="Wrap"
+                       Margin="0,0,0,8">
+                <TextBlock.Style>
+                    <Style TargetType="TextBlock">
+                        <Setter Property="Visibility" Value="Visible" />
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding AccountStatus}" Value="{x:Null}">
+                                <Setter Property="Visibility" Value="Collapsed" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </TextBlock.Style>
+            </TextBlock>
+
+            <WrapPanel>
+                <Border Style="{StaticResource StatCard}">
+                    <StackPanel>
+                        <TextBlock Text="{Binding AccountStars}" FontSize="26" FontWeight="Bold" Foreground="#FFD54F" />
+                        <TextBlock Text="Звёзды" Opacity="0.7" />
+                    </StackPanel>
+                </Border>
+                <Border Style="{StaticResource StatCard}">
+                    <StackPanel>
+                        <TextBlock Text="{Binding AccountMoons}" FontSize="26" FontWeight="Bold" Foreground="#B39DDB" />
+                        <TextBlock Text="Луны" Opacity="0.7" />
+                    </StackPanel>
+                </Border>
+                <Border Style="{StaticResource StatCard}">
+                    <StackPanel>
+                        <TextBlock Text="{Binding AccountDemons}" FontSize="26" FontWeight="Bold" Foreground="#EF5350" />
+                        <TextBlock Text="Демоны" Opacity="0.7" />
+                    </StackPanel>
+                </Border>
+                <Border Style="{StaticResource StatCard}">
+                    <StackPanel>
+                        <TextBlock Text="{Binding AccountOnlineLevels}" FontSize="26" FontWeight="Bold" />
+                        <TextBlock Text="Онлайн-уровни" Opacity="0.7" />
+                    </StackPanel>
+                </Border>
+                <Border Style="{StaticResource StatCard}">
+                    <StackPanel>
+                        <TextBlock Text="{Binding AccountOfficialLevels}" FontSize="26" FontWeight="Bold" />
+                        <TextBlock Text="Официальные уровни" Opacity="0.7" />
+                    </StackPanel>
+                </Border>
+                <Border Style="{StaticResource StatCard}">
+                    <StackPanel>
+                        <TextBlock Text="{Binding AccountSecretCoins}" FontSize="26" FontWeight="Bold" Foreground="#FFB300" />
+                        <TextBlock Text="Секретные монеты" Opacity="0.7" />
+                    </StackPanel>
+                </Border>
+                <Border Style="{StaticResource StatCard}">
+                    <StackPanel>
+                        <TextBlock Text="{Binding AccountAttempts}" FontSize="26" FontWeight="Bold" />
+                        <TextBlock Text="Попытки" Opacity="0.7" />
+                    </StackPanel>
+                </Border>
+                <Border Style="{StaticResource StatCard}">
+                    <StackPanel>
+                        <TextBlock Text="{Binding AccountJumps}" FontSize="26" FontWeight="Bold" />
+                        <TextBlock Text="Прыжки" Opacity="0.7" />
+                    </StackPanel>
+                </Border>
+                <Border Style="{StaticResource StatCard}">
+                    <StackPanel>
+                        <TextBlock Text="{Binding AccountTotalOrbs}" FontSize="26" FontWeight="Bold" Foreground="#4DD0E1" />
+                        <TextBlock Text="Сферы (всего)" Opacity="0.7" />
+                    </StackPanel>
+                </Border>
+            </WrapPanel>
+
+            <!-- Прогресс в трекере: данные из БД приложения -->
+            <TextBlock Text="Прогресс в трекере" FontSize="18" FontWeight="SemiBold" Margin="0,16,0,8" />
+
             <!-- Сводные карточки -->
             <WrapPanel>
                 <Border Style="{StaticResource StatCard}">
