@@ -154,4 +154,23 @@ public class AccountStatsParserTests
         var stats = act();
         stats.Should().BeNull();
     }
+
+    [Fact]
+    public void Gs_value_key_with_no_value_returns_null_without_throwing()
+    {
+        // У ключа GS_value вообще нет значения: сразу после него идёт закрывающий тег
+        // </dict>. Предпроверка первого тега считала имя тега через Trim('/', ' '),
+        // из-за чего "/dict" (закрывающий) неотличим от "dict" (открывающего) —
+        // закрывающий тег ошибочно принимался за валидное значение-словарь, скан
+        // уезжал в следующий соседний <dict>...</dict> и возвращал битый фрагмент.
+        var xml = "<?xml version=\"1.0\"?><plist version=\"1.0\"><dict>" +
+                  "<k>GS_value</k></dict><dict><k>x</k><d><k>y</k><i>1</i></d></dict>" +
+                  "</plist>";
+
+        var act = () => AccountStatsParser.Parse(xml);
+
+        act.Should().NotThrow();
+        var stats = act();
+        stats.Should().BeNull();
+    }
 }

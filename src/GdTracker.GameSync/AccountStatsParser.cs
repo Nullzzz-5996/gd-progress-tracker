@@ -67,14 +67,16 @@ public static class AccountStatsParser
             return null;
 
         // Проверяем, что значение GS_value — действительно словарь.
-        // Если это не <d> или <dict>, возвращаем null, не сканируя дальше.
+        // Если это не открывающий/самозакрывающийся <d> или <dict>, возвращаем null,
+        // не сканируя дальше. Классификация тега — общая с основным циклом ниже
+        // (см. ClassifyTag), чтобы предпроверка и скан не могли разойтись в том,
+        // что считается открывающим, а что закрывающим тегом.
         var firstGt = xml.IndexOf('>', start);
         if (firstGt < 0)
             return null;
 
-        var firstTag = xml.Substring(start + 1, firstGt - start - 1).Trim();
-        var firstTagName = firstTag.Trim('/', ' ');
-        if (firstTagName is not "d" and not "dict")
+        var firstTag = ClassifyTag(xml.Substring(start + 1, firstGt - start - 1));
+        if (firstTag.Name is not "d" and not "dict" || firstTag.IsClosing)
             return null;
 
         var depth = 0;
@@ -91,21 +93,18 @@ public static class AccountStatsParser
 
             // Сканируется только блок GS_value (~3 КБ), не весь документ:
             // поиск по 56 млн символов уже позади, в IndexOf выше.
-            var tag = xml.Substring(lt + 1, gt - lt - 1).Trim();
-            var selfClosing = tag.EndsWith('/');
-            var closing = tag.StartsWith('/');
-            var name = tag.Trim('/', ' ');
+            var tag = ClassifyTag(xml.Substring(lt + 1, gt - lt - 1));
 
-            if (name is "d" or "dict")
+            if (tag.Name is "d" or "dict")
             {
-                if (selfClosing)
+                if (tag.IsSelfClosing)
                 {
                     // <d/> — открытие и закрытие одним тегом, суммарная глубина не меняется.
                     // Если это и есть значение GS_value (глубина ещё 0), фрагмент — сам этот тег.
                     if (depth == 0)
                         return xml.Substring(start, gt - start + 1);
                 }
-                else if (closing)
+                else if (tag.IsClosing)
                 {
                     depth--;
                     if (depth == 0)
@@ -122,6 +121,29 @@ public static class AccountStatsParser
 
         return null;
     }
+
+    /// <summary>
+    /// Разбирает содержимое одного тега (то, что между «&lt;» и «&gt;», без самих скобок)
+    /// и определяет его имя и вид — открывающий, закрывающий или самозакрывающийся.
+    /// Единственное место, где принимается это решение: используется и в предпроверке
+    /// первого тега значения GS_value, и в основном скане глубины, — раньше у них были
+    /// свои, чуть разные копии этой логики, и расхождение между ними породило баг
+    /// (закрывающий тег «/dict» после Trim('/', ' ') давал то же имя «dict», что и
+    /// открывающий, и ошибочно принимался за валидное значение).
+    /// </summary>
+    private static TagInfo ClassifyTag(string tagContent)
+    {
+        var trimmed = tagContent.Trim();
+        var isSelfClosing = trimmed.EndsWith('/');
+        var isClosing = trimmed.StartsWith('/');
+        var name = trimmed.Trim('/', ' ');
+        var isOpening = !isSelfClosing && !isClosing;
+
+        return new TagInfo(name, isOpening, isClosing, isSelfClosing);
+    }
+
+    /// <summary>Имя тега и его вид: открывающий, закрывающий или самозакрывающийся.</summary>
+    private readonly record struct TagInfo(string Name, bool IsOpening, bool IsClosing, bool IsSelfClosing);
 
     /// <summary>
     /// Собирает пары «числовой ключ → значение».
