@@ -80,11 +80,29 @@ public partial class LevelsViewModel : ViewModelBase
     partial void OnSaveFilePathChanged(string value)
         => _settings.SetSaveFilePath(string.IsNullOrWhiteSpace(value) ? null : value);
 
+    /// <summary>
+    /// Загружает список уровней. Исключения не выпускаются наружу: метод вызывается из
+    /// обработчика Loaded страницы, что эквивалентно async void — необработанное исключение
+    /// уронило бы приложение целиком. Также вызывается из команд добавления, удаления и
+    /// импорта после их успешного выполнения: ошибка перезагрузки списка сообщается через
+    /// Error и остаётся видимой пользователю, а не проглатывается молча.
+    /// </summary>
     public async Task LoadAsync()
     {
         var selectedId = SelectedRow?.Level.Id;
 
-        var all = await _levels.GetAllAsync();
+        IReadOnlyList<Level> all;
+        try
+        {
+            all = await _levels.GetAllAsync();
+        }
+        catch (Exception ex)
+        {
+            Error = $"Не удалось загрузить список уровней: {ex.Message}";
+            return;
+        }
+
+        Error = null;
         _allRows.Clear();
         foreach (var level in all)
         {

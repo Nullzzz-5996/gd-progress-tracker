@@ -444,3 +444,103 @@ public class LevelsViewModelManualAddGdIdTests
         level.TotalAttempts.Should().Be(158);
     }
 }
+
+/// <summary>
+/// Тесты дефекта «необработанное исключение при открытии вкладки роняет приложение»:
+/// DashboardPage вызывает LoadAsync из обработчика Loaded, что эквивалентно async void —
+/// необработанное исключение оттуда убивает процесс целиком. LoadAsync обязан перехватывать
+/// ошибки репозитория сам и сообщать о них через Error, не выпуская их наружу.
+/// </summary>
+public class LevelsViewModelLoadErrorTests
+{
+    /// <summary>Репозиторий уровней, всегда бросающий исключение из GetAllAsync (имитация сбоя БД).</summary>
+    private sealed class ThrowingLevelRepository : ILevelRepository
+    {
+        public Task<IReadOnlyList<Level>> GetAllAsync(CancellationToken ct = default)
+            => throw new InvalidOperationException("база данных недоступна");
+
+        public Task<Level?> GetByIdAsync(int id, CancellationToken ct = default) => throw new NotSupportedException();
+
+        public Task<Level?> GetByGdLevelIdAsync(long gdLevelId, CancellationToken ct = default)
+            => throw new NotSupportedException();
+
+        public Task<Level> AddAsync(Level level, CancellationToken ct = default) => throw new NotSupportedException();
+
+        public Task UpdateAsync(Level level, CancellationToken ct = default) => throw new NotSupportedException();
+
+        public Task DeleteAsync(int id, CancellationToken ct = default) => throw new NotSupportedException();
+
+        public Task DeleteManyAsync(IReadOnlyCollection<int> ids, CancellationToken ct = default)
+            => throw new NotSupportedException();
+    }
+
+    /// <summary>Обёртка, бросающая исключение только из GetAllAsync — остальные операции
+    /// реально выполняются на переданном репозитории (имитация сбоя, всплывающего только
+    /// при перезагрузке списка после уже успешно выполненной операции).</summary>
+    private sealed class GetAllThrowingLevelRepository : ILevelRepository
+    {
+        private readonly ILevelRepository _inner;
+
+        public GetAllThrowingLevelRepository(ILevelRepository inner) => _inner = inner;
+
+        public Task<IReadOnlyList<Level>> GetAllAsync(CancellationToken ct = default)
+            => throw new InvalidOperationException("база данных недоступна");
+
+        public Task<Level?> GetByIdAsync(int id, CancellationToken ct = default) => _inner.GetByIdAsync(id, ct);
+
+        public Task<Level?> GetByGdLevelIdAsync(long gdLevelId, CancellationToken ct = default)
+            => _inner.GetByGdLevelIdAsync(gdLevelId, ct);
+
+        public Task<Level> AddAsync(Level level, CancellationToken ct = default) => _inner.AddAsync(level, ct);
+
+        public Task UpdateAsync(Level level, CancellationToken ct = default) => _inner.UpdateAsync(level, ct);
+
+        public Task DeleteAsync(int id, CancellationToken ct = default) => _inner.DeleteAsync(id, ct);
+
+        public Task DeleteManyAsync(IReadOnlyCollection<int> ids, CancellationToken ct = default)
+            => _inner.DeleteManyAsync(ids, ct);
+    }
+
+    private static LevelsViewModel BuildVm(ILevelRepository levels, InMemorySqlite factory)
+    {
+        var progress = new ProgressRepository(factory);
+        var reader = new FakeSaveReader(stats: null);
+        var importer = new SaveImportService(factory);
+        var settings = new FakeSettings();
+        return new LevelsViewModel(
+            levels, progress, reader, importer,
+            new ProgressSharingService(factory), new NullFileDialog(), new FakeConfirmation(), settings,
+            new SaveProgressLookupService(settings, reader, importer));
+    }
+
+    [Fact]
+    public async Task LoadAsync_does_not_throw_when_repository_fails_and_reports_error_instead()
+    {
+        using var factory = new InMemorySqlite();
+        var vm = BuildVm(new ThrowingLevelRepository(), factory);
+
+        Func<Task> act = async () => await vm.LoadAsync();
+
+        await act.Should().NotThrowAsync("иначе необработанное исключение из обработчика Loaded уронит приложение");
+        vm.Error.Should().NotBeNullOrEmpty();
+    }
+
+    [Fact]
+    public async Task AddLevelAsync_still_surfaces_reload_error_instead_of_swallowing_it_silently()
+    {
+        using var factory = new InMemorySqlite();
+        var innerLevels = new LevelRepository(factory);
+        var levels = new GetAllThrowingLevelRepository(innerLevels);
+        var vm = BuildVm(levels, factory);
+
+        vm.NewLevelName = "Bloodbath";
+        await vm.AddLevelCommand.ExecuteAsync(null);
+
+        // Сама операция добавления не должна быть проглочена молча — уровень реально создан.
+        var all = await innerLevels.GetAllAsync();
+        all.Should().ContainSingle();
+
+        // Но и ошибка последующей перезагрузки списка должна остаться видимой пользователю.
+        vm.Error.Should().NotBeNullOrEmpty();
+    }
+}
