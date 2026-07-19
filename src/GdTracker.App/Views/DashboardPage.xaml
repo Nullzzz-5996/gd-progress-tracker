@@ -3,7 +3,13 @@
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
       xmlns:vm="clr-namespace:GdTracker.ViewModels;assembly=GdTracker.ViewModels"
+      xmlns:conv="clr-namespace:GdTracker.App.Converters"
       Title="DashboardPage">
+
+    <Page.Resources>
+        <conv:DetailPaneWidthConverter x:Key="DetailWidth" />
+        <conv:NotNullToVisibilityConverter x:Key="NotNullToVisibility" />
+    </Page.Resources>
 
     <Grid Margin="24">
         <Grid.RowDefinitions>
@@ -56,8 +62,10 @@
         <Grid Grid.Row="4">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="1.4*" MinWidth="420" />
-                <ColumnDefinition Width="8" />
-                <ColumnDefinition Width="2*" />
+                <!-- Разделитель и деталь схлопываются, пока уровень не выбран:
+                     иначе пустая панель съедала бы больше половины ширины окна. -->
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="{Binding Detail, Converter={StaticResource DetailWidth}}" />
             </Grid.ColumnDefinitions>
 
             <!-- Список уровней -->
@@ -92,7 +100,8 @@
                 </DataGrid.Columns>
             </DataGrid>
 
-            <GridSplitter Grid.Column="1" Width="8" HorizontalAlignment="Stretch" Background="Transparent" />
+            <GridSplitter Grid.Column="1" Width="8" HorizontalAlignment="Stretch" Background="Transparent"
+                          Visibility="{Binding Detail, Converter={StaticResource NotNullToVisibility}}" />
 
             <!-- Деталь выбранного уровня -->
             <ContentControl Grid.Column="2" Content="{Binding Detail}">
