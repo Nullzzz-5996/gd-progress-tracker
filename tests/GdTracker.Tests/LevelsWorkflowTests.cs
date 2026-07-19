@@ -1,5 +1,6 @@
 using FluentAssertions;
 using GdTracker.Core;
+using GdTracker.Core.Abstractions;
 using GdTracker.Core.Models;
 using GdTracker.Data;
 using GdTracker.Data.Repositories;
@@ -50,7 +51,8 @@ public class LevelsWorkflowTests : IDisposable
 
             var levelsVm = new LevelsViewModel(
                 levels, progress, new SaveFileReader(), new SaveImportService(factory),
-                new ProgressSharingService(factory), new NullFileDialog(), new FakeConfirmation(), new FakeSettings());
+                new ProgressSharingService(factory), new NullFileDialog(), new FakeConfirmation(), new FakeSettings(),
+                new SaveProgressLookupService(new FakeSettings(), new SaveFileReader(), new SaveImportService(factory)));
             await levelsVm.LoadAsync();
 
             levelsVm.NewLevelName = "Bloodbath";
@@ -133,7 +135,8 @@ public class LevelsWorkflowTests : IDisposable
 
         var vm = new LevelsViewModel(
             levels, progress, new SaveFileReader(), new SaveImportService(factory),
-            new ProgressSharingService(factory), new NullFileDialog(), new FakeConfirmation(), settings);
+            new ProgressSharingService(factory), new NullFileDialog(), new FakeConfirmation(), settings,
+            new SaveProgressLookupService(settings, new SaveFileReader(), new SaveImportService(factory)));
 
         // При конструировании не должно быть вызовов SetSaveFilePath.
         settings.SetSaveFilePathCallCount.Should().Be(0);
@@ -152,7 +155,8 @@ public class LevelsWorkflowTests : IDisposable
 
         var vm = new LevelsViewModel(
             levels, progress, new SaveFileReader(), new SaveImportService(factory),
-            new ProgressSharingService(factory), new NullFileDialog(), new FakeConfirmation(), settings);
+            new ProgressSharingService(factory), new NullFileDialog(), new FakeConfirmation(), settings,
+            new SaveProgressLookupService(settings, new SaveFileReader(), new SaveImportService(factory)));
 
         // Изменение свойства после конструирования должно вызвать SetSaveFilePath.
         vm.SaveFilePath = @"C:\new\CCGameManager.dat";
@@ -172,7 +176,8 @@ public class LevelsWorkflowTests : IDisposable
 
         var vm = new LevelsViewModel(
             countingLevels, progress, new SaveFileReader(), new SaveImportService(factory),
-            new ProgressSharingService(factory), new NullFileDialog(), confirmation, new FakeSettings());
+            new ProgressSharingService(factory), new NullFileDialog(), confirmation, new FakeSettings(),
+            new SaveProgressLookupService(new FakeSettings(), new SaveFileReader(), new SaveImportService(factory)));
 
         await vm.LoadAsync();
         vm.NewLevelName = "Level A";
@@ -204,7 +209,8 @@ public class LevelsWorkflowTests : IDisposable
 
         var vm = new LevelsViewModel(
             levels, progress, new SaveFileReader(), new SaveImportService(factory),
-            new ProgressSharingService(factory), new NullFileDialog(), confirmation, new FakeSettings());
+            new ProgressSharingService(factory), new NullFileDialog(), confirmation, new FakeSettings(),
+            new SaveProgressLookupService(new FakeSettings(), new SaveFileReader(), new SaveImportService(factory)));
 
         await vm.LoadAsync();
         vm.NewLevelName = "Level A";
@@ -233,7 +239,8 @@ public class LevelsWorkflowTests : IDisposable
 
         var vm = new LevelsViewModel(
             countingLevels, progress, new SaveFileReader(), new SaveImportService(factory),
-            new ProgressSharingService(factory), new NullFileDialog(), confirmation, new FakeSettings());
+            new ProgressSharingService(factory), new NullFileDialog(), confirmation, new FakeSettings(),
+            new SaveProgressLookupService(new FakeSettings(), new SaveFileReader(), new SaveImportService(factory)));
 
         await vm.LoadAsync();
         vm.NewLevelName = "Solo Level";
@@ -261,7 +268,8 @@ public class LevelsWorkflowTests : IDisposable
 
         var vm = new LevelsViewModel(
             levels, progress, new SaveFileReader(), new SaveImportService(factory),
-            new ProgressSharingService(factory), new NullFileDialog(), confirmation, new FakeSettings());
+            new ProgressSharingService(factory), new NullFileDialog(), confirmation, new FakeSettings(),
+            new SaveProgressLookupService(new FakeSettings(), new SaveFileReader(), new SaveImportService(factory)));
 
         await vm.LoadAsync();
         vm.NewLevelName = "Solo Level";
@@ -285,5 +293,154 @@ public class LevelsWorkflowTests : IDisposable
             try { if (File.Exists(f)) File.Delete(f); }
             catch { /* игнорируем — временный файл */ }
         }
+    }
+}
+
+/// <summary>
+/// Тесты бага «попытки не появляются на уровне, добавленном вручную»: форма ручного
+/// добавления не задавала GdLevelId, из-за чего SaveImportService (сопоставляющий строки
+/// только по GdLevelId) никогда не находил такую строку и заводил рядом вторую.
+/// </summary>
+public class LevelsViewModelManualAddGdIdTests
+{
+    private static SaveLevelDto SaveDto(long id, int normal, int attempts) => new()
+    {
+        GdLevelId = id, Name = "The Nightmare", Source = LevelSource.Online,
+        BestNormalPercent = normal, Attempts = attempts,
+    };
+
+    private static (LevelsViewModel vm, LevelRepository levels) BuildVm(
+        InMemorySqlite factory, FakeSaveReader reader, ISettingsService? settings = null)
+    {
+        settings ??= new FakeSettings();
+        var levels = new LevelRepository(factory);
+        var progress = new ProgressRepository(factory);
+        var importer = new SaveImportService(factory);
+        var progressLookup = new SaveProgressLookupService(settings, reader, importer);
+        var vm = new LevelsViewModel(
+            levels, progress, reader, importer,
+            new ProgressSharingService(factory), new NullFileDialog(), new FakeConfirmation(), settings,
+            progressLookup);
+        return (vm, levels);
+    }
+
+    [Fact]
+    public async Task Manual_add_with_gd_id_present_in_save_pulls_attempts_and_best_percent()
+    {
+        using var factory = new InMemorySqlite();
+        var reader = new FakeSaveReader(stats: null) { Levels = [SaveDto(13519, 72, 158)] };
+        var (vm, levels) = BuildVm(factory, reader);
+        await vm.LoadAsync();
+
+        vm.NewLevelName = "The Nightmare";
+        vm.NewLevelGdId = "13519";
+        await vm.AddLevelCommand.ExecuteAsync(null);
+
+        vm.Error.Should().BeNull();
+        var added = await levels.GetByGdLevelIdAsync(13519);
+        added.Should().NotBeNull();
+        added!.BestNormalPercent.Should().Be(72);
+        added.TotalAttempts.Should().Be(158);
+
+        // Поля формы очищаются так же, как и название.
+        vm.NewLevelGdId.Should().BeEmpty();
+        vm.NewLevelName.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task Manual_add_with_gd_id_absent_from_save_creates_level_without_progress_or_exception()
+    {
+        using var factory = new InMemorySqlite();
+        // Сейв читается успешно, но искомого уровня в нём нет.
+        var reader = new FakeSaveReader(stats: null) { Levels = [SaveDto(999, 100, 10)] };
+        var (vm, levels) = BuildVm(factory, reader);
+        await vm.LoadAsync();
+
+        vm.NewLevelName = "The Nightmare";
+        vm.NewLevelGdId = "13519";
+        await vm.AddLevelCommand.ExecuteAsync(null);
+
+        vm.Error.Should().BeNull();
+        var added = await levels.GetByGdLevelIdAsync(13519);
+        added.Should().NotBeNull();
+        added!.TotalAttempts.Should().Be(0);
+        added.BestNormalPercent.Should().Be(0);
+    }
+
+    [Fact]
+    public async Task Manual_add_without_gd_id_keeps_previous_behavior()
+    {
+        using var factory = new InMemorySqlite();
+        var reader = new FakeSaveReader(stats: null);
+        var (vm, levels) = BuildVm(factory, reader);
+        await vm.LoadAsync();
+
+        vm.NewLevelName = "Мои личные заметки";
+        await vm.AddLevelCommand.ExecuteAsync(null);
+
+        vm.Error.Should().BeNull();
+        var all = await levels.GetAllAsync();
+        all.Should().ContainSingle();
+        all[0].GdLevelId.Should().BeNull();
+    }
+
+    [Fact]
+    public async Task Manual_add_with_non_numeric_gd_id_sets_error_and_does_not_create_level()
+    {
+        using var factory = new InMemorySqlite();
+        var reader = new FakeSaveReader(stats: null);
+        var (vm, levels) = BuildVm(factory, reader);
+        await vm.LoadAsync();
+
+        vm.NewLevelName = "The Nightmare";
+        vm.NewLevelGdId = "не число";
+        await vm.AddLevelCommand.ExecuteAsync(null);
+
+        vm.Error.Should().NotBeNullOrEmpty();
+        var all = await levels.GetAllAsync();
+        all.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task Manual_add_with_gd_id_already_in_database_reports_duplicate_and_skips_creation()
+    {
+        using var factory = new InMemorySqlite();
+        var reader = new FakeSaveReader(stats: null);
+        var (vm, levels) = BuildVm(factory, reader);
+        await levels.AddAsync(new Level { Name = "Уже есть", GdLevelId = 13519 });
+        await vm.LoadAsync();
+
+        vm.NewLevelName = "The Nightmare";
+        vm.NewLevelGdId = "13519";
+        await vm.AddLevelCommand.ExecuteAsync(null);
+
+        vm.Error.Should().NotBeNullOrEmpty();
+        var all = await levels.GetAllAsync();
+        all.Should().ContainSingle();
+    }
+
+    [Fact]
+    public async Task Manual_add_with_gd_id_then_import_from_game_does_not_duplicate_level()
+    {
+        using var factory = new InMemorySqlite();
+        var reader = new FakeSaveReader(stats: null) { Levels = [SaveDto(13519, 72, 158)] };
+        var (vm, levels) = BuildVm(factory, reader);
+        await vm.LoadAsync();
+
+        vm.NewLevelName = "The Nightmare";
+        vm.NewLevelGdId = "13519";
+        await vm.AddLevelCommand.ExecuteAsync(null);
+
+        // Симулируем последующий «Импорт из игры» — то же самое, что делает
+        // LevelsViewModel.ImportFromGameAsync внутри (чтение сейва + SaveImportService).
+        var importer = new SaveImportService(factory);
+        await importer.ImportAsync(reader.Levels);
+
+        var all = await levels.GetAllAsync();
+        all.Should().ContainSingle("до фикса импорт заводил вторую строку без GdLevelId");
+        var level = all[0];
+        level.GdLevelId.Should().Be(13519);
+        level.BestNormalPercent.Should().Be(72);
+        level.TotalAttempts.Should().Be(158);
     }
 }

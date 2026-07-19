@@ -22,6 +22,7 @@ public partial class LevelsViewModel : ViewModelBase
     private readonly IFileDialogService _fileDialog;
     private readonly IConfirmationService _confirmation;
     private readonly ISettingsService _settings;
+    private readonly ISaveProgressLookupService _progressLookup;
 
     private readonly List<LevelRowViewModel> _allRows = new();
 
@@ -33,7 +34,8 @@ public partial class LevelsViewModel : ViewModelBase
         IProgressSharingService sharing,
         IFileDialogService fileDialog,
         IConfirmationService confirmation,
-        ISettingsService settings)
+        ISettingsService settings,
+        ISaveProgressLookupService progressLookup)
     {
         _levels = levels;
         _progress = progress;
@@ -43,6 +45,7 @@ public partial class LevelsViewModel : ViewModelBase
         _fileDialog = fileDialog;
         _confirmation = confirmation;
         _settings = settings;
+        _progressLookup = progressLookup;
         _saveFilePath = settings.SaveFilePath ?? saveReader.DefaultSaveFilePath ?? string.Empty;
     }
 
@@ -61,6 +64,10 @@ public partial class LevelsViewModel : ViewModelBase
 
     [ObservableProperty] private string _newLevelName = string.Empty;
     [ObservableProperty] private LevelSource _newLevelSource = LevelSource.Custom;
+
+    /// <summary>Необязательный ID уровня в игре, введённый в форме ручного добавления.</summary>
+    [ObservableProperty] private string _newLevelGdId = string.Empty;
+
     [ObservableProperty] private string? _error;
 
     [ObservableProperty] private string _saveFilePath = string.Empty;
@@ -151,10 +158,51 @@ public partial class LevelsViewModel : ViewModelBase
             return;
         }
 
-        var level = await _levels.AddAsync(new Level { Name = name, Source = NewLevelSource });
-        NewLevelName = string.Empty;
-        await LoadAsync();
-        SelectedRow = Levels.FirstOrDefault(r => r.Level.Id == level.Id);
+        // ID уровня в игре необязателен: без него уровень остаётся «ручной заметкой» и не
+        // привязывается к сейву. Если он введён, но не является числом — это ошибка ввода,
+        // а не повод создавать уровень без привязки.
+        long? gdLevelId = null;
+        var gdIdText = NewLevelGdId?.Trim();
+        if (!string.IsNullOrEmpty(gdIdText))
+        {
+            if (!long.TryParse(gdIdText, out var parsedId))
+            {
+                Error = "ID уровня должен быть числом.";
+                return;
+            }
+
+            // Дедупликация: тот же уровень мог уже попасть в базу (импортом или онлайн-поиском).
+            var duplicate = await _levels.GetByGdLevelIdAsync(parsedId);
+            if (duplicate is not null)
+            {
+                Error = $"Уровень с ID {parsedId} уже есть в базе: «{duplicate.Name}».";
+                return;
+            }
+
+            gdLevelId = parsedId;
+        }
+
+        IsBusy = true;
+        try
+        {
+            var level = await _levels.AddAsync(new Level { Name = name, Source = NewLevelSource, GdLevelId = gdLevelId });
+
+            // Пользователь мог уже играть в этот уровень до его ручного добавления —
+            // подтягиваем прогресс из сейва, если он там есть (как при добавлении из
+            // онлайн-поиска), чтобы не показывать нулевые попытки на уже пройденном уровне
+            // и чтобы последующий импорт из игры не завёл рядом вторую строку без ID.
+            if (gdLevelId is not null)
+                await _progressLookup.TryApplyProgressAsync(gdLevelId.Value);
+
+            NewLevelName = string.Empty;
+            NewLevelGdId = string.Empty;
+            await LoadAsync();
+            SelectedRow = Levels.FirstOrDefault(r => r.Level.Id == level.Id);
+        }
+        finally
+        {
+            IsBusy = false;
+        }
     }
 
     [RelayCommand]

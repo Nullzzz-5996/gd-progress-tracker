@@ -34,6 +34,8 @@
             <TextBox Width="260" Text="{Binding NewLevelName, UpdateSourceTrigger=PropertyChanged}"
                      VerticalContentAlignment="Center" ToolTip="Название уровня" />
             <ComboBox Width="130" Margin="8,0,0,0" ItemsSource="{Binding Sources}" SelectedItem="{Binding NewLevelSource}" />
+            <TextBox Width="110" Margin="8,0,0,0" Text="{Binding NewLevelGdId, UpdateSourceTrigger=LostFocus}"
+                     VerticalContentAlignment="Center" ToolTip="ID уровня в игре (необязательно)" />
             <Button Margin="8,0,0,0" Content="Добавить уровень" Command="{Binding AddLevelCommand}" />
             <Button Margin="8,0,0,0" Content="Удалить уровень" Command="{Binding DeleteCurrentLevelCommand}"
                     IsEnabled="{Binding HasSelection}" />
