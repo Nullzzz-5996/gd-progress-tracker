@@ -11,6 +11,9 @@
             <TextBox Text="{Binding SaveFilePath, UpdateSourceTrigger=LostFocus}" />
             <TextBlock Margin="0,4,0,0" Opacity="0.6" TextWrapping="Wrap"
                        Text="Используется вкладками «Уровни» и «Статистика». Сохраняется между запусками." />
+            <TextBlock Margin="0,16,0,4" Text="Тема оформления" />
+            <ComboBox ItemsSource="{Binding AvailableThemes}" DisplayMemberPath="Label" SelectedValuePath="Value"
+                      SelectedValue="{Binding SelectedTheme}" HorizontalAlignment="Left" MinWidth="200" />
         </StackPanel>
     </Grid>
 </Page>

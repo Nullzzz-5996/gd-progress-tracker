@@ -76,8 +76,13 @@ internal sealed class FakeSettings : ISettingsService
     }
 
     public AppTheme Theme { get; private set; } = AppTheme.Dark;
+    public int SetThemeCallCount { get; set; }
 
-    public void SetTheme(AppTheme theme) => Theme = theme;
+    public void SetTheme(AppTheme theme)
+    {
+        Theme = theme;
+        SetThemeCallCount++;
+    }
 }
 
 public class StatsViewModelTests
