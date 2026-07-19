@@ -6,7 +6,9 @@ using GdTracker.Core.Models;
 using GdTracker.Data.Repositories;
 using GdTracker.ViewModels;
 using LiveChartsCore.SkiaSharpView;
+using LiveChartsCore.SkiaSharpView.Painting;
 using Microsoft.EntityFrameworkCore;
+using SkiaSharp;
 
 namespace GdTracker.Tests;
 
@@ -85,6 +87,34 @@ internal sealed class FakeSettings : ISettingsService
     }
 }
 
+/// <summary>
+/// Ручной фейк палитры графиков: цвета настраиваются тестом (заведомо отличные от
+/// зашитых в StatsViewModel), а <see cref="Changed"/> считает подписчиков через
+/// собственные add/remove — так тест на утечку подписки видит реальную отписку,
+/// а не полагается на факт отсутствия исключения.
+/// </summary>
+internal sealed class FakeChartPalette : IChartPalette
+{
+    public SKColor StarsLineColor { get; set; } = new SKColor(0x11, 0x22, 0x33);
+    public SKColor DemonsLineColor { get; set; } = new SKColor(0x44, 0x55, 0x66);
+    public SKColor AxisLabelColor { get; set; } = new SKColor(0x77, 0x88, 0x99);
+    public SKColor AxisLineColor { get; set; } = new SKColor(0xAA, 0xBB, 0xCC);
+
+    private EventHandler? _changed;
+
+    /// <summary>Число активных подписчиков — растёт/падает при add/remove на событии.</summary>
+    public int SubscriberCount { get; private set; }
+
+    public event EventHandler? Changed
+    {
+        add { _changed += value; SubscriberCount++; }
+        remove { _changed -= value; SubscriberCount--; }
+    }
+
+    /// <summary>Имитирует смену темы: рассылает уведомление подписчикам (открытой вью-модели).</summary>
+    public void RaiseChanged() => _changed?.Invoke(this, EventArgs.Empty);
+}
+
 public class StatsViewModelTests
 {
     private static AccountStats Stats(long stars = 886) => new()
@@ -101,13 +131,14 @@ public class StatsViewModelTests
     };
 
     private static StatsViewModel Build(
-        InMemorySqlite factory, ISaveFileReader reader, ISettingsService? settings = null)
+        InMemorySqlite factory, ISaveFileReader reader, ISettingsService? settings = null, IChartPalette? palette = null)
         => new(
             new LevelRepository(factory),
             new AccountStatsRepository(factory),
             reader,
             settings ?? new FakeSettings(),
-            new NullFileDialog());
+            new NullFileDialog(),
+            palette ?? new FakeChartPalette());
 
     [Fact]
     public async Task Shows_account_stats_when_levels_table_is_empty()
@@ -459,5 +490,80 @@ public class StatsViewModelTests
 
         var stars = (LineSeries<double>)vm.TrendSeries[0];
         stars.Values!.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task Trend_series_and_axes_use_palette_colors_not_hardcoded_ones()
+    {
+        using var factory = new InMemorySqlite();
+        var palette = new FakeChartPalette();
+        var vm = Build(factory, new FakeSaveReader(Stats()), palette: palette);
+
+        await vm.LoadAsync();
+
+        var stars = (LineSeries<double>)vm.TrendSeries[0];
+        var demons = (LineSeries<double>)vm.TrendSeries[1];
+
+        ((SolidColorPaint)stars.Stroke!).Color.Should().Be(palette.StarsLineColor);
+        ((SolidColorPaint)stars.GeometryStroke!).Color.Should().Be(palette.StarsLineColor);
+        ((SolidColorPaint)demons.Stroke!).Color.Should().Be(palette.DemonsLineColor);
+        ((SolidColorPaint)demons.GeometryStroke!).Color.Should().Be(palette.DemonsLineColor);
+
+        ((SolidColorPaint)vm.TrendXAxes[0].LabelsPaint!).Color.Should().Be(palette.AxisLabelColor);
+        ((SolidColorPaint)vm.TrendXAxes[0].SeparatorsPaint!).Color.Should().Be(palette.AxisLineColor);
+        foreach (var axis in vm.TrendYAxes)
+        {
+            ((SolidColorPaint)axis.LabelsPaint!).Color.Should().Be(palette.AxisLabelColor);
+            ((SolidColorPaint)axis.SeparatorsPaint!).Color.Should().Be(palette.AxisLineColor);
+        }
+    }
+
+    [Fact]
+    public async Task Trend_rebuilds_series_with_new_colors_when_palette_notifies_a_change()
+    {
+        using var factory = new InMemorySqlite();
+        var palette = new FakeChartPalette();
+        var vm = Build(factory, new FakeSaveReader(Stats()), palette: palette);
+        await vm.LoadAsync();
+
+        var stars = (LineSeries<double>)vm.TrendSeries[0];
+        var pointCountBeforeRebuild = stars.Values!.Count();
+
+        // Смена темы приложением — палитра меняет цвета и уведомляет подписчиков.
+        var newStarsColor = new SKColor(0x01, 0x02, 0x03);
+        var newAxisLabelColor = new SKColor(0x04, 0x05, 0x06);
+        palette.StarsLineColor = newStarsColor;
+        palette.AxisLabelColor = newAxisLabelColor;
+        palette.RaiseChanged();
+
+        // Открытая вью-модель перестроила серии немедленно — без перехода на другую вкладку.
+        var rebuiltStars = (LineSeries<double>)vm.TrendSeries[0];
+        ((SolidColorPaint)rebuiltStars.Stroke!).Color.Should().Be(newStarsColor);
+        ((SolidColorPaint)vm.TrendXAxes[0].LabelsPaint!).Color.Should().Be(newAxisLabelColor);
+        // Данные графика не пострадали — перестроение не должно требовать повторного чтения БД.
+        rebuiltStars.Values!.Count().Should().Be(pointCountBeforeRebuild);
+    }
+
+    [Fact]
+    public async Task Disposed_view_model_no_longer_reacts_to_palette_notifications()
+    {
+        using var factory = new InMemorySqlite();
+        var palette = new FakeChartPalette();
+        var vm = Build(factory, new FakeSaveReader(Stats()), palette: palette);
+        await vm.LoadAsync();
+
+        // Подписка действительно установлена конструктором.
+        palette.SubscriberCount.Should().Be(1);
+
+        // Страница ушла с вкладки — реальный код вызывает Dispose из Page.Unloaded.
+        vm.Dispose();
+        palette.SubscriberCount.Should().Be(0, "иначе подписка копилась бы с каждым визитом на вкладку");
+
+        var colorBeforeNotification = ((SolidColorPaint)((LineSeries<double>)vm.TrendSeries[0]).Stroke!).Color;
+        palette.StarsLineColor = new SKColor(0x09, 0x08, 0x07);
+        palette.RaiseChanged();
+
+        // Без подписки уведомление не должно доходить до уже закрытой вью-модели.
+        ((SolidColorPaint)((LineSeries<double>)vm.TrendSeries[0]).Stroke!).Color.Should().Be(colorBeforeNotification);
     }
 }

@@ -14,8 +14,19 @@ public class ThemeService : IThemeService
     // вместе с новым, а не заменялся им.
     private ResourceDictionary? _currentThemeDictionary;
 
+    private readonly ChartPaletteService _chartPalette;
+
+    public ThemeService(ChartPaletteService chartPalette)
+    {
+        _chartPalette = chartPalette;
+    }
+
     public void ApplyTheme(AppTheme theme)
     {
+        // Палитра графиков статистики зависит от той же темы: без этого вызова открытая
+        // страница статистики не узнала бы о смене темы и не перестроила бы цвета серий.
+        _chartPalette.ApplyTheme(theme);
+
         // Штатная тема WPF-UI знает только светлую и тёмную: неоновая тема
         // использует тёмную базу (окна, стандартные элементы управления),
         // а фиолетовый колорит даёт наш собственный словарь ресурсов.

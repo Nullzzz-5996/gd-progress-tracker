@@ -15,15 +15,23 @@ namespace GdTracker.ViewModels;
 /// View-модель страницы статистики. Две независимые секции: счётчики аккаунта из сейва
 /// (работают даже при пустой БД) и сводка по уровням трекера (работает без сейва).
 /// </summary>
-public partial class StatsViewModel : ViewModelBase
+public partial class StatsViewModel : ViewModelBase, IDisposable
 {
     private readonly ILevelRepository _levels;
     private readonly IAccountStatsRepository _accountStats;
     private readonly ISaveFileReader _saveReader;
     private readonly ISettingsService _settings;
     private readonly IFileDialogService _fileDialog;
+    private readonly IChartPalette _palette;
 
     private DateTime? _loadedSaveFileWrittenAt;
+
+    /// <summary>
+    /// Последние загруженные снимки динамики — нужны, чтобы перестроить серии графика
+    /// с новыми цветами палитры (см. <see cref="OnPaletteChanged"/>), не перечитывая
+    /// историю из БД заново.
+    /// </summary>
+    private IReadOnlyList<AccountStatsSnapshot>? _trendHistory;
 
     /// <summary>
     /// Сериализует само чтение сейва: обработчик Loaded страницы и команда «Обновить» —
@@ -38,13 +46,32 @@ public partial class StatsViewModel : ViewModelBase
         IAccountStatsRepository accountStats,
         ISaveFileReader saveReader,
         ISettingsService settings,
-        IFileDialogService fileDialog)
+        IFileDialogService fileDialog,
+        IChartPalette palette)
     {
         _levels = levels;
         _accountStats = accountStats;
         _saveReader = saveReader;
         _settings = settings;
         _fileDialog = fileDialog;
+        _palette = palette;
+        _palette.Changed += OnPaletteChanged;
+    }
+
+    /// <summary>
+    /// Вью-модели транзиентные и создаются заново при каждом заходе на вкладку статистики,
+    /// а палитра — общий на всё приложение singleton. Без отписки здесь каждый визит на
+    /// вкладку добавлял бы ещё одного мёртвого подписчика на <see cref="IChartPalette.Changed"/>
+    /// (утечка памяти + лишние перестроения графика от давно закрытых страниц).
+    /// </summary>
+    public void Dispose() => _palette.Changed -= OnPaletteChanged;
+
+    /// <summary>Перестраивает график динамики с новыми цветами палитры без обращения к БД —
+    /// история снимков уже загружена, меняются только цвета серий и осей.</summary>
+    private void OnPaletteChanged(object? sender, EventArgs e)
+    {
+        if (_trendHistory is not null)
+            BuildTrendSeries(_trendHistory);
     }
 
     // --- Секция «Аккаунт» ---
@@ -154,40 +181,69 @@ public partial class StatsViewModel : ViewModelBase
     }
 
     /// <summary>
-    /// Строит график динамики по накопленным снимкам. Звёзды и демоны различаются
-    /// в десятки раз, поэтому демоны идут по отдельной правой оси (ScalesYAt = 1),
-    /// иначе их кривая выродилась бы в прямую по нулю.
+    /// Загружает накопленные снимки динамики и строит по ним график. Снимки кешируются
+    /// в <see cref="_trendHistory"/>, чтобы смена палитры (см. <see cref="OnPaletteChanged"/>)
+    /// могла перестроить те же серии заново, не читая историю из БД повторно.
     /// </summary>
     private async Task LoadTrendAsync()
     {
-        var history = await _accountStats.GetHistoryAsync();
+        _trendHistory = await _accountStats.GetHistoryAsync();
+        BuildTrendSeries(_trendHistory);
+    }
 
+    /// <summary>
+    /// Строит график динамики по накопленным снимкам. Звёзды и демоны различаются
+    /// в десятки раз, поэтому демоны идут по отдельной правой оси (ScalesYAt = 1),
+    /// иначе их кривая выродилась бы в прямую по нулю. Цвета серий и осей берутся
+    /// из <see cref="_palette"/>, а не зашиты, — чтобы график следовал теме оформления.
+    /// </summary>
+    private void BuildTrendSeries(IReadOnlyList<AccountStatsSnapshot> history)
+    {
         TrendSeries =
         [
             new LineSeries<double>
             {
                 Name = "Звёзды",
                 Values = history.Select(h => (double)h.Stars).ToArray(),
-                Stroke = new SolidColorPaint(new SKColor(0xFF, 0xD5, 0x4F), 2),
-                GeometryStroke = new SolidColorPaint(new SKColor(0xFF, 0xD5, 0x4F), 2),
+                Stroke = new SolidColorPaint(_palette.StarsLineColor, 2),
+                GeometryStroke = new SolidColorPaint(_palette.StarsLineColor, 2),
                 Fill = null,
             },
             new LineSeries<double>
             {
                 Name = "Демоны",
                 Values = history.Select(h => (double)h.Demons).ToArray(),
-                Stroke = new SolidColorPaint(new SKColor(0xEF, 0x53, 0x50), 2),
-                GeometryStroke = new SolidColorPaint(new SKColor(0xEF, 0x53, 0x50), 2),
+                Stroke = new SolidColorPaint(_palette.DemonsLineColor, 2),
+                GeometryStroke = new SolidColorPaint(_palette.DemonsLineColor, 2),
                 Fill = null,
                 ScalesYAt = 1,
             },
         ];
 
-        TrendXAxes = [new Axis { Labels = history.Select(h => h.CapturedAt.ToLocalTime().ToString("dd.MM")).ToArray() }];
+        TrendXAxes =
+        [
+            new Axis
+            {
+                Labels = history.Select(h => h.CapturedAt.ToLocalTime().ToString("dd.MM")).ToArray(),
+                LabelsPaint = new SolidColorPaint(_palette.AxisLabelColor),
+                SeparatorsPaint = new SolidColorPaint(_palette.AxisLineColor),
+            },
+        ];
         TrendYAxes =
         [
-            new Axis { Name = "Звёзды" },
-            new Axis { Name = "Демоны", Position = AxisPosition.End },
+            new Axis
+            {
+                Name = "Звёзды",
+                LabelsPaint = new SolidColorPaint(_palette.AxisLabelColor),
+                SeparatorsPaint = new SolidColorPaint(_palette.AxisLineColor),
+            },
+            new Axis
+            {
+                Name = "Демоны",
+                Position = AxisPosition.End,
+                LabelsPaint = new SolidColorPaint(_palette.AxisLabelColor),
+                SeparatorsPaint = new SolidColorPaint(_palette.AxisLineColor),
+            },
         ];
     }
 

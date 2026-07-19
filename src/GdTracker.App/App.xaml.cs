@@ -52,6 +52,13 @@ public partial class App : Application
                 // (Wpf.Ui), что конфликтует с нашей абстракцией того же имени.
                 services.AddSingleton<GdTracker.ViewModels.IThemeService, GdTracker.App.Services.ThemeService>();
 
+                // Палитра цветов графиков статистики: общая на всё приложение (singleton),
+                // в отличие от транзиентных StatsViewModel — ThemeService оповещает её
+                // о смене темы, а она уведомляет открытую страницу статистики.
+                services.AddSingleton<GdTracker.App.Services.ChartPaletteService>();
+                services.AddSingleton<GdTracker.ViewModels.IChartPalette>(
+                    sp => sp.GetRequiredService<GdTracker.App.Services.ChartPaletteService>());
+
                 // Онлайн-поиск уровней на серверах GD.
                 services.AddSingleton<IGdLevelSearch, GdLevelSearchClient>();
 
