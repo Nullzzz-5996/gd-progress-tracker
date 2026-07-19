@@ -1,0 +1,31 @@
+<!--
+    Тёмная тема (по умолчанию). Значения кистей — ровно те цвета, что были жёстко
+    зашиты в разметке страниц до вынесения тем в ресурсы, поэтому внешний вид
+    тёмной темы не меняется.
+
+    Набор ключей одинаков во всех трёх словарях (Dark/Light/Neon.xaml) — при
+    переключении темы все ключи обязаны разрешаться, иначе элемент останется
+    без кисти.
+-->
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!-- Карточки статистики -->
+    <SolidColorBrush x:Key="CardBackgroundBrush" Color="#22FFFFFF" />
+    <SolidColorBrush x:Key="CardBorderBrush" Color="#33888888" />
+
+    <!-- Акценты сводки аккаунта -->
+    <SolidColorBrush x:Key="StarsAccentBrush" Color="#FFD54F" />
+    <SolidColorBrush x:Key="MoonsAccentBrush" Color="#B39DDB" />
+    <SolidColorBrush x:Key="DemonsAccentBrush" Color="#EF5350" />
+    <SolidColorBrush x:Key="CoinsAccentBrush" Color="#FFB300" />
+    <SolidColorBrush x:Key="OrbsAccentBrush" Color="#4DD0E1" />
+
+    <!-- Акценты сводки прогресса в трекере -->
+    <SolidColorBrush x:Key="CompletedAccentBrush" Color="#4CAF50" />
+    <SolidColorBrush x:Key="InProgressAccentBrush" Color="#FFC107" />
+
+    <!-- Предупреждающие сообщения -->
+    <SolidColorBrush x:Key="WarningBrush" Color="#FFC107" />
+
+</ResourceDictionary>

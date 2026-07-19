@@ -47,6 +47,11 @@ public partial class App : Application
                 services.AddSingleton<IFileDialogService, FileDialogService>();
                 services.AddSingleton<IConfirmationService, ConfirmationService>();
 
+                // Темы оформления.
+                // Полные имена типов: WPF-UI сам определяет IThemeService/ThemeService
+                // (Wpf.Ui), что конфликтует с нашей абстракцией того же имени.
+                services.AddSingleton<GdTracker.ViewModels.IThemeService, GdTracker.App.Services.ThemeService>();
+
                 // Онлайн-поиск уровней на серверах GD.
                 services.AddSingleton<IGdLevelSearch, GdLevelSearchClient>();
 
@@ -85,6 +90,11 @@ public partial class App : Application
         }
 
         await _host.StartAsync();
+
+        // Тема применяется до показа главного окна, чтобы окно сразу
+        // отрисовалось в выбранной теме, без промежуточного мигания дефолтной.
+        var theme = _host.Services.GetRequiredService<ISettingsService>().Theme;
+        _host.Services.GetRequiredService<GdTracker.ViewModels.IThemeService>().ApplyTheme(theme);
 
         _host.Services.GetRequiredService<MainWindow>().Show();
     }
