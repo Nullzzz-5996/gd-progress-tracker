@@ -20,6 +20,7 @@ public partial class LevelsViewModel : ViewModelBase
     private readonly ISaveImportService _importer;
     private readonly IProgressSharingService _sharing;
     private readonly IFileDialogService _fileDialog;
+    private readonly IConfirmationService _confirmation;
     private readonly ISettingsService _settings;
 
     private readonly List<LevelRowViewModel> _allRows = new();
@@ -31,6 +32,7 @@ public partial class LevelsViewModel : ViewModelBase
         ISaveImportService importer,
         IProgressSharingService sharing,
         IFileDialogService fileDialog,
+        IConfirmationService confirmation,
         ISettingsService settings)
     {
         _levels = levels;
@@ -39,6 +41,7 @@ public partial class LevelsViewModel : ViewModelBase
         _importer = importer;
         _sharing = sharing;
         _fileDialog = fileDialog;
+        _confirmation = confirmation;
         _settings = settings;
         _saveFilePath = settings.SaveFilePath ?? saveReader.DefaultSaveFilePath ?? string.Empty;
     }
@@ -178,6 +181,13 @@ public partial class LevelsViewModel : ViewModelBase
             return;
         }
 
+        var levelName = SelectedRow.Level.Name;
+        var confirmed = _confirmation.Confirm(
+            "Удаление уровня",
+            $"Удалить уровень «{levelName}»?\n\nЭто действие необратимо: вместе с уровнем будут удалены все записи о прогрессе по нему.");
+        if (!confirmed)
+            return;
+
         await _levels.DeleteAsync(SelectedRow.Level.Id);
         SelectedRow = null;
         Detail = null;
@@ -194,6 +204,12 @@ public partial class LevelsViewModel : ViewModelBase
             Error = "Не выбрано ни одного уровня.";
             return;
         }
+
+        var confirmed = _confirmation.Confirm(
+            "Удаление уровней",
+            $"Удалить выбранные уровни ({ids.Count})?\n\nЭто действие необратимо: вместе с уровнями будут удалены все записи о прогрессе по ним.");
+        if (!confirmed)
+            return;
 
         await _levels.DeleteManyAsync(ids);
         SelectedRow = null;

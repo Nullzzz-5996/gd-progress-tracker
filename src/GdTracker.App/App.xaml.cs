@@ -41,9 +41,10 @@ public partial class App : Application
                 services.AddSingleton<ISaveFileReader, SaveFileReader>();
                 services.AddSingleton<ISaveImportService, SaveImportService>();
 
-                // Обмен прогрессом (экспорт/импорт файлами) + файловые диалоги.
+                // Обмен прогрессом (экспорт/импорт файлами) + файловые диалоги и диалоги подтверждения.
                 services.AddSingleton<IProgressSharingService, ProgressSharingService>();
                 services.AddSingleton<IFileDialogService, FileDialogService>();
+                services.AddSingleton<IConfirmationService, ConfirmationService>();
 
                 // Онлайн-поиск уровней на серверах GD.
                 services.AddSingleton<IGdLevelSearch, GdLevelSearchClient>();

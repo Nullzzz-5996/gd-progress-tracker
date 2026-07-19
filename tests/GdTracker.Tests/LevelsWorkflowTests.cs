@@ -50,7 +50,7 @@ public class LevelsWorkflowTests : IDisposable
 
             var levelsVm = new LevelsViewModel(
                 levels, progress, new SaveFileReader(), new SaveImportService(factory),
-                new ProgressSharingService(factory), new NullFileDialog(), new FakeSettings());
+                new ProgressSharingService(factory), new NullFileDialog(), new FakeConfirmation(), new FakeSettings());
             await levelsVm.LoadAsync();
 
             levelsVm.NewLevelName = "Bloodbath";
@@ -133,7 +133,7 @@ public class LevelsWorkflowTests : IDisposable
 
         var vm = new LevelsViewModel(
             levels, progress, new SaveFileReader(), new SaveImportService(factory),
-            new ProgressSharingService(factory), new NullFileDialog(), settings);
+            new ProgressSharingService(factory), new NullFileDialog(), new FakeConfirmation(), settings);
 
         // При конструировании не должно быть вызовов SetSaveFilePath.
         settings.SetSaveFilePathCallCount.Should().Be(0);
@@ -152,13 +152,130 @@ public class LevelsWorkflowTests : IDisposable
 
         var vm = new LevelsViewModel(
             levels, progress, new SaveFileReader(), new SaveImportService(factory),
-            new ProgressSharingService(factory), new NullFileDialog(), settings);
+            new ProgressSharingService(factory), new NullFileDialog(), new FakeConfirmation(), settings);
 
         // Изменение свойства после конструирования должно вызвать SetSaveFilePath.
         vm.SaveFilePath = @"C:\new\CCGameManager.dat";
 
         settings.SetSaveFilePathCallCount.Should().Be(1);
         settings.SaveFilePath.Should().Be(@"C:\new\CCGameManager.dat");
+    }
+
+    [Fact]
+    public async Task Bulk_delete_declined_confirmation_leaves_levels_and_skips_repository()
+    {
+        var factory = new FileFactory(_dbPath);
+        var innerLevels = new LevelRepository(factory);
+        var countingLevels = new DeleteCountingLevelRepository(innerLevels);
+        var progress = new ProgressRepository(factory);
+        var confirmation = new FakeConfirmation { Result = false };
+
+        var vm = new LevelsViewModel(
+            countingLevels, progress, new SaveFileReader(), new SaveImportService(factory),
+            new ProgressSharingService(factory), new NullFileDialog(), confirmation, new FakeSettings());
+
+        await vm.LoadAsync();
+        vm.NewLevelName = "Level A";
+        await vm.AddLevelCommand.ExecuteAsync(null);
+        vm.NewLevelName = "Level B";
+        await vm.AddLevelCommand.ExecuteAsync(null);
+
+        vm.SelectAllCommand.Execute(null);
+        vm.SelectedCount.Should().Be(2);
+
+        await vm.DeleteSelectedCommand.ExecuteAsync(null);
+
+        confirmation.CallCount.Should().Be(1);
+        confirmation.LastMessage.Should().Contain("2");
+        countingLevels.DeleteManyAsyncCallCount.Should().Be(0);
+        vm.Levels.Should().HaveCount(2);
+
+        var remaining = await innerLevels.GetAllAsync();
+        remaining.Should().HaveCount(2);
+    }
+
+    [Fact]
+    public async Task Bulk_delete_confirmed_removes_levels()
+    {
+        var factory = new FileFactory(_dbPath);
+        var levels = new LevelRepository(factory);
+        var progress = new ProgressRepository(factory);
+        var confirmation = new FakeConfirmation { Result = true };
+
+        var vm = new LevelsViewModel(
+            levels, progress, new SaveFileReader(), new SaveImportService(factory),
+            new ProgressSharingService(factory), new NullFileDialog(), confirmation, new FakeSettings());
+
+        await vm.LoadAsync();
+        vm.NewLevelName = "Level A";
+        await vm.AddLevelCommand.ExecuteAsync(null);
+        vm.NewLevelName = "Level B";
+        await vm.AddLevelCommand.ExecuteAsync(null);
+
+        vm.SelectAllCommand.Execute(null);
+        await vm.DeleteSelectedCommand.ExecuteAsync(null);
+
+        confirmation.CallCount.Should().Be(1);
+        vm.Levels.Should().BeEmpty();
+
+        var remaining = await levels.GetAllAsync();
+        remaining.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task Single_delete_declined_confirmation_leaves_level_and_skips_repository()
+    {
+        var factory = new FileFactory(_dbPath);
+        var innerLevels = new LevelRepository(factory);
+        var countingLevels = new DeleteCountingLevelRepository(innerLevels);
+        var progress = new ProgressRepository(factory);
+        var confirmation = new FakeConfirmation { Result = false };
+
+        var vm = new LevelsViewModel(
+            countingLevels, progress, new SaveFileReader(), new SaveImportService(factory),
+            new ProgressSharingService(factory), new NullFileDialog(), confirmation, new FakeSettings());
+
+        await vm.LoadAsync();
+        vm.NewLevelName = "Solo Level";
+        await vm.AddLevelCommand.ExecuteAsync(null);
+        vm.SelectedRow.Should().NotBeNull();
+
+        await vm.DeleteCurrentLevelCommand.ExecuteAsync(null);
+
+        confirmation.CallCount.Should().Be(1);
+        countingLevels.DeleteAsyncCallCount.Should().Be(0);
+        vm.Levels.Should().ContainSingle();
+        vm.SelectedRow.Should().NotBeNull();
+
+        var remaining = await innerLevels.GetAllAsync();
+        remaining.Should().ContainSingle();
+    }
+
+    [Fact]
+    public async Task Single_delete_confirmed_removes_level()
+    {
+        var factory = new FileFactory(_dbPath);
+        var levels = new LevelRepository(factory);
+        var progress = new ProgressRepository(factory);
+        var confirmation = new FakeConfirmation { Result = true };
+
+        var vm = new LevelsViewModel(
+            levels, progress, new SaveFileReader(), new SaveImportService(factory),
+            new ProgressSharingService(factory), new NullFileDialog(), confirmation, new FakeSettings());
+
+        await vm.LoadAsync();
+        vm.NewLevelName = "Solo Level";
+        await vm.AddLevelCommand.ExecuteAsync(null);
+
+        await vm.DeleteCurrentLevelCommand.ExecuteAsync(null);
+
+        confirmation.CallCount.Should().Be(1);
+        confirmation.LastMessage.Should().Contain("Solo Level");
+        vm.Levels.Should().BeEmpty();
+        vm.SelectedRow.Should().BeNull();
+
+        var remaining = await levels.GetAllAsync();
+        remaining.Should().BeEmpty();
     }
 
     public void Dispose()
