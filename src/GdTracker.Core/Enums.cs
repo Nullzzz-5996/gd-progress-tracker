@@ -45,3 +45,16 @@ public enum ProgressSource
     /// <summary>Захвачено в реальном времени (Geode-мост / чтение памяти).</summary>
     Live,
 }
+
+/// <summary>Тема оформления приложения.</summary>
+public enum AppTheme
+{
+    /// <summary>Тёмная тема (по умолчанию).</summary>
+    Dark,
+
+    /// <summary>Светлая тема.</summary>
+    Light,
+
+    /// <summary>Неоновая тема.</summary>
+    Neon,
+}

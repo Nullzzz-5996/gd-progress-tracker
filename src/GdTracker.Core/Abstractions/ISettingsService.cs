@@ -12,4 +12,10 @@ public interface ISettingsService
 
     /// <summary>Задаёт (или очищает при null) путь к сейв-файлу и сразу сохраняет настройки.</summary>
     void SetSaveFilePath(string? path);
+
+    /// <summary>Текущая тема оформления. По умолчанию (и при отсутствии/повреждении настроек) — тёмная.</summary>
+    AppTheme Theme { get; }
+
+    /// <summary>Задаёт тему оформления и сразу сохраняет настройки.</summary>
+    void SetTheme(AppTheme theme);
 }

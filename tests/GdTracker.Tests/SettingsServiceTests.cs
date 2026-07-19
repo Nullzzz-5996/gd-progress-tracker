@@ -1,4 +1,5 @@
 using FluentAssertions;
+using GdTracker.Core;
 using GdTracker.Data;
 
 namespace GdTracker.Tests;
@@ -60,6 +61,70 @@ public class SettingsServiceTests : IDisposable
 
         var filesInDir = Directory.GetFiles(_dir);
         filesInDir.Should().HaveCount(1).And.Contain(SettingsPath);
+    }
+
+    [Fact]
+    public void Missing_file_yields_dark_theme_by_default()
+    {
+        var settings = new SettingsService(SettingsPath);
+
+        settings.Theme.Should().Be(AppTheme.Dark);
+    }
+
+    [Fact]
+    public void Theme_survives_a_new_instance()
+    {
+        new SettingsService(SettingsPath).SetTheme(AppTheme.Neon);
+
+        new SettingsService(SettingsPath).Theme.Should().Be(AppTheme.Neon);
+    }
+
+    [Fact]
+    public void Garbage_theme_value_falls_back_to_dark_instead_of_throwing()
+    {
+        Directory.CreateDirectory(_dir);
+        File.WriteAllText(SettingsPath, """{ "Theme": "Кислотная" }""");
+
+        var settings = new SettingsService(SettingsPath);
+
+        settings.Theme.Should().Be(AppTheme.Dark);
+    }
+
+    [Fact]
+    public void Numeric_garbage_theme_value_falls_back_to_dark_instead_of_throwing()
+    {
+        Directory.CreateDirectory(_dir);
+        File.WriteAllText(SettingsPath, """{ "Theme": 999 }""");
+
+        var settings = new SettingsService(SettingsPath);
+
+        settings.Theme.Should().Be(AppTheme.Dark);
+    }
+
+    [Fact]
+    public void Setting_theme_does_not_lose_previously_saved_save_path()
+    {
+        var settings = new SettingsService(SettingsPath);
+        settings.SetSaveFilePath(@"C:\games\CCGameManager.dat");
+
+        settings.SetTheme(AppTheme.Light);
+
+        var reloaded = new SettingsService(SettingsPath);
+        reloaded.SaveFilePath.Should().Be(@"C:\games\CCGameManager.dat");
+        reloaded.Theme.Should().Be(AppTheme.Light);
+    }
+
+    [Fact]
+    public void Setting_save_path_does_not_lose_previously_saved_theme()
+    {
+        var settings = new SettingsService(SettingsPath);
+        settings.SetTheme(AppTheme.Neon);
+
+        settings.SetSaveFilePath(@"C:\games\CCGameManager.dat");
+
+        var reloaded = new SettingsService(SettingsPath);
+        reloaded.Theme.Should().Be(AppTheme.Neon);
+        reloaded.SaveFilePath.Should().Be(@"C:\games\CCGameManager.dat");
     }
 
     public void Dispose()

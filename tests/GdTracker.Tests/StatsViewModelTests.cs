@@ -1,5 +1,6 @@
 using System.Threading;
 using FluentAssertions;
+using GdTracker.Core;
 using GdTracker.Core.Abstractions;
 using GdTracker.Core.Models;
 using GdTracker.Data.Repositories;
@@ -73,6 +74,10 @@ internal sealed class FakeSettings : ISettingsService
         SaveFilePath = path;
         SetSaveFilePathCallCount++;
     }
+
+    public AppTheme Theme { get; private set; } = AppTheme.Dark;
+
+    public void SetTheme(AppTheme theme) => Theme = theme;
 }
 
 public class StatsViewModelTests

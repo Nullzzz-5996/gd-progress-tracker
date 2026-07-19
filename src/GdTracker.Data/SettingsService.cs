@@ -1,4 +1,5 @@
 using System.Text.Json;
+using GdTracker.Core;
 using GdTracker.Core.Abstractions;
 
 namespace GdTracker.Data;
@@ -26,6 +27,16 @@ public sealed class SettingsService : ISettingsService
     public void SetSaveFilePath(string? path)
     {
         _settings = _settings with { SaveFilePath = string.IsNullOrWhiteSpace(path) ? null : path };
+        Save();
+    }
+
+    public AppTheme Theme => Enum.TryParse<AppTheme>(_settings.Theme, ignoreCase: true, out var theme)
+        ? theme
+        : AppTheme.Dark;
+
+    public void SetTheme(AppTheme theme)
+    {
+        _settings = _settings with { Theme = theme.ToString() };
         Save();
     }
 
@@ -88,5 +99,12 @@ public sealed class SettingsService : ISettingsService
     private sealed record AppSettings
     {
         public string? SaveFilePath { get; init; }
+
+        /// <summary>
+        /// Тема хранится строкой (имя значения <see cref="AppTheme"/>), а не самим перечислением:
+        /// это позволяет отличить отсутствующее/испорченное значение от корректного при чтении
+        /// (см. <see cref="Theme"/>), не роняя десериализацию всего файла.
+        /// </summary>
+        public string? Theme { get; init; }
     }
 }
