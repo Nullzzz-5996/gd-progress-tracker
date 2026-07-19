@@ -119,6 +119,14 @@
                 </Border>
             </WrapPanel>
 
+            <!-- Динамика: звёзды по левой оси, демоны по правой (различаются в десятки раз) -->
+            <TextBlock Text="Динамика звёзд и демонов" FontSize="18" FontWeight="SemiBold" Margin="0,16,0,8" />
+            <lvc:CartesianChart Series="{Binding TrendSeries}"
+                                XAxes="{Binding TrendXAxes}"
+                                YAxes="{Binding TrendYAxes}"
+                                Height="260"
+                                LegendPosition="Top" />
+
             <!-- Прогресс в трекере: данные из БД приложения -->
             <TextBlock Text="Прогресс в трекере" FontSize="18" FontWeight="SemiBold" Margin="0,16,0,8" />
 
