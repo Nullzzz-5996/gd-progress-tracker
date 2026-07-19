@@ -12,11 +12,14 @@ public partial class OnlineSearchViewModel : ViewModelBase
 {
     private readonly IGdLevelSearch _search;
     private readonly ILevelRepository _levels;
+    private readonly ISaveProgressLookupService _progressLookup;
 
-    public OnlineSearchViewModel(IGdLevelSearch search, ILevelRepository levels)
+    public OnlineSearchViewModel(
+        IGdLevelSearch search, ILevelRepository levels, ISaveProgressLookupService progressLookup)
     {
         _search = search;
         _levels = levels;
+        _progressLookup = progressLookup;
     }
 
     [ObservableProperty] private string _query = string.Empty;
@@ -68,15 +71,30 @@ public partial class OnlineSearchViewModel : ViewModelBase
             return;
         }
 
-        await _levels.AddAsync(new Level
+        IsBusy = true;
+        try
         {
-            GdLevelId = level.Id,
-            Name = level.Name,
-            Source = LevelSource.Online,
-            Creator = level.Creator,
-            Difficulty = level.Difficulty,
-            Stars = level.Stars,
-        });
-        Status = $"Добавлено в трекер: «{level.Name}».";
+            await _levels.AddAsync(new Level
+            {
+                GdLevelId = level.Id,
+                Name = level.Name,
+                Source = LevelSource.Online,
+                Creator = level.Creator,
+                Difficulty = level.Difficulty,
+                Stars = level.Stars,
+            });
+
+            // Пользователь мог уже играть в этот уровень до его добавления через поиск —
+            // подтягиваем прогресс из сейва, если он там есть, чтобы не показывать нулевые
+            // попытки на уровне, который на самом деле уже пройден на сколько-то процентов.
+            var progressFound = await _progressLookup.TryApplyProgressAsync(level.Id);
+            Status = progressFound
+                ? $"Добавлено в трекер: «{level.Name}». Прогресс подтянут из сейва."
+                : $"Добавлено в трекер: «{level.Name}». В сейве этот уровень не найден.";
+        }
+        finally
+        {
+            IsBusy = false;
+        }
     }
 }

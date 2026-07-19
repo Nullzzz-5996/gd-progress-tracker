@@ -40,6 +40,7 @@ public partial class App : Application
                 // Импорт из сейв-файла GD.
                 services.AddSingleton<ISaveFileReader, SaveFileReader>();
                 services.AddSingleton<ISaveImportService, SaveImportService>();
+                services.AddSingleton<ISaveProgressLookupService, SaveProgressLookupService>();
 
                 // Обмен прогрессом (экспорт/импорт файлами) + файловые диалоги и диалоги подтверждения.
                 services.AddSingleton<IProgressSharingService, ProgressSharingService>();

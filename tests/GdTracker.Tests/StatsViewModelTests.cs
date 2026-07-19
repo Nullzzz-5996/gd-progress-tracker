@@ -29,7 +29,26 @@ internal sealed class FakeSaveReader : ISaveFileReader
     /// позволяет тесту гарантированно свести во времени два параллельных вызова команды.</summary>
     public ManualResetEventSlim? ReadGate { get; set; }
 
-    public IReadOnlyList<SaveLevelDto> ReadLevels(string saveFilePath) => [];
+    /// <summary>Уровни, которые вернёт <see cref="ReadLevels"/> (по умолчанию — пустой список).</summary>
+    public IReadOnlyList<SaveLevelDto> Levels { get; set; } = [];
+
+    /// <summary>Если true, ReadLevels бросает исключение — имитация битого/недоступного файла.</summary>
+    public bool ThrowOnReadLevels { get; set; }
+
+    public int ReadLevelsCallCount { get; private set; }
+
+    /// <summary>Путь, с которым последний раз вызвали <see cref="ReadLevels"/> — для проверки,
+    /// что вызывающий код резолвит путь в правильном порядке (настройки, потом автоопределение).</summary>
+    public string? LastReadLevelsPath { get; private set; }
+
+    public IReadOnlyList<SaveLevelDto> ReadLevels(string saveFilePath)
+    {
+        ReadLevelsCallCount++;
+        LastReadLevelsPath = saveFilePath;
+        if (ThrowOnReadLevels)
+            throw new IOException("файл занят");
+        return Levels;
+    }
 
     public AccountStats? ReadAccountStats(string saveFilePath)
     {
