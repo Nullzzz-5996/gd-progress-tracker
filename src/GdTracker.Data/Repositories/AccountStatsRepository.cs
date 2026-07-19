@@ -65,6 +65,15 @@ public class AccountStatsRepository : IAccountStatsRepository
         return snapshot;
     }
 
+    public async Task<IReadOnlyList<AccountStatsSnapshot>> GetHistoryAsync(CancellationToken ct = default)
+    {
+        await using var db = await _factory.CreateDbContextAsync(ct);
+        return await db.AccountStatsSnapshots.AsNoTracking()
+            .OrderBy(s => s.CapturedAt)
+            .ThenBy(s => s.Id)
+            .ToListAsync(ct);
+    }
+
     /// <summary>
     /// Сравнение только по девяти метрикам, не по RawValuesJson: посторонний ключ,
     /// меняющийся при каждом запуске игры, иначе плодил бы строки на пустом месте.

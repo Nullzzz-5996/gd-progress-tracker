@@ -128,6 +128,31 @@ public class AccountStatsRepositoryTests
     }
 
     [Fact]
+    public async Task History_is_empty_when_no_snapshots()
+    {
+        using var factory = new InMemorySqlite();
+        var repo = new AccountStatsRepository(factory);
+
+        (await repo.GetHistoryAsync()).Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task History_is_ordered_from_oldest_to_newest()
+    {
+        using var factory = new InMemorySqlite();
+        var repo = new AccountStatsRepository(factory);
+
+        await repo.AddIfChangedAsync(Sample(886), null);
+        await repo.AddIfChangedAsync(Sample(890), null);
+        await repo.AddIfChangedAsync(Sample(895), null);
+
+        var history = await repo.GetHistoryAsync();
+
+        history.Should().HaveCount(3);
+        history.Select(h => h.Stars).Should().ContainInOrder(886L, 890L, 895L);
+    }
+
+    [Fact]
     public async Task Raw_values_change_alone_does_not_create_a_new_row()
     {
         using var factory = new InMemorySqlite();

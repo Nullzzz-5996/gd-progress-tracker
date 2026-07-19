@@ -16,4 +16,10 @@ public interface IAccountStatsRepository
     /// </summary>
     Task<AccountStatsSnapshot> AddIfChangedAsync(
         AccountStats stats, DateTime? saveFileWrittenAt, CancellationToken ct = default);
+
+    /// <summary>
+    /// Все снимки от старых к новым — для графика динамики.
+    /// Ограничения по количеству нет: строка пишется только при изменении метрик, их мало.
+    /// </summary>
+    Task<IReadOnlyList<AccountStatsSnapshot>> GetHistoryAsync(CancellationToken ct = default);
 }

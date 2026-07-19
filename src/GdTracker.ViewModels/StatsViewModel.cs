@@ -4,7 +4,10 @@ using GdTracker.Core.Abstractions;
 using GdTracker.Core.Models;
 using GdTracker.Core.Services;
 using LiveChartsCore;
+using LiveChartsCore.Measure;
 using LiveChartsCore.SkiaSharpView;
+using LiveChartsCore.SkiaSharpView.Painting;
+using SkiaSharp;
 
 namespace GdTracker.ViewModels;
 
@@ -60,6 +63,10 @@ public partial class StatsViewModel : ViewModelBase
     [ObservableProperty] private string? _accountStatus;
     [ObservableProperty] private string? _accountUpdatedAt;
     [ObservableProperty] private bool _isAccountBusy;
+
+    [ObservableProperty] private ISeries[] _trendSeries = [];
+    [ObservableProperty] private Axis[] _trendXAxes = [];
+    [ObservableProperty] private Axis[] _trendYAxes = [];
 
     /// <summary>Ошибка загрузки нижней секции. Отдельно от AccountStatus: иначе успешное
     /// чтение сейва затирало бы сообщение о сбое в трекерной секции.</summary>
@@ -146,6 +153,44 @@ public partial class StatsViewModel : ViewModelBase
         ];
     }
 
+    /// <summary>
+    /// Строит график динамики по накопленным снимкам. Звёзды и демоны различаются
+    /// в десятки раз, поэтому демоны идут по отдельной правой оси (ScalesYAt = 1),
+    /// иначе их кривая выродилась бы в прямую по нулю.
+    /// </summary>
+    private async Task LoadTrendAsync()
+    {
+        var history = await _accountStats.GetHistoryAsync();
+
+        TrendSeries =
+        [
+            new LineSeries<double>
+            {
+                Name = "Звёзды",
+                Values = history.Select(h => (double)h.Stars).ToArray(),
+                Stroke = new SolidColorPaint(new SKColor(0xFF, 0xD5, 0x4F), 2),
+                GeometryStroke = new SolidColorPaint(new SKColor(0xFF, 0xD5, 0x4F), 2),
+                Fill = null,
+            },
+            new LineSeries<double>
+            {
+                Name = "Демоны",
+                Values = history.Select(h => (double)h.Demons).ToArray(),
+                Stroke = new SolidColorPaint(new SKColor(0xEF, 0x53, 0x50), 2),
+                GeometryStroke = new SolidColorPaint(new SKColor(0xEF, 0x53, 0x50), 2),
+                Fill = null,
+                ScalesYAt = 1,
+            },
+        ];
+
+        TrendXAxes = [new Axis { Labels = history.Select(h => h.CapturedAt.ToLocalTime().ToString("dd.MM")).ToArray() }];
+        TrendYAxes =
+        [
+            new Axis { Name = "Звёзды" },
+            new Axis { Name = "Демоны", Position = AxisPosition.End },
+        ];
+    }
+
     /// <summary>Перечитывает сейв безусловно, игнорируя проверку времени записи.</summary>
     /// <remarks>
     /// Чтение сейва — операция на секунду и сотни мегабайт памяти, поэтому повторный клик
@@ -191,6 +236,9 @@ public partial class StatsViewModel : ViewModelBase
             if (string.IsNullOrWhiteSpace(path))
             {
                 AccountStatus = "Сейв-файл Geometry Dash не найден. Укажите файл CCGameManager.dat вручную.";
+                // Путь не задан, но снимки от прошлых запусков (или уже прочитанные командой
+                // "Выбрать файл" ранее) могли остаться в БД — график должен их показать.
+                await LoadTrendAsync();
                 return;
             }
 
@@ -198,6 +246,8 @@ public partial class StatsViewModel : ViewModelBase
             if (writtenAt is null)
             {
                 AccountStatus = $"Файл не найден: {path}";
+                // Сейв сейчас недоступен, но накопленная история снимков остаётся полезной.
+                await LoadTrendAsync();
                 return;
             }
 
@@ -209,6 +259,10 @@ public partial class StatsViewModel : ViewModelBase
                 // Успешный пропуск чтения — тоже успешная ветка: висящее предупреждение
                 // с прошлой (неудачной) попытки не должно оставаться поверх корректных данных.
                 AccountStatus = null;
+                // Новый снимок мог появиться с прошлого построения графика этой вкладки
+                // (например, его добавил параллельный "Обновить"), поэтому график всё
+                // равно перестраивается из БД, даже когда само чтение сейва пропущено.
+                await LoadTrendAsync();
                 return;
             }
 
@@ -221,6 +275,7 @@ public partial class StatsViewModel : ViewModelBase
                 if (!force && _loadedSaveFileWrittenAt == writtenAt)
                 {
                     AccountStatus = null;
+                    await LoadTrendAsync();
                     return;
                 }
 
@@ -235,6 +290,7 @@ public partial class StatsViewModel : ViewModelBase
                         // нельзя без изменения контракта ISaveFileReader, поэтому сообщение
                         // честно описывает оба случая.
                         AccountStatus = "Не удалось получить статистику из сейва: блок GS_value отсутствует или повреждён.";
+                        await LoadTrendAsync();
                         return;
                     }
 
@@ -243,6 +299,7 @@ public partial class StatsViewModel : ViewModelBase
                     _loadedSaveFileWrittenAt = writtenAt;
                     Apply(snapshot, readAt);
                     AccountStatus = null;
+                    await LoadTrendAsync();
                 }
                 finally
                 {

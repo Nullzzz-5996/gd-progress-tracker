@@ -4,6 +4,7 @@ using GdTracker.Core.Abstractions;
 using GdTracker.Core.Models;
 using GdTracker.Data.Repositories;
 using GdTracker.ViewModels;
+using LiveChartsCore.SkiaSharpView;
 using Microsoft.EntityFrameworkCore;
 
 namespace GdTracker.Tests;
@@ -371,5 +372,63 @@ public class StatsViewModelTests
         vm.AccountStatus.Should().BeNull(
             "успешный пропуск чтения не должен оставлять старое предупреждение поверх данных");
         vm.AccountStars.Should().Be(886);
+    }
+
+    [Fact]
+    public async Task Trend_has_two_series_scaled_to_separate_axes()
+    {
+        using var factory = new InMemorySqlite();
+        var vm = Build(factory, new FakeSaveReader(Stats()));
+
+        await vm.LoadAsync();
+
+        vm.TrendSeries.Should().HaveCount(2);
+        vm.TrendYAxes.Should().HaveCount(2);
+        // Демоны меньше звёзд в десятки раз — на общей оси они выродились бы в прямую.
+        // ScalesYAt объявлен на ICartesianSeries/конкретном LineSeries<double>, а не на ISeries,
+        // поэтому нужно то же приведение типа, что и в соседних тестах этого файла.
+        ((LineSeries<double>)vm.TrendSeries[1]).ScalesYAt.Should().Be(1);
+    }
+
+    [Fact]
+    public async Task Trend_plots_every_snapshot_with_matching_labels()
+    {
+        using var factory = new InMemorySqlite();
+        var repo = new AccountStatsRepository(factory);
+        await repo.AddIfChangedAsync(Stats(886), null);
+        await repo.AddIfChangedAsync(Stats(890), null);
+        var vm = Build(factory, new FakeSaveReader(Stats(890)));
+
+        await vm.LoadAsync();
+
+        var stars = (LineSeries<double>)vm.TrendSeries[0];
+        stars.Values!.Should().HaveCount(2);
+        vm.TrendXAxes[0].Labels.Should().HaveCount(2);
+    }
+
+    [Fact]
+    public async Task Trend_with_single_snapshot_has_one_point()
+    {
+        using var factory = new InMemorySqlite();
+        var vm = Build(factory, new FakeSaveReader(Stats()));
+
+        await vm.LoadAsync();
+
+        var stars = (LineSeries<double>)vm.TrendSeries[0];
+        stars.Values!.Should().HaveCount(1);
+    }
+
+    [Fact]
+    public async Task Trend_is_empty_without_snapshots_and_does_not_throw()
+    {
+        using var factory = new InMemorySqlite();
+        // Сейв недоступен — снимков не появится вовсе.
+        var reader = new FakeSaveReader(Stats()) { DefaultSaveFilePath = null };
+        var vm = Build(factory, reader);
+
+        await vm.LoadAsync();
+
+        var stars = (LineSeries<double>)vm.TrendSeries[0];
+        stars.Values!.Should().BeEmpty();
     }
 }
