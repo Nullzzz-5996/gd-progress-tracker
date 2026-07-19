@@ -1,4 +1,4 @@
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Windows;
 using GdTracker.App.Services;
 using GdTracker.App.Views;
@@ -105,7 +105,7 @@ public partial class App : Application
         var stopwatch = Stopwatch.StartNew();
 
         // Этап 1: подготовка каталогов приложения и применение миграций БД.
-        splash.SetStage("Подготовка данных приложения...");
+        splash.SetStage("Подготовка данных приложения...", stageNumber: 1);
         AppPaths.EnsureDirectories();
 
         // Применяем миграции: создаём/обновляем БД при запуске.
@@ -123,12 +123,12 @@ public partial class App : Application
         // отрисовалось в выбранной теме, без промежуточного мигания дефолтной.
         // Экран загрузки уже открыт и использует DynamicResource, поэтому он
         // корректно перекрасится в момент применения темы.
-        splash.SetStage("Применение темы оформления...");
+        splash.SetStage("Применение темы оформления...", stageNumber: 2);
         var theme = _host.Services.GetRequiredService<ISettingsService>().Theme;
         _host.Services.GetRequiredService<GdTracker.ViewModels.IThemeService>().ApplyTheme(theme);
 
         // Этап 3: построение контейнера зависимостей и главного окна.
-        splash.SetStage("Загрузка главного окна...");
+        splash.SetStage("Загрузка главного окна...", stageNumber: 3);
         var mainWindow = _host.Services.GetRequiredService<MainWindow>();
 
         // Ждём остаток минимального времени показа асинхронно: поток интерфейса не

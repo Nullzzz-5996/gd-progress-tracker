@@ -18,10 +18,15 @@ public partial class SplashWindow : Window
         InitializeComponent();
     }
 
-    /// <summary>Обновляет подпись текущего этапа загрузки.</summary>
+    /// <summary>Сколько всего этапов проходит запуск (для расчёта заполнения полосы).</summary>
+    private const int TotalStages = 3;
+
+    /// <summary>Обновляет подпись текущего этапа и продвигает полосу.</summary>
     /// <param name="stage">Название этапа по-русски.</param>
-    public void SetStage(string stage)
+    /// <param name="stageNumber">Номер этапа, начиная с 1. По нему считается заполнение.</param>
+    public void SetStage(string stage, int stageNumber)
     {
         StageText.Text = stage;
+        LoadingBar.Value = Math.Clamp(stageNumber, 0, TotalStages) * 100.0 / TotalStages;
     }
 }
