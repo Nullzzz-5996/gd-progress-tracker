@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Windows;
 using GdTracker.App.Services;
 using GdTracker.App.Views;
@@ -82,10 +83,29 @@ public partial class App : Application
             .Build();
     }
 
+    /// <summary>Минимальное время показа экрана загрузки — реальные этапы запуска
+    /// занимают доли секунды, и без этой паузы экран лишь мигнёт.</summary>
+    private static readonly TimeSpan MinSplashDuration = TimeSpan.FromSeconds(1.5);
+
     protected override async void OnStartup(StartupEventArgs e)
     {
         base.OnStartup(e);
 
+        // Экран загрузки открывается раньше главного окна и закрывается позже него.
+        // По умолчанию ShutdownMode = OnLastWindowClose: если бы splash в момент
+        // своего закрытия оставался единственным открытым окном (главное окно ещё
+        // не показано), приложение немедленно начало бы завершаться. Отключаем
+        // автозавершение на время инициализации и включаем его обратно в конце
+        // метода, уже привязав к настоящему главному окну.
+        ShutdownMode = ShutdownMode.OnExplicitShutdown;
+
+        var splash = new SplashWindow();
+        splash.Show();
+
+        var stopwatch = Stopwatch.StartNew();
+
+        // Этап 1: подготовка каталогов приложения и применение миграций БД.
+        splash.SetStage("Подготовка данных приложения...");
         AppPaths.EnsureDirectories();
 
         // Применяем миграции: создаём/обновляем БД при запуске.
@@ -98,12 +118,36 @@ public partial class App : Application
 
         await _host.StartAsync();
 
+        // Этап 2: чтение настроек и применение темы оформления.
         // Тема применяется до показа главного окна, чтобы окно сразу
         // отрисовалось в выбранной теме, без промежуточного мигания дефолтной.
+        // Экран загрузки уже открыт и использует DynamicResource, поэтому он
+        // корректно перекрасится в момент применения темы.
+        splash.SetStage("Применение темы оформления...");
         var theme = _host.Services.GetRequiredService<ISettingsService>().Theme;
         _host.Services.GetRequiredService<GdTracker.ViewModels.IThemeService>().ApplyTheme(theme);
 
-        _host.Services.GetRequiredService<MainWindow>().Show();
+        // Этап 3: построение контейнера зависимостей и главного окна.
+        splash.SetStage("Загрузка главного окна...");
+        var mainWindow = _host.Services.GetRequiredService<MainWindow>();
+
+        // Ждём остаток минимального времени показа асинхронно: поток интерфейса не
+        // блокируется, окно экрана загрузки остаётся отзывчивым, а индикатор
+        // (IsIndeterminate) продолжает анимироваться во время ожидания.
+        var remaining = MinSplashDuration - stopwatch.Elapsed;
+        if (remaining > TimeSpan.Zero)
+        {
+            await Task.Delay(remaining);
+        }
+
+        // Явно назначаем главное окно приложения: первым показанным окном был
+        // splash, и без этой строки Application.MainWindow остался бы указывать
+        // на уже закрытый экран загрузки.
+        MainWindow = mainWindow;
+        mainWindow.Show();
+        splash.Close();
+
+        ShutdownMode = ShutdownMode.OnMainWindowClose;
     }
 
     protected override async void OnExit(ExitEventArgs e)

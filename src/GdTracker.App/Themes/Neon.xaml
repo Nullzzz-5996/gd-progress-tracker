@@ -27,4 +27,9 @@
     <!-- Предупреждающие сообщения -->
     <SolidColorBrush x:Key="WarningBrush" Color="#FF4D8D" />
 
+    <!-- Экран загрузки -->
+    <SolidColorBrush x:Key="SplashBackgroundBrush" Color="#FF160B2E" />
+    <SolidColorBrush x:Key="SplashTitleBrush" Color="#FFC77DFF" />
+    <SolidColorBrush x:Key="SplashSubtitleBrush" Color="#FF8F7BB8" />
+
 </ResourceDictionary>
