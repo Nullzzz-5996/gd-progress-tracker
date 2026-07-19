@@ -36,10 +36,14 @@ public static class StatisticsCalculator
 
         return new ProgressStatistics
         {
+            // Три категории обязаны быть взаимоисключающим и исчерпывающим разбиением всех
+            // уровней (сумма всегда равна TotalLevels), поэтому строятся как дополнение друг
+            // друга по IsCompleted, а не как независимые условия: раньше уровень со 100%
+            // прогресса, но IsCompleted == false, не попадал ни в одну из трёх категорий.
             TotalLevels = levels.Count,
             Completed = levels.Count(l => l.IsCompleted),
-            Untouched = levels.Count(l => l.BestNormalPercent == 0 && !l.IsCompleted),
-            InProgress = levels.Count(l => l.BestNormalPercent is > 0 and < 100 && !l.IsCompleted),
+            Untouched = levels.Count(l => !l.IsCompleted && l.BestNormalPercent <= 0),
+            InProgress = levels.Count(l => !l.IsCompleted && l.BestNormalPercent > 0),
             TotalAttempts = levels.Sum(l => l.TotalAttempts),
             OfficialTotal = levels.Count(l => l.Source == LevelSource.Official),
             OfficialCompleted = levels.Count(l => l.Source == LevelSource.Official && l.IsCompleted),

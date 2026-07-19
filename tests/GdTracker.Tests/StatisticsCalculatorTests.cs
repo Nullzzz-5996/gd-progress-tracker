@@ -74,4 +74,35 @@ public class StatisticsCalculatorTests
         s.NormalPercentBuckets.Should().HaveCount(6);
         s.TopByAttempts.Should().BeEmpty();
     }
+
+    [Fact]
+    public void Completion_categories_are_mutually_exclusive_and_sum_to_total()
+    {
+        var s = StatisticsCalculator.Compute(Sample);
+        (s.Completed + s.InProgress + s.Untouched).Should().Be(s.TotalLevels);
+    }
+
+    /// <summary>
+    /// Дефект: три условия категорий были независимыми, а не взаимоисключающими
+    /// разбиением. Уровень со 100% прогресса, но IsCompleted = false (например,
+    /// импортированный до того, как игра отметила его пройденным), не попадал ни
+    /// в «пройдено» (IsCompleted == false), ни в «не начато» (percent != 0), ни в
+    /// «в процессе» (условие требовало percent &lt; 100) — сумма категорий не
+    /// сходилась с TotalLevels, и круговая диаграмма теряла уровень.
+    /// </summary>
+    [Fact]
+    public void Level_with_100_percent_but_not_completed_counts_as_in_progress_not_lost()
+    {
+        var levels = new List<Level>
+        {
+            new() { Name = "Edge", Source = LevelSource.Custom, BestNormalPercent = 100, IsCompleted = false, TotalAttempts = 1 },
+        };
+
+        var s = StatisticsCalculator.Compute(levels);
+
+        s.Completed.Should().Be(0);
+        s.Untouched.Should().Be(0);
+        s.InProgress.Should().Be(1);
+        (s.Completed + s.InProgress + s.Untouched).Should().Be(s.TotalLevels);
+    }
 }
