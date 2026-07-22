@@ -6,7 +6,7 @@ using GdTracker.Core.Services;
 namespace GdTracker.ViewModels;
 
 /// <summary>Вкладка «CPS»: замер скорости кликов с живым показом и итогом.</summary>
-public partial class CpsViewModel : ViewModelBase
+public partial class CpsViewModel : ViewModelBase, IDisposable
 {
     private readonly IGlobalInputMonitor _monitor;
     private readonly Func<long> _nowMs;
@@ -24,6 +24,21 @@ public partial class CpsViewModel : ViewModelBase
         _nowMs = nowMs;
         _monitor.Pressed += OnPressed;
         _monitor.StopRequested += OnStopRequested;
+    }
+
+    /// <summary>
+    /// Вью-модель транзиентная и создаётся заново при каждом заходе на вкладку CPS,
+    /// а монитор ввода — общий на всё приложение singleton. Без отписки здесь каждый
+    /// визит на вкладку добавлял бы ещё одного мёртвого подписчика на
+    /// <see cref="IGlobalInputMonitor.Pressed"/> и <see cref="IGlobalInputMonitor.StopRequested"/>.
+    /// </summary>
+    public void Dispose()
+    {
+        if (IsRunning)
+            Stop();
+
+        _monitor.Pressed -= OnPressed;
+        _monitor.StopRequested -= OnStopRequested;
     }
 
     [ObservableProperty] private bool _isRunning;

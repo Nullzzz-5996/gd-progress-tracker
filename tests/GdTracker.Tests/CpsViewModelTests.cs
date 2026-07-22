@@ -119,4 +119,32 @@ public class CpsViewModelTests
 
         vm.TotalClicks.Should().Be(1);
     }
+
+    [Fact]
+    public void Dispose_stops_monitor_when_running()
+    {
+        var mon = new FakeMonitor();
+        long now = 0;
+        var vm = new CpsViewModel(mon, () => now);
+        vm.StartCommand.Execute(null);
+        now = 100; mon.RaisePressed();
+
+        vm.Dispose();
+
+        mon.StopCount.Should().Be(1);
+        vm.IsRunning.Should().BeFalse();
+    }
+
+    [Fact]
+    public void Dispose_when_idle_does_not_stop_monitor()
+    {
+        var mon = new FakeMonitor();
+        long now = 0;
+        var vm = new CpsViewModel(mon, () => now);
+
+        var act = () => vm.Dispose();
+
+        act.Should().NotThrow();
+        mon.StopCount.Should().Be(0);
+    }
 }
