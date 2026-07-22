@@ -83,15 +83,29 @@ public partial class ProgressesViewModel : ViewModelBase
         await LoadRowsAsync();
     }
 
-    /// <summary>Перезагружает строки для текущего <see cref="SelectedLevel"/>.</summary>
+    /// <summary>
+    /// Перезагружает строки для текущего <see cref="SelectedLevel"/>. Исключения не
+    /// выпускаются наружу: метод вызывается из LoadAsync (сама вызывается из обработчика
+    /// Loaded страницы — эквивалент async void) и из обработчика SelectionChanged, что
+    /// буквально является async void — необработанное исключение уронило бы приложение.
+    /// </summary>
     public async Task LoadRowsAsync()
     {
-        Rows.Clear();
-        if (SelectedLevel is not null)
+        Status = null;
+        try
         {
-            var loaded = await _rows.GetByLevelAsync(SelectedLevel.Id);
-            foreach (var r in loaded)
-                Rows.Add(new LevelProgressRowViewModel(r));
+            Rows.Clear();
+            if (SelectedLevel is not null)
+            {
+                var loaded = await _rows.GetByLevelAsync(SelectedLevel.Id);
+                foreach (var r in loaded)
+                    Rows.Add(new LevelProgressRowViewModel(r));
+            }
+        }
+        catch (Exception ex)
+        {
+            Status = $"Не удалось загрузить строки: {ex.Message}";
+            return;
         }
 
         AddRowCommand.NotifyCanExecuteChanged();
@@ -109,26 +123,52 @@ public partial class ProgressesViewModel : ViewModelBase
         AddRowCommand.NotifyCanExecuteChanged();
     }
 
+    /// <summary>Удаляет строку и перенумеровывает оставшиеся. Вызывается из
+    /// DeleteRowCommand, привязанной к кнопке в шаблоне ячейки — необработанное исключение
+    /// здесь ведёт себя как в async void и уронило бы приложение.</summary>
     [RelayCommand]
     private async Task DeleteRowAsync(LevelProgressRowViewModel? row)
     {
         if (row is null)
             return;
 
-        await _rows.DeleteAsync(row.Id);
-        Rows.Remove(row);
-
-        // Перенумеровываем оставшиеся строки, чтобы позиции шли подряд 1..N.
-        for (int i = 0; i < Rows.Count; i++)
+        Status = null;
+        try
         {
-            var model = Rows[i].ToModel();
-            model.Position = i + 1;
-            await _rows.UpdateAsync(model);
+            await _rows.DeleteAsync(row.Id);
+            Rows.Remove(row);
+
+            // Перенумеровываем оставшиеся строки, чтобы позиции шли подряд 1..N.
+            for (int i = 0; i < Rows.Count; i++)
+            {
+                var model = Rows[i].ToModel();
+                model.Position = i + 1;
+                await _rows.UpdateAsync(model);
+            }
+        }
+        catch (Exception ex)
+        {
+            Status = $"Не удалось удалить строку: {ex.Message}";
+            return;
         }
 
         AddRowCommand.NotifyCanExecuteChanged();
     }
 
-    /// <summary>Сохраняет отредактированную строку (вызывается из RowEditEnding страницы).</summary>
-    public async Task SaveRowAsync(LevelProgressRowViewModel row) => await _rows.UpdateAsync(row.ToModel());
+    /// <summary>
+    /// Сохраняет отредактированную строку. Вызывается из RowEditEnding страницы, что
+    /// является async void — необработанное исключение уронило бы приложение целиком.
+    /// </summary>
+    public async Task SaveRowAsync(LevelProgressRowViewModel row)
+    {
+        Status = null;
+        try
+        {
+            await _rows.UpdateAsync(row.ToModel());
+        }
+        catch (Exception ex)
+        {
+            Status = $"Не удалось сохранить строку: {ex.Message}";
+        }
+    }
 }

@@ -26,7 +26,6 @@
 
         <!-- Таблица прогресса: столбцы 1–3 редактируемые, 4-й (с нуля) — read-only -->
         <DataGrid Grid.Row="2"
-                  x:Name="RowsGrid"
                   ItemsSource="{Binding Rows}"
                   AutoGenerateColumns="False"
                   CanUserAddRows="False"

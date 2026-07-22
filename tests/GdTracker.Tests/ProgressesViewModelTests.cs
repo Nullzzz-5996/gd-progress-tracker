@@ -1,4 +1,5 @@
 using FluentAssertions;
+using GdTracker.Core.Abstractions;
 using GdTracker.Core.Models;
 using GdTracker.Data.Repositories;
 using GdTracker.ViewModels;
@@ -6,7 +7,7 @@ using GdTracker.ViewModels;
 namespace GdTracker.Tests;
 
 /// <summary>Тесты ProgressesViewModel на SQLite in-memory через реальные репозитории.</summary>
-public class ProgressesViewModelTests
+public partial class ProgressesViewModelTests
 {
     private static ProgressesViewModel BuildVm(
         InMemorySqlite factory, out LevelRepository levels, out LevelProgressRowRepository rows,
@@ -134,5 +135,86 @@ public class ProgressesViewModelTests
         vm.SelectedLevel = vm.Levels.First(l => l.Id == b.Id);
         await vm.LoadRowsAsync();
         vm.Rows.Should().HaveCount(1);
+    }
+}
+
+/// <summary>
+/// Регрессия: LoadRowsAsync/SaveRowAsync/DeleteRowAsync вызываются из обработчиков страницы
+/// (Loaded, SelectionChanged, RowEditEnding), которые эквивалентны async void — необработанное
+/// исключение репозитория (например, БД заблокирована или повреждена) уронило бы приложение
+/// целиком. Зеркалит LevelsViewModelLoadErrorTests из LevelsWorkflowTests.cs. Часть той же
+/// partial-версии ProgressesViewModelTests, чтобы регрессия оставалась под тем же тестовым
+/// фильтром, что и остальные тесты этого ViewModel.
+/// </summary>
+public partial class ProgressesViewModelTests
+{
+    /// <summary>Репозиторий строк, всегда бросающий исключение из GetByLevelAsync (имитация сбоя БД).</summary>
+    private sealed class ThrowingRowRepository : ILevelProgressRowRepository
+    {
+        public Task<IReadOnlyList<LevelProgressRow>> GetByLevelAsync(int levelId, CancellationToken ct = default)
+            => throw new InvalidOperationException("база данных недоступна");
+
+        public Task<LevelProgressRow> AddAsync(LevelProgressRow row, CancellationToken ct = default)
+            => throw new NotSupportedException();
+
+        public Task UpdateAsync(LevelProgressRow row, CancellationToken ct = default)
+            => throw new NotSupportedException();
+
+        public Task DeleteAsync(int id, CancellationToken ct = default) => throw new NotSupportedException();
+    }
+
+    /// <summary>Обёртка, бросающая исключение только из UpdateAsync — остальные операции реально
+    /// выполняются на переданном репозитории (имитация сбоя, всплывающего только при сохранении
+    /// уже успешно загруженной/добавленной строки).</summary>
+    private sealed class UpdateThrowingRowRepository : ILevelProgressRowRepository
+    {
+        private readonly ILevelProgressRowRepository _inner;
+
+        public UpdateThrowingRowRepository(ILevelProgressRowRepository inner) => _inner = inner;
+
+        public Task<IReadOnlyList<LevelProgressRow>> GetByLevelAsync(int levelId, CancellationToken ct = default)
+            => _inner.GetByLevelAsync(levelId, ct);
+
+        public Task<LevelProgressRow> AddAsync(LevelProgressRow row, CancellationToken ct = default)
+            => _inner.AddAsync(row, ct);
+
+        public Task UpdateAsync(LevelProgressRow row, CancellationToken ct = default)
+            => throw new InvalidOperationException("база данных недоступна");
+
+        public Task DeleteAsync(int id, CancellationToken ct = default) => _inner.DeleteAsync(id, ct);
+    }
+
+    [Fact]
+    public async Task LoadAsync_does_not_throw_when_row_repository_fails_and_reports_status_instead()
+    {
+        using var factory = new InMemorySqlite();
+        var levels = new LevelRepository(factory);
+        await levels.AddAsync(new Level { Name = "A" });
+        var ctx = new ProgressNavigationContext();
+        var vm = new ProgressesViewModel(levels, new ThrowingRowRepository(), ctx);
+
+        Func<Task> act = async () => await vm.LoadAsync();
+
+        await act.Should().NotThrowAsync("иначе необработанное исключение из обработчика Loaded уронит приложение");
+        vm.Status.Should().NotBeNullOrEmpty();
+    }
+
+    [Fact]
+    public async Task SaveRowAsync_does_not_throw_when_repository_update_fails_and_reports_status_instead()
+    {
+        using var factory = new InMemorySqlite();
+        var levels = new LevelRepository(factory);
+        await levels.AddAsync(new Level { Name = "A" });
+        var realRows = new LevelProgressRowRepository(factory);
+        var ctx = new ProgressNavigationContext();
+        var vm = new ProgressesViewModel(levels, new UpdateThrowingRowRepository(realRows), ctx);
+        await vm.LoadAsync();
+        await vm.AddRowCommand.ExecuteAsync(null);
+        var row = vm.Rows.Single();
+
+        Func<Task> act = async () => await vm.SaveRowAsync(row);
+
+        await act.Should().NotThrowAsync("иначе необработанное исключение из RowEditEnding уронит приложение");
+        vm.Status.Should().NotBeNullOrEmpty();
     }
 }
