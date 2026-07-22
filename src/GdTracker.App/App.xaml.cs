@@ -35,6 +35,7 @@ public partial class App : Application
                 // Репозитории.
                 services.AddSingleton<ILevelRepository, LevelRepository>();
                 services.AddSingleton<IProgressRepository, ProgressRepository>();
+                services.AddSingleton<ILevelProgressRowRepository, LevelProgressRowRepository>();
                 services.AddSingleton<IAccountStatsRepository, AccountStatsRepository>();
                 services.AddSingleton<ISettingsService, SettingsService>();
 
@@ -66,6 +67,8 @@ public partial class App : Application
                 // Навигация WPF UI: провайдер страниц из DI + сервис навигации.
                 services.AddSingleton<INavigationViewPageProvider, PageProvider>();
                 services.AddSingleton<INavigationService, NavigationService>();
+                // Контекст перехода на вкладку «Прогрессы»: какой уровень открыть.
+                services.AddSingleton<IProgressNavigationContext, ProgressNavigationContext>();
 
                 // Окна.
                 services.AddSingleton<MainWindow>();
@@ -73,6 +76,8 @@ public partial class App : Application
                 // Страницы и их view-модели.
                 services.AddTransient<DashboardPage>();
                 services.AddTransient<LevelsViewModel>();
+                services.AddTransient<ProgressesPage>();
+                services.AddTransient<ProgressesViewModel>();
                 services.AddTransient<StatsPage>();
                 services.AddTransient<StatsViewModel>();
                 services.AddTransient<OnlineSearchPage>();
