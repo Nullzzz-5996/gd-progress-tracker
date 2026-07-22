@@ -26,6 +26,8 @@
                                        TargetPageType="{x:Type views:StatsPage}" />
                 <ui:NavigationViewItem Content="Поиск онлайн"
                                        TargetPageType="{x:Type views:OnlineSearchPage}" />
+                <ui:NavigationViewItem Content="CPS"
+                                       TargetPageType="{x:Type views:CpsPage}" />
             </ui:NavigationView.MenuItems>
             <ui:NavigationView.FooterMenuItems>
                 <ui:NavigationViewItem Content="Настройки"

@@ -47,6 +47,8 @@ public partial class App : Application
                 services.AddSingleton<IProgressSharingService, ProgressSharingService>();
                 services.AddSingleton<IFileDialogService, FileDialogService>();
                 services.AddSingleton<IConfirmationService, ConfirmationService>();
+                // Глобальный монитор ввода для вкладки CPS (транзитный: живёт вместе со страницей/VM).
+                services.AddTransient<GdTracker.ViewModels.IGlobalInputMonitor, GdTracker.App.Services.GlobalInputMonitor>();
 
                 // Темы оформления.
                 // Полные имена типов: WPF-UI сам определяет IThemeService/ThemeService
@@ -79,6 +81,8 @@ public partial class App : Application
                 services.AddTransient<OnlineSearchViewModel>();
                 services.AddTransient<SettingsPage>();
                 services.AddTransient<SettingsViewModel>();
+                services.AddTransient<CpsPage>();
+                services.AddTransient<CpsViewModel>();
             })
             .Build();
     }
