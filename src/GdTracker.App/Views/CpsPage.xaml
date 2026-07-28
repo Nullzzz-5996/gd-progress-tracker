@@ -1,0 +1,79 @@
+<Page x:Class="GdTracker.App.Views.CpsPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      Title="CpsPage">
+    <Grid Margin="24">
+        <StackPanel VerticalAlignment="Top">
+            <TextBlock Text="CPS — тест скорости кликов" FontSize="28" FontWeight="SemiBold" Margin="0,0,0,8" />
+            <TextBlock Opacity="0.75" TextWrapping="Wrap" Margin="0,0,0,16"
+                       Text="Считаются нажатия ЛКМ, стрелки вверх, W и пробела — глобально, даже когда окно не в фокусе." />
+
+            <!-- Старт: виден, пока не идёт замер -->
+            <Button Content="Старт" Padding="24,10" FontSize="18" HorizontalAlignment="Left"
+                    Command="{Binding StartCommand}">
+                <Button.Style>
+                    <Style TargetType="Button">
+                        <Setter Property="Visibility" Value="Visible" />
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding IsRunning}" Value="True">
+                                <Setter Property="Visibility" Value="Collapsed" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Button.Style>
+            </Button>
+
+            <!-- Живой показ: виден во время замера -->
+            <StackPanel Margin="0,8,0,0">
+                <StackPanel.Style>
+                    <Style TargetType="StackPanel">
+                        <Setter Property="Visibility" Value="Collapsed" />
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding IsRunning}" Value="True">
+                                <Setter Property="Visibility" Value="Visible" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </StackPanel.Style>
+
+                <TextBlock Text="{Binding CurrentCps}" FontSize="72" FontWeight="Bold" HorizontalAlignment="Center" />
+                <TextBlock Text="CPS сейчас" Opacity="0.7" HorizontalAlignment="Center" Margin="0,0,0,12" />
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                    <TextBlock Text="{Binding Elapsed, StringFormat='Время: {0}'}" Margin="0,0,24,0" />
+                    <TextBlock Text="{Binding TotalClicks, StringFormat='Нажатий: {0}'}" Margin="0,0,24,0" />
+                    <TextBlock Text="{Binding MaxCps, StringFormat='Макс: {0}'}" />
+                </StackPanel>
+                <Button Content="Стоп" Padding="20,8" Margin="0,16,0,0" HorizontalAlignment="Center"
+                        Command="{Binding StopCommand}" />
+                <TextBlock Text="или нажмите Escape" Opacity="0.6" HorizontalAlignment="Center" Margin="0,6,0,0" />
+            </StackPanel>
+
+            <!-- Итог: виден после замера (когда не идёт новый) -->
+            <Border Margin="0,8,0,0" Padding="16" CornerRadius="8"
+                    BorderThickness="1" BorderBrush="{DynamicResource CardBorderBrush}">
+                <Border.Style>
+                    <Style TargetType="Border">
+                        <Setter Property="Visibility" Value="Collapsed" />
+                        <Style.Triggers>
+                            <MultiDataTrigger>
+                                <MultiDataTrigger.Conditions>
+                                    <Condition Binding="{Binding HasResult}" Value="True" />
+                                    <Condition Binding="{Binding IsRunning}" Value="False" />
+                                </MultiDataTrigger.Conditions>
+                                <Setter Property="Visibility" Value="Visible" />
+                            </MultiDataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Border.Style>
+                <StackPanel>
+                    <TextBlock Text="Результат" FontSize="18" FontWeight="SemiBold" Margin="0,0,0,8" />
+                    <TextBlock FontSize="16" Text="{Binding MaxCps, StringFormat='Максимальный CPS: {0}'}" />
+                    <TextBlock FontSize="16"
+                               Text="{Binding Result.Best10sCps, StringFormat='CPS за лучшие 10 секунд: {0:0.0}', TargetNullValue='CPS за лучшие 10 секунд: —'}" />
+                    <TextBlock Opacity="0.8" Margin="0,4,0,0" Text="{Binding TotalClicks, StringFormat='Всего нажатий: {0}'}" />
+                    <TextBlock Opacity="0.8" Text="{Binding Elapsed, StringFormat='Длительность: {0}'}" />
+                </StackPanel>
+            </Border>
+        </StackPanel>
+    </Grid>
+</Page>
