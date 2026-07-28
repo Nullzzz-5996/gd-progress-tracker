@@ -22,6 +22,8 @@
             <ui:NavigationView.MenuItems>
                 <ui:NavigationViewItem Content="Уровни"
                                        TargetPageType="{x:Type views:DashboardPage}" />
+                <ui:NavigationViewItem Content="Прогрессы"
+                                       TargetPageType="{x:Type views:ProgressesPage}" />
                 <ui:NavigationViewItem Content="Статистика"
                                        TargetPageType="{x:Type views:StatsPage}" />
                 <ui:NavigationViewItem Content="Поиск онлайн"

@@ -48,4 +48,7 @@ public class Level
 
     /// <summary>Записи прогресса по этому уровню.</summary>
     public List<ProgressRecord> ProgressRecords { get; set; } = new();
+
+    /// <summary>Строки личной таблицы прогресса (вкладка «Прогрессы»).</summary>
+    public List<LevelProgressRow> ProgressRows { get; set; } = new();
 }

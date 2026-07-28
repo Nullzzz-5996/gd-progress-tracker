@@ -14,6 +14,7 @@ public class AppDbContext : DbContext
     public DbSet<ProgressRecord> ProgressRecords => Set<ProgressRecord>();
     public DbSet<VideoClip> VideoClips => Set<VideoClip>();
     public DbSet<AccountStatsSnapshot> AccountStatsSnapshots => Set<AccountStatsSnapshot>();
+    public DbSet<LevelProgressRow> LevelProgressRows => Set<LevelProgressRow>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -27,6 +28,11 @@ public class AppDbContext : DbContext
             e.HasIndex(x => x.GdLevelId);
 
             e.HasMany(x => x.ProgressRecords)
+                .WithOne(x => x.Level!)
+                .HasForeignKey(x => x.LevelId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            e.HasMany(x => x.ProgressRows)
                 .WithOne(x => x.Level!)
                 .HasForeignKey(x => x.LevelId)
                 .OnDelete(DeleteBehavior.Cascade);
@@ -63,6 +69,15 @@ public class AppDbContext : DbContext
             e.HasKey(x => x.Id);
             e.Property(x => x.RawValuesJson).IsRequired();
             e.HasIndex(x => x.CapturedAt);
+        });
+
+        modelBuilder.Entity<LevelProgressRow>(e =>
+        {
+            e.HasKey(x => x.Id);
+            e.Property(x => x.PracticeAttempts).HasMaxLength(50);
+            e.Property(x => x.SegmentRange).HasMaxLength(50);
+            e.Property(x => x.ToHundredRange).HasMaxLength(50);
+            e.HasIndex(x => x.LevelId);
         });
     }
 }
