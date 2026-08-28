@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Reflection;
 using CommunityToolkit.Mvvm.ComponentModel;
 using GdTracker.Core;
@@ -33,7 +33,9 @@ public partial class SettingsViewModel : ViewModelBase
 
     [ObservableProperty]
     private string _appVersion =
-        Assembly.GetExecutingAssembly().GetName().Version?.ToString(3) ?? "0.1.0";
+        // Четыре компонента: ревизия (последняя цифра) тоже показывается, иначе
+        // сборки 1.0.1.1 и 1.0.1.2 выглядели бы в настройках одинаково.
+        Assembly.GetExecutingAssembly().GetName().Version?.ToString(4) ?? "0.1.0.0";
 
     [ObservableProperty] private string _saveFilePath;
 
