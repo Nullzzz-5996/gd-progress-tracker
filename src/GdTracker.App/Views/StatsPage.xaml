@@ -1,7 +1,11 @@
+﻿<!-- Цвет текста страницы задан явно (TextElement.Foreground): неявный стиль TextBlock
+     из WPF-UI задаёт только шрифт, поэтому обычные TextBlock оставались чёрными по
+     умолчанию WPF и сливались с фоном в тёмной и неоновой темах. -->
 <Page x:Class="GdTracker.App.Views.StatsPage"
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:lvc="clr-namespace:LiveChartsCore.SkiaSharpView.WPF;assembly=LiveChartsCore.SkiaSharpView.WPF"
+      TextElement.Foreground="{DynamicResource TextFillColorPrimaryBrush}"
       Title="StatsPage">
     <Page.Resources>
         <Style x:Key="StatCard" TargetType="Border">
@@ -125,6 +129,8 @@
                                 XAxes="{Binding TrendXAxes}"
                                 YAxes="{Binding TrendYAxes}"
                                 Height="260"
+                                Background="Transparent"
+                                LegendTextPaint="{Binding ChartLegendPaint}"
                                 LegendPosition="Top" />
 
             <!-- Прогресс в трекере: данные из БД приложения -->
@@ -186,15 +192,19 @@
 
             <!-- Завершённость -->
             <TextBlock Text="Завершённость" FontSize="18" FontWeight="SemiBold" Margin="0,16,0,8" />
-            <lvc:PieChart Series="{Binding CompletionSeries}" Height="260" LegendPosition="Right" />
+            <lvc:PieChart Series="{Binding CompletionSeries}" Height="260" Background="Transparent"
+                          LegendTextPaint="{Binding ChartLegendPaint}"
+                          LegendPosition="Right" />
 
             <!-- Распределение по лучшему normal % -->
             <TextBlock Text="Распределение по лучшему проценту (normal)" FontSize="18" FontWeight="SemiBold" Margin="0,16,0,8" />
-            <lvc:CartesianChart Series="{Binding BucketSeries}" XAxes="{Binding BucketXAxes}" Height="260" />
+            <lvc:CartesianChart Series="{Binding BucketSeries}" XAxes="{Binding BucketXAxes}" Height="260"
+                                Background="Transparent" />
 
             <!-- Топ по попыткам -->
             <TextBlock Text="Топ уровней по попыткам" FontSize="18" FontWeight="SemiBold" Margin="0,16,0,8" />
-            <lvc:CartesianChart Series="{Binding TopAttemptsSeries}" XAxes="{Binding TopXAxes}" Height="320" />
+            <lvc:CartesianChart Series="{Binding TopAttemptsSeries}" XAxes="{Binding TopXAxes}" Height="320"
+                                Background="Transparent" />
         </StackPanel>
     </ScrollViewer>
 </Page>

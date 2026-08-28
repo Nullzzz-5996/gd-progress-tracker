@@ -1,6 +1,10 @@
+﻿<!-- Цвет текста страницы задан явно (TextElement.Foreground): неявный стиль TextBlock
+     из WPF-UI задаёт только шрифт, поэтому обычные TextBlock оставались чёрными по
+     умолчанию WPF и сливались с фоном в тёмной и неоновой темах. -->
 <Page x:Class="GdTracker.App.Views.ProgressesPage"
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      TextElement.Foreground="{DynamicResource TextFillColorPrimaryBrush}"
       Title="ProgressesPage">
     <Grid Margin="24">
         <Grid.RowDefinitions>

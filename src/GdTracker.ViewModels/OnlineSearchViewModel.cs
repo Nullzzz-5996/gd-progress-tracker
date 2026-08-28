@@ -1,4 +1,4 @@
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using GdTracker.Core;
@@ -65,7 +65,7 @@ public partial class OnlineSearchViewModel : ViewModelBase
             return;
 
         var existing = await _levels.GetByGdLevelIdAsync(level.Id);
-        if (existing is not null)
+        if (existing is not null && existing.IsTracked)
         {
             Status = $"«{level.Name}» уже в трекере.";
             return;
@@ -74,6 +74,16 @@ public partial class OnlineSearchViewModel : ViewModelBase
         IsBusy = true;
         try
         {
+            if (existing is not null)
+            {
+                // Уровень уже в базе, но скрыт: он попал туда импортом из игры. Показываем
+                // его вместе со всеми импортированными данными, а не заводим вторую строку.
+                existing.IsTracked = true;
+                await _levels.UpdateAsync(existing);
+                Status = $"Добавлено в трекер: «{level.Name}». Прогресс уже импортирован из игры.";
+                return;
+            }
+
             await _levels.AddAsync(new Level
             {
                 GdLevelId = level.Id,

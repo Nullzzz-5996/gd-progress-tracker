@@ -1,7 +1,11 @@
+﻿<!-- Цвет текста страницы задан явно (TextElement.Foreground): неявный стиль TextBlock
+     из WPF-UI задаёт только шрифт, поэтому обычные TextBlock оставались чёрными по
+     умолчанию WPF и сливались с фоном в тёмной и неоновой темах. -->
 <Page x:Class="GdTracker.App.Views.OnlineSearchPage"
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+      TextElement.Foreground="{DynamicResource TextFillColorPrimaryBrush}"
       Title="OnlineSearchPage">
 
     <Grid Margin="24">

@@ -1,4 +1,4 @@
-using GdTracker.Core.Abstractions;
+﻿using GdTracker.Core.Abstractions;
 using GdTracker.Core.Models;
 using GdTracker.Data;
 using GdTracker.ViewModels;
@@ -44,6 +44,11 @@ internal sealed class DeleteCountingLevelRepository : ILevelRepository
     public int DeleteManyAsyncCallCount { get; private set; }
 
     public Task<IReadOnlyList<Level>> GetAllAsync(CancellationToken ct = default) => _inner.GetAllAsync(ct);
+
+    public Task<IReadOnlyList<Level>> GetTrackedAsync(CancellationToken ct = default) => _inner.GetTrackedAsync(ct);
+
+    public Task<Level?> FindUntrackedByNameAsync(string name, CancellationToken ct = default)
+        => _inner.FindUntrackedByNameAsync(name, ct);
 
     public Task<Level?> GetByIdAsync(int id, CancellationToken ct = default) => _inner.GetByIdAsync(id, ct);
 

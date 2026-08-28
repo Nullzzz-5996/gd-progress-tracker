@@ -1,4 +1,4 @@
-using GdTracker.Core;
+﻿using GdTracker.Core;
 using GdTracker.Core.Abstractions;
 using GdTracker.Core.Models;
 using GdTracker.Core.Services;
@@ -33,7 +33,10 @@ public class SaveImportService : ISaveImportService
         {
             if (!byId.TryGetValue(dto.GdLevelId, out var level))
             {
-                level = new Level { GdLevelId = dto.GdLevelId, CreatedAt = now };
+                // Импорт наполняет базу, но не список: новая строка скрыта, пока
+                // пользователь не добавит этот уровень вручную или из онлайн-поиска.
+                // У уже существующих уровней флаг не трогаем — импорт ничего не прячет.
+                level = new Level { GdLevelId = dto.GdLevelId, CreatedAt = now, IsTracked = false };
                 db.Levels.Add(level);
                 byId[dto.GdLevelId] = level;
                 added++;

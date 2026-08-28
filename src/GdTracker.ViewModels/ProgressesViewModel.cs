@@ -1,4 +1,4 @@
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using GdTracker.Core.Abstractions;
@@ -55,7 +55,7 @@ public partial class ProgressesViewModel : ViewModelBase
         IReadOnlyList<Level> all;
         try
         {
-            all = await _levels.GetAllAsync();
+            all = await _levels.GetTrackedAsync();
         }
         catch (Exception ex)
         {

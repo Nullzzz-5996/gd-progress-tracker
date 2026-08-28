@@ -1,4 +1,4 @@
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using System.ComponentModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -94,7 +94,7 @@ public partial class LevelsViewModel : ViewModelBase
         IReadOnlyList<Level> all;
         try
         {
-            all = await _levels.GetAllAsync();
+            all = await _levels.GetTrackedAsync();
         }
         catch (Exception ex)
         {
@@ -189,33 +189,58 @@ public partial class LevelsViewModel : ViewModelBase
                 return;
             }
 
-            // Дедупликация: тот же уровень мог уже попасть в базу (импортом или онлайн-поиском).
-            var duplicate = await _levels.GetByGdLevelIdAsync(parsedId);
-            if (duplicate is not null)
-            {
-                Error = $"Уровень с ID {parsedId} уже есть в базе: «{duplicate.Name}».";
-                return;
-            }
-
             gdLevelId = parsedId;
         }
 
         IsBusy = true;
         try
         {
-            var level = await _levels.AddAsync(new Level { Name = name, Source = NewLevelSource, GdLevelId = gdLevelId });
+            // Уровень мог уже попасть в базу импортом из игры: такие строки скрыты из списка,
+            // но хранят всю информацию (звёзды, создатель, сложность, лучший процент, попытки).
+            // Ручное добавление показывает найденную строку, а не заводит рядом вторую.
+            var existing = gdLevelId is not null
+                ? await _levels.GetByGdLevelIdAsync(gdLevelId.Value)
+                : await _levels.FindUntrackedByNameAsync(name);
 
-            // Пользователь мог уже играть в этот уровень до его ручного добавления —
-            // подтягиваем прогресс из сейва, если он там есть (как при добавлении из
-            // онлайн-поиска), чтобы не показывать нулевые попытки на уже пройденном уровне
-            // и чтобы последующий импорт из игры не завёл рядом вторую строку без ID.
-            if (gdLevelId is not null)
-                await _progressLookup.TryApplyProgressAsync(gdLevelId.Value);
+            if (existing is not null && existing.IsTracked)
+            {
+                Error = $"Уровень с ID {gdLevelId} уже есть в базе: «{existing.Name}».";
+                return;
+            }
+
+            int levelId;
+            if (existing is not null)
+            {
+                // Название из игры точнее введённого вручную, поэтому оставляем его; введённое
+                // берём, только если из сейва имя не пришло (там подставляется ID уровня).
+                if (string.IsNullOrWhiteSpace(existing.Name)
+                    || existing.Name == existing.GdLevelId?.ToString())
+                {
+                    existing.Name = name;
+                }
+
+                existing.IsTracked = true;
+                await _levels.UpdateAsync(existing);
+                levelId = existing.Id;
+            }
+            else
+            {
+                var level = await _levels.AddAsync(
+                    new Level { Name = name, Source = NewLevelSource, GdLevelId = gdLevelId });
+                levelId = level.Id;
+
+                // Пользователь мог уже играть в этот уровень до его ручного добавления —
+                // подтягиваем прогресс из сейва, если он там есть (как при добавлении из
+                // онлайн-поиска), чтобы не показывать нулевые попытки на уже пройденном уровне
+                // и чтобы последующий импорт из игры не завёл рядом вторую строку без ID.
+                if (gdLevelId is not null)
+                    await _progressLookup.TryApplyProgressAsync(gdLevelId.Value);
+            }
 
             NewLevelName = string.Empty;
             NewLevelGdId = string.Empty;
             await LoadAsync();
-            SelectedRow = Levels.FirstOrDefault(r => r.Level.Id == level.Id);
+            SelectedRow = Levels.FirstOrDefault(r => r.Level.Id == levelId);
         }
         finally
         {
@@ -303,7 +328,8 @@ public partial class LevelsViewModel : ViewModelBase
             var result = await _importer.ImportAsync(dtos);
             await LoadAsync();
             ImportStatus =
-                $"Импортировано {result.Total} уровней (новых: {result.LevelsAdded}, обновлено: {result.LevelsUpdated}).";
+                $"Импортировано {result.Total} уровней (новых: {result.LevelsAdded}, обновлено: {result.LevelsUpdated}). "
+                + "Данные учтены в статистике; в списке уровни не показываются — добавьте нужный вручную.";
         }
         catch (Exception ex)
         {

@@ -1,4 +1,4 @@
-using FluentAssertions;
+﻿using FluentAssertions;
 using GdTracker.Core;
 using GdTracker.Core.Models;
 using GdTracker.Data;
@@ -126,5 +126,32 @@ public class SaveImportServiceTests
         var level = (await levels.GetAllAsync()).Single();
         level.BestPracticePercent.Should().Be(30);
         level.TotalAttempts.Should().Be(120);
+    }
+
+    [Fact]
+    public async Task Import_adds_levels_hidden_from_the_list()
+    {
+        using var factory = new InMemorySqlite();
+        var importer = new SaveImportService(factory);
+        var levels = new LevelRepository(factory);
+
+        await importer.ImportAsync(new[] { Dto(10565740, "Bloodbath", LevelSource.Online, 6, 100, 2180) });
+
+        (await levels.GetAllAsync()).Should().ContainSingle("данные импорта нужны статистике");
+        (await levels.GetTrackedAsync()).Should().BeEmpty("в сетке уровней импорт ничего не показывает");
+    }
+
+    [Fact]
+    public async Task Import_keeps_a_level_the_user_already_tracks_visible()
+    {
+        using var factory = new InMemorySqlite();
+        var importer = new SaveImportService(factory);
+        var levels = new LevelRepository(factory);
+        await levels.AddAsync(new Level { Name = "Bloodbath", GdLevelId = 10565740, Source = LevelSource.Online });
+
+        await importer.ImportAsync(new[] { Dto(10565740, "Bloodbath", LevelSource.Online, 6, 100, 2180) });
+
+        var tracked = await levels.GetTrackedAsync();
+        tracked.Should().ContainSingle().Which.TotalAttempts.Should().Be(2180);
     }
 }

@@ -1,4 +1,4 @@
-using CommunityToolkit.Mvvm.ComponentModel;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using GdTracker.Core.Abstractions;
 using GdTracker.Core.Models;
@@ -70,9 +70,18 @@ public partial class StatsViewModel : ViewModelBase, IDisposable
     /// история снимков уже загружена, меняются только цвета серий и осей.</summary>
     private void OnPaletteChanged(object? sender, EventArgs e)
     {
+        OnPropertyChanged(nameof(ChartLegendPaint));
+
         if (_trendHistory is not null)
             BuildTrendSeries(_trendHistory);
     }
+
+    /// <summary>
+    /// Кисть подписей легенды графиков. Легенда рисуется Skia отдельно от осей и по
+    /// умолчанию чёрная, поэтому в тёмной и неоновой темах сливалась с фоном; здесь она
+    /// берёт цвет подписей осей из палитры темы.
+    /// </summary>
+    public SolidColorPaint ChartLegendPaint => new(_palette.AxisLabelColor);
 
     // --- Секция «Аккаунт» ---
 
@@ -160,7 +169,15 @@ public partial class StatsViewModel : ViewModelBase, IDisposable
                 Values = stats.NormalPercentBuckets.Select(b => (double)b.Count).ToArray(),
             },
         ];
-        BucketXAxes = [new Axis { Labels = stats.NormalPercentBuckets.Select(b => b.Label).ToArray() }];
+        BucketXAxes =
+        [
+            new Axis
+            {
+                Labels = stats.NormalPercentBuckets.Select(b => b.Label).ToArray(),
+                LabelsPaint = new SolidColorPaint(_palette.AxisLabelColor),
+                SeparatorsPaint = new SolidColorPaint(_palette.AxisLineColor),
+            },
+        ];
 
         TopAttemptsSeries =
         [
@@ -176,6 +193,8 @@ public partial class StatsViewModel : ViewModelBase, IDisposable
             {
                 Labels = stats.TopByAttempts.Select(t => t.Name).ToArray(),
                 LabelsRotation = 30,
+                LabelsPaint = new SolidColorPaint(_palette.AxisLabelColor),
+                SeparatorsPaint = new SolidColorPaint(_palette.AxisLineColor),
             },
         ];
     }
@@ -234,6 +253,7 @@ public partial class StatsViewModel : ViewModelBase, IDisposable
             new Axis
             {
                 Name = "Звёзды",
+                NamePaint = new SolidColorPaint(_palette.AxisLabelColor),
                 LabelsPaint = new SolidColorPaint(_palette.AxisLabelColor),
                 SeparatorsPaint = new SolidColorPaint(_palette.AxisLineColor),
             },
@@ -241,6 +261,7 @@ public partial class StatsViewModel : ViewModelBase, IDisposable
             {
                 Name = "Демоны",
                 Position = AxisPosition.End,
+                NamePaint = new SolidColorPaint(_palette.AxisLabelColor),
                 LabelsPaint = new SolidColorPaint(_palette.AxisLabelColor),
                 SeparatorsPaint = new SolidColorPaint(_palette.AxisLineColor),
             },
