@@ -9,7 +9,8 @@
                  ExtendsContentIntoTitleBar="True"
                  WindowBackdropType="Mica"
                  WindowCornerPreference="Round"
-                 WindowStartupLocation="CenterScreen">
+                 WindowStartupLocation="CenterScreen"
+                 Icon="pack://application:,,,/Assets/app.ico">
     <!-- Фон задан корневой сетке, а не окну: WPF-UI при включённом материале Mica
          сам сбрасывает Background окна в прозрачный. В тёмной и светлой темах кисть
          прозрачна и Mica виден как прежде, в неоновой — закрывает его собой. -->
@@ -19,7 +20,12 @@
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
-        <ui:TitleBar Grid.Row="0" Title="GD Progress Tracker" />
+        <ui:TitleBar Grid.Row="0" Title="GD Progress Tracker">
+            <!-- Иконку в заголовке WPF-UI берёт не из Window.Icon, её нужно задать явно. -->
+            <ui:TitleBar.Icon>
+                <ui:ImageIcon Source="pack://application:,,,/Assets/app.ico" Width="16" Height="16" />
+            </ui:TitleBar.Icon>
+        </ui:TitleBar>
 
         <ui:NavigationView x:Name="RootNavigation" Grid.Row="1">
             <ui:NavigationView.MenuItems>
