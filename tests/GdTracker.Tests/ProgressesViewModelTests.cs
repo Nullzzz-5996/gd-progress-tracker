@@ -1,4 +1,4 @@
-using FluentAssertions;
+﻿using FluentAssertions;
 using GdTracker.Core.Abstractions;
 using GdTracker.Core.Models;
 using GdTracker.Data.Repositories;
@@ -216,5 +216,18 @@ public partial class ProgressesViewModelTests
 
         await act.Should().NotThrowAsync("иначе необработанное исключение из RowEditEnding уронит приложение");
         vm.Status.Should().NotBeNullOrEmpty();
+    }
+
+    [Fact]
+    public async Task LoadAsync_lists_only_levels_visible_in_the_tracker()
+    {
+        using var factory = new InMemorySqlite();
+        var vm = BuildVm(factory, out var levels, out _);
+        await levels.AddAsync(new Level { Name = "Added by hand" });
+        await levels.AddAsync(new Level { Name = "Imported", GdLevelId = 7, IsTracked = false });
+
+        await vm.LoadAsync();
+
+        vm.Levels.Should().ContainSingle().Which.Name.Should().Be("Added by hand");
     }
 }

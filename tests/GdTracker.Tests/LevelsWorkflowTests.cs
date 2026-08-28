@@ -1,4 +1,4 @@
-using FluentAssertions;
+﻿using FluentAssertions;
 using GdTracker.Core;
 using GdTracker.Core.Abstractions;
 using GdTracker.Core.Models;
@@ -453,11 +453,17 @@ public class LevelsViewModelManualAddGdIdTests
 /// </summary>
 public class LevelsViewModelLoadErrorTests
 {
-    /// <summary>Репозиторий уровней, всегда бросающий исключение из GetAllAsync (имитация сбоя БД).</summary>
+    /// <summary>Репозиторий уровней, всегда бросающий исключение при чтении списка (имитация сбоя БД).</summary>
     private sealed class ThrowingLevelRepository : ILevelRepository
     {
         public Task<IReadOnlyList<Level>> GetAllAsync(CancellationToken ct = default)
             => throw new InvalidOperationException("база данных недоступна");
+
+        public Task<IReadOnlyList<Level>> GetTrackedAsync(CancellationToken ct = default)
+            => throw new InvalidOperationException("база данных недоступна");
+
+        public Task<Level?> FindUntrackedByNameAsync(string name, CancellationToken ct = default)
+            => throw new NotSupportedException();
 
         public Task<Level?> GetByIdAsync(int id, CancellationToken ct = default) => throw new NotSupportedException();
 
@@ -474,9 +480,9 @@ public class LevelsViewModelLoadErrorTests
             => throw new NotSupportedException();
     }
 
-    /// <summary>Обёртка, бросающая исключение только из GetAllAsync — остальные операции
-    /// реально выполняются на переданном репозитории (имитация сбоя, всплывающего только
-    /// при перезагрузке списка после уже успешно выполненной операции).</summary>
+    /// <summary>Обёртка, бросающая исключение только при чтении списка уровней — остальные
+    /// операции реально выполняются на переданном репозитории (имитация сбоя, всплывающего
+    /// только при перезагрузке списка после уже успешно выполненной операции).</summary>
     private sealed class GetAllThrowingLevelRepository : ILevelRepository
     {
         private readonly ILevelRepository _inner;
@@ -485,6 +491,12 @@ public class LevelsViewModelLoadErrorTests
 
         public Task<IReadOnlyList<Level>> GetAllAsync(CancellationToken ct = default)
             => throw new InvalidOperationException("база данных недоступна");
+
+        public Task<IReadOnlyList<Level>> GetTrackedAsync(CancellationToken ct = default)
+            => throw new InvalidOperationException("база данных недоступна");
+
+        public Task<Level?> FindUntrackedByNameAsync(string name, CancellationToken ct = default)
+            => _inner.FindUntrackedByNameAsync(name, ct);
 
         public Task<Level?> GetByIdAsync(int id, CancellationToken ct = default) => _inner.GetByIdAsync(id, ct);
 

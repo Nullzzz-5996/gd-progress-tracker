@@ -1,4 +1,4 @@
-using GdTracker.Core.Abstractions;
+﻿using GdTracker.Core.Abstractions;
 using GdTracker.Core.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -17,6 +17,29 @@ public class LevelRepository : ILevelRepository
         return await db.Levels.AsNoTracking()
             .OrderBy(l => l.Name)
             .ToListAsync(ct);
+    }
+
+    public async Task<IReadOnlyList<Level>> GetTrackedAsync(CancellationToken ct = default)
+    {
+        await using var db = await _factory.CreateDbContextAsync(ct);
+        return await db.Levels.AsNoTracking()
+            .Where(l => l.IsTracked)
+            .OrderBy(l => l.Name)
+            .ToListAsync(ct);
+    }
+
+    public async Task<Level?> FindUntrackedByNameAsync(string name, CancellationToken ct = default)
+    {
+        // lower() в SQLite работает по ASCII — этого достаточно для названий уровней GD.
+        var normalized = name.Trim().ToLower();
+        if (normalized.Length == 0)
+            return null;
+
+        await using var db = await _factory.CreateDbContextAsync(ct);
+        return await db.Levels.AsNoTracking()
+            .Where(l => !l.IsTracked && l.Name.ToLower() == normalized)
+            .OrderByDescending(l => l.TotalAttempts)
+            .FirstOrDefaultAsync(ct);
     }
 
     public async Task<Level?> GetByIdAsync(int id, CancellationToken ct = default)

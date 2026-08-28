@@ -1,4 +1,4 @@
-using FluentAssertions;
+﻿using FluentAssertions;
 using GdTracker.Core;
 using GdTracker.Core.Models;
 using GdTracker.Data;
@@ -115,5 +115,34 @@ public class RepositoryTests
         reloaded!.BestNormalPercent.Should().Be(40);
         reloaded.TotalAttempts.Should().Be(3);
         reloaded.ProgressRecords.Should().HaveCount(1);
+    }
+
+    [Fact]
+    public async Task GetTracked_returns_only_levels_visible_in_the_list()
+    {
+        using var factory = new InMemoryFactory();
+        var levels = new LevelRepository(factory);
+        await levels.AddAsync(new Level { Name = "Visible" });
+        await levels.AddAsync(new Level { Name = "Hidden", GdLevelId = 7, IsTracked = false });
+
+        (await levels.GetAllAsync()).Should().HaveCount(2);
+        (await levels.GetTrackedAsync()).Should().ContainSingle().Which.Name.Should().Be("Visible");
+    }
+
+    [Fact]
+    public async Task FindUntrackedByName_ignores_case_and_prefers_the_most_played()
+    {
+        using var factory = new InMemoryFactory();
+        var levels = new LevelRepository(factory);
+        await levels.AddAsync(new Level { Name = "Bloodbath", GdLevelId = 1, TotalAttempts = 40, IsTracked = false });
+        await levels.AddAsync(new Level { Name = "bloodbath", GdLevelId = 2, TotalAttempts = 2180, IsTracked = false });
+        await levels.AddAsync(new Level { Name = "Cataclysm", GdLevelId = 3 });
+
+        var found = await levels.FindUntrackedByNameAsync("BLOODBATH");
+
+        found.Should().NotBeNull();
+        found!.GdLevelId.Should().Be(2);
+        (await levels.FindUntrackedByNameAsync("Cataclysm")).Should().BeNull("видимые уровни не усыновляются");
+        (await levels.FindUntrackedByNameAsync("Deadlocked")).Should().BeNull();
     }
 }

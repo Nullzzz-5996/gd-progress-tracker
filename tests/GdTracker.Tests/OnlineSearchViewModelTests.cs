@@ -1,4 +1,4 @@
-using FluentAssertions;
+﻿using FluentAssertions;
 using GdTracker.Core;
 using GdTracker.Core.Abstractions;
 using GdTracker.Core.Models;
@@ -104,5 +104,20 @@ public class OnlineSearchViewModelTests
         var all = await levels.GetAllAsync();
         all.Should().ContainSingle();
         vm.Status.Should().Contain("уже в трекере");
+    }
+
+    [Fact]
+    public async Task Adding_a_level_hidden_after_import_shows_it_instead_of_reporting_a_duplicate()
+    {
+        using var factory = new InMemorySqlite();
+        var reader = new FakeSaveReader(stats: null);
+        var (vm, levels) = Build(factory, reader);
+        await new SaveImportService(factory).ImportAsync([SaveDto(13519, 72, 158)]);
+
+        await vm.AddToTrackerCommand.ExecuteAsync(FoundLevel());
+
+        var tracked = await levels.GetTrackedAsync();
+        tracked.Should().ContainSingle().Which.TotalAttempts.Should().Be(158);
+        vm.Status.Should().NotContain("уже в трекере");
     }
 }

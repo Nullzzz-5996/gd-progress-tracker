@@ -1,4 +1,4 @@
-namespace GdTracker.Core.Models;
+﻿namespace GdTracker.Core.Models;
 
 /// <summary>
 /// Уровень Geometry Dash, прогресс по которому отслеживается.
@@ -18,6 +18,13 @@ public class Level
 
     /// <summary>Происхождение уровня.</summary>
     public LevelSource Source { get; set; } = LevelSource.Custom;
+
+    /// <summary>
+    /// Уровень показывается в списке «Уровни». Импорт из игры заводит строки скрытыми
+    /// (false): их данные нужны статистике, но сетку они не засоряют. Уровень становится
+    /// видимым, когда пользователь добавляет его вручную или из онлайн-поиска.
+    /// </summary>
+    public bool IsTracked { get; set; } = true;
 
     /// <summary>Сколько звёзд стоит уровень (k26 из сейва), если известно.</summary>
     public int? Stars { get; set; }
