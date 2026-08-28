@@ -1,4 +1,4 @@
-<Project>
+﻿<Project>
 
   <!-- Общие свойства для всех проектов решения GdTracker -->
   <PropertyGroup>
@@ -11,7 +11,7 @@
     <!-- Единая версия продукта для всех сборок. Показывается на странице «Настройки»:
          SettingsViewModel читает версию через GetExecutingAssembly() (сборка ViewModels),
          поэтому версия должна стоять здесь, а не только в проекте приложения. -->
-    <Version>1.0.1</Version>
+    <Version>1.0.1.1</Version>
   </PropertyGroup>
 
 </Project>
