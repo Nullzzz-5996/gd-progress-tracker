@@ -487,3 +487,7 @@ app_stdout.log
 phase*_ui.png
 _decoded_*.xml
 _real_summary.txt
+
+# Сборка инсталлятора (installer/build.ps1)
+artifacts/
+installer/output/
