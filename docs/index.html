@@ -1,0 +1,778 @@
+<!doctype html>
+<html lang="ru" data-lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GD Progress Tracker — трекер прогресса Geometry Dash для Windows</title>
+<meta name="description" content="Настольное приложение для Windows: импортирует прогресс Geometry Dash прямо из файла сохранения, ведёт историю попыток, строит графики звёзд и демонов. Всё хранится локально.">
+<meta property="og:title" content="GD Progress Tracker">
+<meta property="og:description" content="Весь прогресс в Geometry Dash — в одном окне.">
+<meta property="og:type" content="website">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230b0d12'/%3E%3Crect x='8' y='8' width='16' height='16' rx='3' fill='none' stroke='%2338e1ff' stroke-width='2.5'/%3E%3Crect x='13.5' y='13.5' width='5' height='5' rx='1' fill='%23ff4d9d'/%3E%3C/svg%3E">
+
+<style>
+:root{
+  --bg:#0a0c11;
+  --bg-soft:#0f131b;
+  --surface:#141924;
+  --surface-2:#1a2130;
+  --line:#232b3b;
+  --line-soft:#1b2231;
+  --fg:#e8ecf5;
+  --fg-dim:#9aa5bb;
+  --fg-faint:#6b7690;
+  --cyan:#38e1ff;
+  --pink:#ff4d9d;
+  --gold:#ffc247;
+  --radius:14px;
+  --maxw:1080px;
+  --font:"Segoe UI Variable Display","Segoe UI",ui-sans-serif,system-ui,-apple-system,Roboto,Helvetica,Arial,sans-serif;
+  --mono:ui-monospace,"Cascadia Mono",Consolas,"SF Mono",Menlo,monospace;
+}
+
+*,*::before,*::after{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--fg);
+  font-family:var(--font);
+  font-size:17px;
+  line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+}
+h1,h2,h3{margin:0;line-height:1.15;letter-spacing:-.02em;font-weight:650}
+p{margin:0}
+a{color:inherit}
+img{max-width:100%;display:block}
+code{
+  font-family:var(--mono);
+  font-size:.87em;
+  background:var(--surface-2);
+  border:1px solid var(--line);
+  border-radius:5px;
+  padding:.1em .4em;
+  color:#cfe6ff;
+  overflow-wrap:anywhere;
+}
+
+/* ---------- переключение языка ---------- */
+html[data-lang="ru"] [data-l="en"]{display:none}
+html[data-lang="en"] [data-l="ru"]{display:none}
+
+/* ---------- раскладка ---------- */
+.wrap{width:100%;max-width:var(--maxw);margin:0 auto;padding:0 24px}
+section{position:relative}
+.rule{height:1px;background:var(--line-soft);border:0;margin:0}
+
+/* ---------- шапка ---------- */
+.site-header{
+  position:sticky;top:0;z-index:50;
+  background:rgba(10,12,17,.82);
+  backdrop-filter:blur(14px);
+  -webkit-backdrop-filter:blur(14px);
+  border-bottom:1px solid var(--line-soft);
+}
+.site-header .wrap{display:flex;align-items:center;gap:16px;height:62px}
+.brand{display:flex;align-items:center;gap:10px;text-decoration:none;font-weight:650;letter-spacing:-.01em;white-space:nowrap}
+.brand svg{flex:none}
+.brand span{font-size:15.5px}
+.header-spacer{flex:1}
+.header-link{
+  color:var(--fg-dim);text-decoration:none;font-size:14.5px;
+  padding:7px 12px;border-radius:9px;transition:color .15s,background .15s;
+}
+.header-link:hover{color:var(--fg);background:var(--surface)}
+
+.lang{display:flex;background:var(--surface);border:1px solid var(--line);border-radius:9px;padding:2px}
+.lang button{
+  appearance:none;border:0;background:none;cursor:pointer;
+  font:inherit;font-size:13px;font-weight:600;letter-spacing:.03em;
+  color:var(--fg-faint);padding:4px 10px;border-radius:7px;
+  transition:color .15s,background .15s;
+}
+.lang button:hover{color:var(--fg-dim)}
+.lang button[aria-pressed="true"]{background:var(--surface-2);color:var(--fg);box-shadow:inset 0 0 0 1px var(--line)}
+
+/* ---------- герой ---------- */
+.hero{padding:88px 0 72px;overflow:hidden}
+.hero::before{
+  content:"";position:absolute;inset:-40% 0 auto;height:760px;pointer-events:none;
+  background:
+    radial-gradient(620px 300px at 50% 42%, rgba(56,225,255,.13), transparent 70%),
+    radial-gradient(460px 260px at 76% 30%, rgba(255,77,157,.10), transparent 70%);
+}
+.hero::after{
+  content:"";position:absolute;inset:0;pointer-events:none;
+  background-image:
+    linear-gradient(rgba(255,255,255,.028) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(255,255,255,.028) 1px,transparent 1px);
+  background-size:56px 56px;
+  mask-image:radial-gradient(ellipse 78% 60% at 50% 22%,#000 30%,transparent 78%);
+  -webkit-mask-image:radial-gradient(ellipse 78% 60% at 50% 22%,#000 30%,transparent 78%);
+}
+.hero .wrap{position:relative;z-index:1;text-align:center}
+
+.badge{
+  display:inline-flex;align-items:center;gap:8px;
+  font-size:13px;font-weight:600;letter-spacing:.02em;
+  color:var(--cyan);
+  background:rgba(56,225,255,.07);
+  border:1px solid rgba(56,225,255,.22);
+  border-radius:999px;padding:5px 14px;margin-bottom:26px;
+}
+.badge .dot{width:6px;height:6px;border-radius:50%;background:var(--cyan);flex:none}
+
+h1{
+  font-size:clamp(38px,6.4vw,62px);
+  font-weight:700;letter-spacing:-.035em;
+  margin:0 auto;max-width:19ch;
+}
+h1 .accent{
+  display:block;
+  background:linear-gradient(100deg,var(--cyan),var(--pink));
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+}
+.lead{
+  margin:22px auto 0;max-width:57ch;
+  font-size:clamp(17px,2.1vw,19.5px);
+  color:var(--fg-dim);
+}
+
+.cta-row{display:flex;flex-wrap:wrap;gap:14px;justify-content:center;margin-top:36px}
+.btn{
+  display:inline-flex;align-items:center;gap:10px;
+  font:inherit;font-size:16px;font-weight:640;
+  text-decoration:none;cursor:pointer;
+  padding:13px 26px;border-radius:11px;border:1px solid transparent;
+  transition:transform .12s ease,box-shadow .18s ease,background .18s ease,border-color .18s ease;
+}
+.btn-primary{
+  background:linear-gradient(180deg,#4ce6ff,#22c3e8);
+  color:#04222c;
+  box-shadow:0 8px 26px -10px rgba(56,225,255,.75);
+}
+.btn-primary:hover{transform:translateY(-1px);box-shadow:0 14px 34px -12px rgba(56,225,255,.9)}
+.btn-secondary{background:var(--surface);border-color:var(--line);color:var(--fg)}
+.btn-secondary:hover{background:var(--surface-2);border-color:#2e384c}
+.meta{margin-top:18px;font-size:14px;color:var(--fg-faint)}
+.meta b{color:var(--fg-dim);font-weight:600}
+.nojs{display:block;margin-top:18px;font-size:14px;color:var(--fg-dim)}
+
+/* ---------- счётчик загрузок ----------
+   Появляется только когда GitHub API вернул настоящее число. */
+.downloads{
+  margin-top:12px;font-size:14.5px;color:var(--fg-dim);
+  display:flex;align-items:center;justify-content:center;gap:8px;
+}
+.downloads[hidden]{display:none}
+.downloads svg{color:var(--cyan);flex:none}
+.downloads b{color:var(--fg);font-weight:650;font-variant-numeric:tabular-nums}
+
+/* ---------- контакт ---------- */
+.contact{
+  margin-top:24px;font-size:15px;color:var(--fg-dim);
+  display:flex;align-items:center;justify-content:center;gap:9px;flex-wrap:wrap;
+}
+.contact svg{color:var(--cyan);flex:none}
+.contact a{
+  color:var(--cyan);text-decoration:none;
+  border-bottom:1px solid rgba(56,225,255,.35);
+  transition:border-color .15s;
+}
+.contact a:hover{border-bottom-color:var(--cyan)}
+
+/* ---------- состояние «ещё не опубликовано» ----------
+   Включается классом .pending на <html>, когда GITHUB_PUBLISHED = false:
+   ссылки на GitHub никуда не ведут (иначе они дают 404). */
+.pending-note{display:none}
+html.pending .pending-note{
+  display:block;margin-top:16px;font-size:14px;line-height:1.5;
+  color:var(--gold);
+}
+html.pending [data-gh]{
+  opacity:.4;cursor:not-allowed;pointer-events:none;
+  filter:grayscale(.55);
+}
+html.pending .btn-primary{box-shadow:none}
+
+/* ---------- скриншот ---------- */
+.shot{margin:64px auto 0;max-width:960px;position:relative}
+.shot-frame{
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  background:var(--bg-soft);
+  overflow:hidden;
+  box-shadow:0 40px 90px -40px rgba(0,0,0,.9),0 0 0 1px rgba(255,255,255,.02) inset;
+}
+.shot img{width:100%;height:auto;background:#111}
+.shot-note{margin-top:12px;text-align:center;font-size:13px;color:var(--fg-faint)}
+
+/* ---------- общая секция ---------- */
+.section{padding:88px 0}
+.section-head{max-width:62ch;margin:0 auto 46px;text-align:center}
+.eyebrow{
+  font-size:12.5px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--cyan);margin-bottom:14px;
+}
+h2{font-size:clamp(27px,3.6vw,36px)}
+.section-head p{margin-top:14px;color:var(--fg-dim);font-size:17px}
+
+/* ---------- возможности ---------- */
+.grid{display:grid;gap:18px;grid-template-columns:repeat(3,1fr)}
+.card{
+  background:linear-gradient(180deg,var(--surface),rgba(20,25,36,.55));
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  padding:26px 24px 28px;
+  transition:border-color .18s ease,transform .18s ease;
+}
+.card:hover{border-color:#2f3a4f;transform:translateY(-2px)}
+.card .ico{
+  width:38px;height:38px;border-radius:10px;margin-bottom:16px;
+  display:grid;place-items:center;
+  background:rgba(56,225,255,.09);
+  border:1px solid rgba(56,225,255,.2);
+  color:var(--cyan);
+}
+.card:nth-child(3n-1) .ico{background:rgba(255,77,157,.09);border-color:rgba(255,77,157,.2);color:var(--pink)}
+.card:nth-child(3n) .ico{background:rgba(255,194,71,.09);border-color:rgba(255,194,71,.22);color:var(--gold)}
+.card h3{font-size:18px;margin-bottom:9px}
+.card p{color:var(--fg-dim);font-size:15.5px;line-height:1.62}
+
+/* ---------- шаги ---------- */
+.steps{display:grid;gap:18px;grid-template-columns:repeat(3,1fr)}
+.step{
+  position:relative;padding:28px 24px;
+  background:var(--bg-soft);
+  border:1px solid var(--line);border-radius:var(--radius);
+}
+.step .num{
+  display:grid;place-items:center;
+  width:34px;height:34px;border-radius:9px;margin-bottom:16px;
+  font-size:15px;font-weight:700;
+  background:var(--surface-2);border:1px solid var(--line);color:var(--cyan);
+}
+.step h3{font-size:17px;margin-bottom:9px}
+.step p{color:var(--fg-dim);font-size:15.5px}
+
+/* ---------- панель про данные ---------- */
+.panel{
+  background:
+    radial-gradient(700px 240px at 18% 0%,rgba(56,225,255,.07),transparent 65%),
+    var(--bg-soft);
+  border:1px solid var(--line);
+  border-radius:18px;
+  padding:44px 40px;
+}
+.panel h2{font-size:clamp(24px,3vw,30px);margin-bottom:16px}
+.panel p{color:var(--fg-dim);max-width:66ch}
+.panel p + p{margin-top:14px}
+.facts{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:32px}
+.fact{
+  background:var(--surface);border:1px solid var(--line);
+  border-radius:11px;padding:18px 18px 19px;
+}
+.fact .k{font-size:12px;font-weight:700;letter-spacing:.11em;text-transform:uppercase;color:var(--fg-faint)}
+.fact .v{margin-top:7px;font-size:15px;color:var(--fg)}
+
+/* ---------- финальный призыв ---------- */
+.final{text-align:center;padding:92px 0 96px}
+.final h2{margin-bottom:16px}
+/* только вводный абзац: правило по всем > p перебивало цвет .pending-note
+   и отступ .contact, потому что было и специфичнее, и ниже по файлу */
+.final-lead{color:var(--fg-dim);max-width:52ch;margin:0 auto}
+.final .cta-row{margin-top:32px}
+
+/* ---------- подвал ---------- */
+footer{border-top:1px solid var(--line-soft);padding:34px 0 44px;background:var(--bg-soft)}
+footer .wrap{display:flex;flex-wrap:wrap;gap:14px 26px;align-items:center;font-size:14px;color:var(--fg-faint)}
+footer a{color:var(--fg-dim);text-decoration:none}
+footer a:hover{color:var(--fg);text-decoration:underline}
+.foot-spacer{flex:1}
+.disclaimer{width:100%;margin-top:6px;font-size:13px;color:#5b657c;line-height:1.55}
+
+/* ---------- адаптив ---------- */
+@media (max-width:900px){
+  .grid,.steps,.facts{grid-template-columns:repeat(2,1fr)}
+}
+@media (max-width:640px){
+  body{font-size:16px}
+  .wrap{padding:0 18px}
+  .hero{padding:60px 0 52px}
+  .section,.final{padding:64px 0}
+  .grid,.steps,.facts{grid-template-columns:1fr}
+  .panel{padding:30px 22px}
+  .btn{width:100%;justify-content:center}
+  .cta-row{gap:11px}
+  .brand span{display:none}
+  .header-link.gh-text{display:none}
+  .shot{margin-top:44px}
+  .foot-spacer{display:none}
+}
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  *{transition:none !important;animation:none !important}
+}
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="wrap">
+    <a class="brand" href="#top">
+      <svg width="26" height="26" viewBox="0 0 32 32" aria-hidden="true">
+        <rect x="4" y="4" width="24" height="24" rx="6" fill="#141924" stroke="#232b3b"/>
+        <rect x="10" y="10" width="12" height="12" rx="2.5" fill="none" stroke="#38e1ff" stroke-width="2"/>
+        <rect x="14.25" y="14.25" width="3.5" height="3.5" rx=".8" fill="#ff4d9d"/>
+      </svg>
+      <span>GD Progress Tracker</span>
+    </a>
+    <div class="header-spacer"></div>
+    <a class="header-link" href="#features"><span data-l="ru">Возможности</span><span data-l="en">Features</span></a>
+    <a class="header-link gh-text" data-gh="repo" href="https://github.com/"><span data-l="ru">Исходники</span><span data-l="en">Source</span></a>
+    <div class="lang" role="group" aria-label="Язык / Language">
+      <button type="button" data-set-lang="ru" aria-pressed="true">RU</button>
+      <button type="button" data-set-lang="en" aria-pressed="false">EN</button>
+    </div>
+  </div>
+</header>
+
+<main id="top">
+
+<!-- ================= ГЕРОЙ ================= -->
+<section class="hero">
+  <div class="wrap">
+    <span class="badge">
+      <span class="dot"></span>
+      <span data-l="ru">Windows&nbsp;10/11 · бесплатно · без установки</span>
+      <span data-l="en">Windows&nbsp;10/11 · free · no installer</span>
+    </span>
+
+    <h1>
+      <span data-l="ru">Весь прогресс в Geometry&nbsp;Dash <span class="accent">в одном окне</span></span>
+      <span data-l="en">Every Geometry&nbsp;Dash run <span class="accent">in one window</span></span>
+    </h1>
+
+    <p class="lead">
+      <span data-l="ru">Читает прогресс прямо из файла сохранения игры, ведёт историю попыток по каждому уровню и строит графики набранных звёзд и демонов. Всё остаётся на твоём компьютере.</span>
+      <span data-l="en">Reads your progress straight from the game save, keeps a history of attempts for every level, and charts the stars and demons you have earned. Everything stays on your machine.</span>
+    </p>
+
+    <div class="cta-row">
+      <a class="btn btn-primary" data-gh="release" href="https://github.com/">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M12 3v12"/><path d="m7 11 5 5 5-5"/><path d="M4 21h16"/>
+        </svg>
+        <span data-l="ru">Скачать для Windows</span>
+        <span data-l="en">Download for Windows</span>
+      </a>
+      <a class="btn btn-secondary" data-gh="repo" href="https://github.com/">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+          <path d="M12 2a10 10 0 0 0-3.16 19.49c.5.09.68-.22.68-.48l-.01-1.7c-2.78.6-3.37-1.34-3.37-1.34-.45-1.16-1.11-1.47-1.11-1.47-.91-.62.07-.61.07-.61 1 .07 1.53 1.03 1.53 1.03.9 1.53 2.36 1.09 2.94.83.09-.65.35-1.09.63-1.34-2.22-.25-4.55-1.11-4.55-4.94 0-1.09.39-1.98 1.03-2.68-.1-.25-.45-1.27.1-2.64 0 0 .84-.27 2.75 1.02a9.5 9.5 0 0 1 5 0c1.91-1.29 2.75-1.02 2.75-1.02.55 1.37.2 2.39.1 2.64.64.7 1.03 1.59 1.03 2.68 0 3.84-2.34 4.68-4.57 4.93.36.31.68.92.68 1.85l-.01 2.75c0 .27.18.58.69.48A10 10 0 0 0 12 2Z"/>
+        </svg>
+        <span data-l="ru">Исходный код</span>
+        <span data-l="en">Source code</span>
+      </a>
+    </div>
+
+    <p class="meta">
+      <span data-l="ru"><b>Версия 1.0.1</b> · Windows 10/11 · x64 · открытый исходный код</span>
+      <span data-l="en"><b>Version 1.0.1</b> · Windows 10/11 · x64 · open source</span>
+    </p>
+
+    <p class="downloads" id="downloads" hidden>
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M12 3v12"/><path d="m7 11 5 5 5-5"/><path d="M4 21h16"/>
+      </svg>
+      <span id="downloads-text"></span>
+    </p>
+
+    <p class="pending-note">
+      <span data-l="ru">Релиз ещё не опубликован — ссылка на скачивание появится здесь после выкладки на GitHub.</span>
+      <span data-l="en">The release is not published yet — the download link will appear here once it is up on GitHub.</span>
+    </p>
+
+    <noscript>
+      <span class="nojs">
+        <span data-l="ru">Для перехода к скачиванию откройте раздел Releases в репозитории проекта на GitHub.</span>
+        <span data-l="en">To download, open the Releases section of the project repository on GitHub.</span>
+      </span>
+    </noscript>
+
+    <div class="shot">
+      <div class="shot-frame">
+        <img src="assets/levels.png" width="1100" height="720"
+             alt="Окно GD Progress Tracker: список уровней с прогрессом, сложностью и числом попыток">
+      </div>
+      <p class="shot-note">
+        <span data-l="ru">Вкладка «Уровни» — список со всем импортированным прогрессом.</span>
+        <span data-l="en">The Levels tab — every imported level and its progress.</span>
+      </p>
+    </div>
+  </div>
+</section>
+
+<hr class="rule">
+
+<!-- ================= ВОЗМОЖНОСТИ ================= -->
+<section class="section" id="features">
+  <div class="wrap">
+    <div class="section-head">
+      <p class="eyebrow"><span data-l="ru">Возможности</span><span data-l="en">Features</span></p>
+      <h2>
+        <span data-l="ru">Шесть вкладок, которые закрывают учёт прогресса</span>
+        <span data-l="en">Six tabs that cover the whole picture</span>
+      </h2>
+      <p>
+        <span data-l="ru">Приложение написано на WPF под Windows и работает офлайн — интернет нужен только поиску уровней.</span>
+        <span data-l="en">A native WPF app for Windows that works offline — only level search needs the internet.</span>
+      </p>
+    </div>
+
+    <div class="grid">
+      <article class="card">
+        <div class="ico">
+          <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 6h13"/><path d="M8 12h13"/><path d="M8 18h13"/><path d="M3 6h.01"/><path d="M3 12h.01"/><path d="M3 18h.01"/></svg>
+        </div>
+        <h3><span data-l="ru">Уровни</span><span data-l="en">Levels</span></h3>
+        <p>
+          <span data-l="ru">Полный список уровней с процентом прохождения, сложностью, звёздами и числом попыток. Фильтр по названию, автору, сложности и ID.</span>
+          <span data-l="en">The full list of levels with completion percentage, difficulty, stars and attempt count. Filter by name, creator, difficulty or ID.</span>
+        </p>
+      </article>
+
+      <article class="card">
+        <div class="ico">
+          <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20v-6"/><path d="M6 20V10"/><path d="M18 20V4"/></svg>
+        </div>
+        <h3><span data-l="ru">Прогрессы</span><span data-l="en">Progress log</span></h3>
+        <p>
+          <span data-l="ru">Отдельная вкладка для записи каждой попытки: процент, дата, заметка. Видно, как уровень поддавался со временем.</span>
+          <span data-l="en">A dedicated tab to log each run: percentage, date, note. Watch a level give in over time.</span>
+        </p>
+      </article>
+
+      <article class="card">
+        <div class="ico">
+          <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 16 5-6 4 4 4-7 5 5"/><path d="M3 21h18"/></svg>
+        </div>
+        <h3><span data-l="ru">Статистика</span><span data-l="en">Stats</span></h3>
+        <p>
+          <span data-l="ru">Сводка по аккаунту и графики динамики: сколько звёзд и демонов набрано и в какой момент это произошло.</span>
+          <span data-l="en">An account summary plus trend charts: how many stars and demons you earned, and exactly when.</span>
+        </p>
+      </article>
+
+      <article class="card">
+        <div class="ico">
+          <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+        </div>
+        <h3><span data-l="ru">Поиск онлайн</span><span data-l="en">Online search</span></h3>
+        <p>
+          <span data-l="ru">Найти уровень на серверах Geometry Dash по названию или ID и добавить в свой список — прогресс подтянется из сейва автоматически.</span>
+          <span data-l="en">Find a level on the Geometry Dash servers by name or ID and add it to your list — progress is pulled from your save automatically.</span>
+        </p>
+      </article>
+
+      <article class="card">
+        <div class="ico">
+          <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 2 4.5 13H11l-1 9 8.5-11H12l1-9Z"/></svg>
+        </div>
+        <h3><span data-l="ru">CPS-тест</span><span data-l="en">CPS test</span></h3>
+        <p>
+          <span data-l="ru">Замер кликов в секунду с перехватом ввода на уровне системы — клики считаются, даже когда окно приложения не в фокусе.</span>
+          <span data-l="en">Clicks per second measured with system-level input hooks — clicks count even when the window is not focused.</span>
+        </p>
+      </article>
+
+      <article class="card">
+        <div class="ico">
+          <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/><path d="M12 15V3"/></svg>
+        </div>
+        <h3><span data-l="ru">Импорт и обмен</span><span data-l="en">Import &amp; sharing</span></h3>
+        <p>
+          <span data-l="ru">Читает <code>CCGameManager.dat</code> напрямую. Экспорт и импорт файлов, чтобы делиться прогрессом с друзьями.</span>
+          <span data-l="en">Reads <code>CCGameManager.dat</code> directly. Export and import files to share your progress with friends.</span>
+        </p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<hr class="rule">
+
+<!-- ================= КАК НАЧАТЬ ================= -->
+<section class="section" id="start">
+  <div class="wrap">
+    <div class="section-head">
+      <p class="eyebrow"><span data-l="ru">Как начать</span><span data-l="en">Getting started</span></p>
+      <h2>
+        <span data-l="ru">Три шага до первого импорта</span>
+        <span data-l="en">Three steps to your first import</span>
+      </h2>
+    </div>
+
+    <div class="steps">
+      <div class="step">
+        <div class="num">1</div>
+        <h3><span data-l="ru">Скачай и распакуй</span><span data-l="en">Download and unpack</span></h3>
+        <p>
+          <span data-l="ru">Установщик не нужен — распакуй архив в любую папку и запусти <code>GdTracker.App.exe</code>.</span>
+          <span data-l="en">No installer needed — unpack the archive anywhere and run <code>GdTracker.App.exe</code>.</span>
+        </p>
+      </div>
+
+      <div class="step">
+        <div class="num">2</div>
+        <h3><span data-l="ru">Укажи путь к сейву</span><span data-l="en">Point it at your save</span></h3>
+        <p>
+          <span data-l="ru">На вкладке «Уровни» проверь путь к <code>CCGameManager.dat</code> — обычно он лежит в <code>%LOCALAPPDATA%\GeometryDash\</code>.</span>
+          <span data-l="en">On the Levels tab, check the path to <code>CCGameManager.dat</code> — it usually lives in <code>%LOCALAPPDATA%\GeometryDash\</code>.</span>
+        </p>
+      </div>
+
+      <div class="step">
+        <div class="num">3</div>
+        <h3><span data-l="ru">Нажми «Импорт из игры»</span><span data-l="en">Hit “Import from game”</span></h3>
+        <p>
+          <span data-l="ru">Все уровни с прогрессом появятся в списке. Импорт можно повторять сколько угодно — записи, добавленные вручную, он не трогает.</span>
+          <span data-l="en">Every level with progress lands in the list. Re-run the import as often as you like — entries you added by hand are left alone.</span>
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="rule">
+
+<!-- ================= ДАННЫЕ ================= -->
+<section class="section" id="data">
+  <div class="wrap">
+    <div class="panel">
+      <h2>
+        <span data-l="ru">Данные остаются у тебя</span>
+        <span data-l="en">Your data stays yours</span>
+      </h2>
+      <p>
+        <span data-l="ru">Ни аккаунта, ни регистрации, ни телеметрии. Файл сохранения игры открывается только на чтение — приложение в него не пишет.</span>
+        <span data-l="en">No account, no sign-up, no telemetry. The game save is opened read-only — the app never writes to it.</span>
+      </p>
+      <p>
+        <span data-l="ru">Единственный сетевой запрос — поиск уровней на серверах Geometry Dash, и только когда ты сам его запускаешь. Логин в игровой аккаунт не требуется.</span>
+        <span data-l="en">The only network request is level search against the Geometry Dash servers, and only when you run it yourself. No game-account login required.</span>
+      </p>
+
+      <div class="facts">
+        <div class="fact">
+          <div class="k"><span data-l="ru">База данных</span><span data-l="en">Database</span></div>
+          <div class="v"><code>%LOCALAPPDATA%\GdTracker\gdtracker.db</code></div>
+        </div>
+        <div class="fact">
+          <div class="k"><span data-l="ru">Формат</span><span data-l="en">Format</span></div>
+          <div class="v">
+            <span data-l="ru">Обычный файл SQLite — можно скопировать или открыть чем угодно</span>
+            <span data-l="en">A plain SQLite file — copy it or open it with anything</span>
+          </div>
+        </div>
+        <div class="fact">
+          <div class="k"><span data-l="ru">Обмен</span><span data-l="en">Sharing</span></div>
+          <div class="v">
+            <span data-l="ru">Экспорт в файл и импорт обратно, без сервера-посредника</span>
+            <span data-l="en">Export to a file and import it back, with no server in between</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= ФИНАЛЬНЫЙ ПРИЗЫВ ================= -->
+<section class="final">
+  <div class="wrap">
+    <h2>
+      <span data-l="ru">Забрать себе</span>
+      <span data-l="en">Grab a copy</span>
+    </h2>
+    <p class="final-lead">
+      <span data-l="ru">Бесплатно, с открытым исходным кодом. Нашёл ошибку или не хватает функции — заводи issue на GitHub или напиши на почту.</span>
+      <span data-l="en">Free and open source. Found a bug or missing a feature? Open an issue on GitHub, or send an email.</span>
+    </p>
+    <div class="cta-row">
+      <a class="btn btn-primary" data-gh="release" href="https://github.com/">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M12 3v12"/><path d="m7 11 5 5 5-5"/><path d="M4 21h16"/>
+        </svg>
+        <span data-l="ru">Скачать для Windows</span>
+        <span data-l="en">Download for Windows</span>
+      </a>
+      <a class="btn btn-secondary" data-gh="issues" href="https://github.com/">
+        <span data-l="ru">Сообщить об ошибке</span>
+        <span data-l="en">Report an issue</span>
+      </a>
+    </div>
+
+    <p class="pending-note">
+      <span data-l="ru">Репозиторий пока не опубликован, поэтому ссылки неактивны.</span>
+      <span data-l="en">The repository is not public yet, so these links are inactive.</span>
+    </p>
+
+    <p class="contact">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <rect x="2.5" y="4.5" width="19" height="15" rx="2.5"/><path d="m3 7 9 6 9-6"/>
+      </svg>
+      <span data-l="ru">Написать автору:</span>
+      <span data-l="en">Contact the author:</span>
+      <a href="mailto:nenashmaks@icloud.com">nenashmaks@icloud.com</a>
+    </p>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>GD Progress Tracker <span data-l="ru">версия</span><span data-l="en">version</span> 1.0.1</span>
+    <span class="foot-spacer"></span>
+    <a data-gh="repo" href="https://github.com/">GitHub</a>
+    <a data-gh="release" href="https://github.com/"><span data-l="ru">Релизы</span><span data-l="en">Releases</span></a>
+    <a data-gh="issues" href="https://github.com/">Issues</a>
+    <a href="mailto:nenashmaks@icloud.com">nenashmaks@icloud.com</a>
+    <p class="disclaimer">
+      <span data-l="ru">Неофициальный сторонний инструмент. Не связан с RobTop Games и не поддерживается ею. Geometry Dash — товарный знак RobTop Games AB.</span>
+      <span data-l="en">An unofficial third-party tool. Not affiliated with or endorsed by RobTop Games. Geometry Dash is a trademark of RobTop Games AB.</span>
+    </p>
+  </div>
+</footer>
+
+<script>
+/* --------------------------------------------------------------------
+   ЕДИНСТВЕННАЯ СТРОКА ДЛЯ ПРАВКИ — "владелец/репозиторий" на GitHub.
+   Отсюда собираются все ссылки: скачивание, исходники, issues.
+   THE ONLY LINE TO EDIT — your GitHub "owner/repo".
+-------------------------------------------------------------------- */
+var GITHUB_REPO = "snenashev/gd-progress-tracker";
+
+/* Пока репозиторий и релиз не выложены на GitHub, все ссылки туда дают 404.
+   Поэтому при false они отключаются и страница честно пишет, что релиза ещё нет.
+   Опубликовал репозиторий и релиз — поставь true, и ссылки оживут.
+   Set to true once the repository and the release are public. */
+var GITHUB_PUBLISHED = false;
+
+(function () {
+  "use strict";
+
+  var base = "https://github.com/" + GITHUB_REPO;
+  var urls = {
+    repo: base,
+    release: base + "/releases/latest",
+    issues: base + "/issues"
+  };
+
+  var links = document.querySelectorAll("[data-gh]");
+  for (var i = 0; i < links.length; i++) {
+    var kind = links[i].getAttribute("data-gh");
+    if (GITHUB_PUBLISHED && urls[kind]) {
+      links[i].setAttribute("href", urls[kind]);
+    } else {
+      /* без href ссылка не переходит никуда и выпадает из обхода по Tab */
+      links[i].removeAttribute("href");
+      links[i].setAttribute("aria-disabled", "true");
+    }
+  }
+  if (!GITHUB_PUBLISHED) {
+    document.documentElement.className += " pending";
+  }
+
+  var TITLES = {
+    ru: "GD Progress Tracker — трекер прогресса Geometry Dash для Windows",
+    en: "GD Progress Tracker — a Geometry Dash progress tracker for Windows"
+  };
+
+  /* ---------------- счётчик загрузок ---------------- */
+
+  var dlBox = document.getElementById("downloads");
+  var dlText = document.getElementById("downloads-text");
+  var dlCount = null;
+
+  /* 1 загрузка, 2 загрузки, 5 загрузок, 21 загрузка, 111 загрузок */
+  function pluralRu(n) {
+    var d = n % 10, h = n % 100;
+    if (d === 1 && h !== 11) return "загрузка";
+    if (d >= 2 && d <= 4 && (h < 12 || h > 14)) return "загрузки";
+    return "загрузок";
+  }
+
+  function renderDownloads(lang) {
+    if (dlCount === null) return;
+    var word = lang === "ru" ? pluralRu(dlCount) : (dlCount === 1 ? "download" : "downloads");
+    dlText.innerHTML = "<b>" + dlCount.toLocaleString(lang === "ru" ? "ru-RU" : "en-US") + "</b> " + word;
+    dlBox.hidden = false;
+  }
+
+  /* Суммирует download_count по ассетам всех релизов.
+     Если репозиторий не опубликован, сети нет или исчерпан лимит API —
+     строка просто не появляется. */
+  function loadDownloads() {
+    if (!GITHUB_PUBLISHED || !window.fetch) return;
+    fetch("https://api.github.com/repos/" + GITHUB_REPO + "/releases")
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (releases) {
+        if (!releases || !releases.length) return;
+        var total = 0;
+        for (var i = 0; i < releases.length; i++) {
+          var assets = releases[i].assets || [];
+          for (var j = 0; j < assets.length; j++) total += assets[j].download_count || 0;
+        }
+        dlCount = total;
+        renderDownloads(document.documentElement.getAttribute("data-lang"));
+      })
+      .catch(function () { /* строку не показываем */ });
+  }
+
+  var buttons = document.querySelectorAll("[data-set-lang]");
+
+  function apply(lang) {
+    if (lang !== "ru" && lang !== "en") lang = "ru";
+    var root = document.documentElement;
+    root.setAttribute("data-lang", lang);
+    root.setAttribute("lang", lang);
+    document.title = TITLES[lang];
+    for (var i = 0; i < buttons.length; i++) {
+      var on = buttons[i].getAttribute("data-set-lang") === lang;
+      buttons[i].setAttribute("aria-pressed", on ? "true" : "false");
+    }
+    renderDownloads(lang);
+  }
+
+  function stored() {
+    try { return localStorage.getItem("gdt-lang"); } catch (e) { return null; }
+  }
+
+  function remember(lang) {
+    try { localStorage.setItem("gdt-lang", lang); } catch (e) { /* приватный режим */ }
+  }
+
+  for (var b = 0; b < buttons.length; b++) {
+    buttons[b].addEventListener("click", function () {
+      var lang = this.getAttribute("data-set-lang");
+      apply(lang);
+      remember(lang);
+    });
+  }
+
+  var saved = stored();
+  if (saved) {
+    apply(saved);
+  } else {
+    var nav = (navigator.language || "ru").toLowerCase();
+    apply(nav.indexOf("ru") === 0 ? "ru" : "en");
+  }
+
+  loadDownloads();
+})();
+</script>
+
+</body>
+</html>
