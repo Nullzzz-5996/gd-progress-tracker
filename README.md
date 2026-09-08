@@ -6,7 +6,7 @@
 
 ![Вкладка «Уровни»](docs/assets/levels.png)
 
-Сайт проекта: <https://snenashev.github.io/gd-progress-tracker/>
+Сайт проекта: <https://nullzzz-5996.github.io/gd-progress-tracker/>
 
 ## Возможности
 
@@ -20,7 +20,7 @@
 ## Установка
 
 Скачай `GdTrackerSetup-<версия>.exe` со страницы
-[Releases](https://github.com/snenashev/gd-progress-tracker/releases/latest) и запусти.
+[Releases](https://github.com/Nullzzz-5996/gd-progress-tracker/releases/latest) и запусти.
 
 По умолчанию приложение ставится для текущего пользователя — права администратора
 и UAC не нужны; в диалоге установки можно переключиться на установку для всех

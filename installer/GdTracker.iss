@@ -5,8 +5,8 @@
 
 #define AppName       "GD Progress Tracker"
 #define AppExe        "GdTracker.App.exe"
-#define AppPublisher  "snenashev"
-#define AppUrl        "https://github.com/snenashev/gd-progress-tracker"
+#define AppPublisher  "Nullzzz-5996"
+#define AppUrl        "https://github.com/Nullzzz-5996/gd-progress-tracker"
 
 ; Значения по умолчанию на случай запуска ISCC без /D — build.ps1 их переопределяет.
 #ifndef AppVersion
