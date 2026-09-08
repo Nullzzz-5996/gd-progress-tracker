@@ -361,7 +361,7 @@ footer a:hover{color:var(--fg);text-decoration:underline}
     </p>
 
     <div class="cta-row">
-      <a class="btn btn-primary" data-gh="release" href="https://github.com/">
+      <a class="btn btn-primary" data-gh="download" href="https://github.com/">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
           <path d="M12 3v12"/><path d="m7 11 5 5 5-5"/><path d="M4 21h16"/>
         </svg>
@@ -600,7 +600,7 @@ footer a:hover{color:var(--fg);text-decoration:underline}
       <span data-l="en">Free and open source. Found a bug or missing a feature? Open an issue on GitHub, or send an email.</span>
     </p>
     <div class="cta-row">
-      <a class="btn btn-primary" data-gh="release" href="https://github.com/">
+      <a class="btn btn-primary" data-gh="download" href="https://github.com/">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
           <path d="M12 3v12"/><path d="m7 11 5 5 5-5"/><path d="M4 21h16"/>
         </svg>
@@ -667,6 +667,7 @@ var GITHUB_PUBLISHED = true;
   var urls = {
     repo: base,
     release: base + "/releases/latest",
+    download: base + "/releases/latest",
     issues: base + "/issues"
   };
 
@@ -696,6 +697,24 @@ var GITHUB_PUBLISHED = true;
   var dlText = document.getElementById("downloads-text");
   var dlCount = null;
 
+  /* Прямая ссылка на .exe последнего релиза: клик по «Скачать» сразу тянет
+     файл, а не уводит на страницу релизов. Пока ответ не пришёл — и если
+     запрос не удался — на кнопке остаётся ссылка на /releases/latest. */
+  function wireDirectDownload(release) {
+    var assets = (release && release.assets) || [];
+    var url = null;
+    for (var i = 0; i < assets.length; i++) {
+      var name = assets[i].name || "";
+      if (name.slice(-4).toLowerCase() === ".exe") {
+        url = assets[i].browser_download_url;
+        break;
+      }
+    }
+    if (!url) return;
+    var btns = document.querySelectorAll('[data-gh="download"]');
+    for (var j = 0; j < btns.length; j++) btns[j].setAttribute("href", url);
+  }
+
   /* 1 загрузка, 2 загрузки, 5 загрузок, 21 загрузка, 111 загрузок */
   function pluralRu(n) {
     var d = n % 10, h = n % 100;
@@ -720,6 +739,7 @@ var GITHUB_PUBLISHED = true;
       .then(function (r) { return r.ok ? r.json() : null; })
       .then(function (releases) {
         if (!releases || !releases.length) return;
+        wireDirectDownload(releases[0]);
         var total = 0;
         for (var i = 0; i < releases.length; i++) {
           var assets = releases[i].assets || [];
