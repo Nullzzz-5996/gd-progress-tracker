@@ -491,3 +491,10 @@ _real_summary.txt
 # Сборка инсталлятора (installer/build.ps1)
 artifacts/
 installer/output/
+
+# Данные сервера синхронизации (GdTracker.Api): база SQLite и ключ подписи токенов
+src/GdTracker.Api/App_Data/
+
+# Локальные настройки сервера: почта владельца и прочее, чему не место в публичном
+# репозитории. Сервер читает файл, если он есть, и молча обходится без него.
+appsettings.Local.json

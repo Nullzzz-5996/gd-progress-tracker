@@ -1,6 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
+    <ProjectReference Include="..\GdTracker.Cloud\GdTracker.Cloud.csproj" />
     <ProjectReference Include="..\GdTracker.Core\GdTracker.Core.csproj" />
     <ProjectReference Include="..\GdTracker.Data\GdTracker.Data.csproj" />
     <ProjectReference Include="..\GdTracker.GameSync\GdTracker.GameSync.csproj" />

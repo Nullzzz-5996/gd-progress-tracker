@@ -1,6 +1,8 @@
 <Solution>
   <Folder Name="/src/">
+    <Project Path="src/GdTracker.Api/GdTracker.Api.csproj" />
     <Project Path="src/GdTracker.App/GdTracker.App.csproj" />
+    <Project Path="src/GdTracker.Cloud/GdTracker.Cloud.csproj" />
     <Project Path="src/GdTracker.Core/GdTracker.Core.csproj" />
     <Project Path="src/GdTracker.Data/GdTracker.Data.csproj" />
     <Project Path="src/GdTracker.GameSync/GdTracker.GameSync.csproj" />

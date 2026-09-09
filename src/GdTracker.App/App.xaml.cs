@@ -1,7 +1,9 @@
 ﻿using System.Diagnostics;
+using System.Net.Http;
 using System.Windows;
 using GdTracker.App.Services;
 using GdTracker.App.Views;
+using GdTracker.Cloud;
 using GdTracker.Core.Abstractions;
 using GdTracker.Data;
 using GdTracker.Data.Repositories;
@@ -45,7 +47,13 @@ public partial class App : Application
                 services.AddSingleton<ISaveProgressLookupService, SaveProgressLookupService>();
 
                 // Обмен прогрессом (экспорт/импорт файлами) + файловые диалоги и диалоги подтверждения.
-                services.AddSingleton<IProgressSharingService, ProgressSharingService>();
+                // Один и тот же экземпляр отвечает и за файлы обмена, и за сборку/слияние
+                // пакетов при облачной синхронизации (ILocalProgressStore).
+                services.AddSingleton<ProgressSharingService>();
+                services.AddSingleton<IProgressSharingService>(
+                    sp => sp.GetRequiredService<ProgressSharingService>());
+                services.AddSingleton<ILocalProgressStore>(
+                    sp => sp.GetRequiredService<ProgressSharingService>());
                 services.AddSingleton<IFileDialogService, FileDialogService>();
                 services.AddSingleton<IConfirmationService, ConfirmationService>();
                 // Глобальный монитор ввода для вкладки CPS (транзитный: живёт вместе со страницей/VM).
@@ -65,6 +73,23 @@ public partial class App : Application
 
                 // Онлайн-поиск уровней на серверах GD.
                 services.AddSingleton<IGdLevelSearch, GdLevelSearchClient>();
+
+                // Облачный аккаунт и синхронизация. Всё это необязательно: пока вход
+                // не выполнен, сервисы просто не используются, и приложение остаётся
+                // полностью локальным — ни одного сетевого запроса без действия пользователя.
+                services.AddSingleton<ICloudSettingsStore, CloudSettingsStore>();
+                services.AddSingleton<ITokenStore, DpapiTokenStore>();
+                services.AddSingleton<ICloudClient>(_ => new CloudClient());
+                services.AddSingleton<ICloudAccountService, CloudAccountService>();
+                services.AddSingleton<ICloudSyncService, CloudSyncService>();
+
+                // Демонлист: та же расстановка, что на сайте, — вкладка ходит в те же
+                // эндпоинты того же сервера. Список читается без аккаунта, поэтому
+                // вкладка работает и до входа; локальная копия нужна, только чтобы
+                // показать её, когда сервер не отвечает.
+                services.AddSingleton<ICommunityClient>(_ => new CommunityClient());
+                services.AddSingleton<IDemonListCache, DemonListCache>();
+                services.AddSingleton<ICommunityService, CommunityService>();
 
                 // Навигация WPF UI: провайдер страниц из DI + сервис навигации.
                 services.AddSingleton<INavigationViewPageProvider, PageProvider>();
@@ -86,6 +111,10 @@ public partial class App : Application
                 services.AddTransient<OnlineSearchViewModel>();
                 services.AddTransient<SettingsPage>();
                 services.AddTransient<SettingsViewModel>();
+                services.AddTransient<AccountPage>();
+                services.AddTransient<AccountViewModel>();
+                services.AddTransient<DemonListPage>();
+                services.AddTransient<DemonListViewModel>();
                 services.AddTransient<CpsPage>();
                 services.AddTransient<CpsViewModel>();
             })
@@ -136,6 +165,11 @@ public partial class App : Application
         var theme = _host.Services.GetRequiredService<ISettingsService>().Theme;
         _host.Services.GetRequiredService<GdTracker.ViewModels.IThemeService>().ApplyTheme(theme);
 
+        // Восстановление сессии облачного аккаунта: чтение локального файла с токеном,
+        // без обращения к сети. Если аккаунта нет или токен просрочен, приложение
+        // просто продолжает работать локально.
+        _host.Services.GetRequiredService<ICloudAccountService>().Restore();
+
         // Этап 3: построение контейнера зависимостей и главного окна.
         splash.SetStage("Загрузка главного окна...", stageNumber: 3);
         var mainWindow = _host.Services.GetRequiredService<MainWindow>();
@@ -157,6 +191,35 @@ public partial class App : Application
         splash.Close();
 
         ShutdownMode = ShutdownMode.OnMainWindowClose;
+
+        // Автосинхронизация выполняется уже после показа окна и в фоне: сетевой запрос
+        // не должен задерживать запуск, а его неудача — мешать работе с локальными данными.
+        _ = SyncOnStartupAsync();
+    }
+
+    /// <summary>
+    /// Тихая синхронизация при запуске: только если пользователь вошёл в аккаунт и
+    /// сам включил её в настройках аккаунта. Ошибки не показываются диалогами —
+    /// результат последней синхронизации видно на странице «Аккаунт».
+    /// </summary>
+    private async Task SyncOnStartupAsync()
+    {
+        var account = _host.Services.GetRequiredService<ICloudAccountService>();
+        var cloudSettings = _host.Services.GetRequiredService<ICloudSettingsStore>();
+
+        if (!account.IsSignedIn || !cloudSettings.AutoSyncOnStartup)
+            return;
+
+        try
+        {
+            await _host.Services.GetRequiredService<ICloudSyncService>().SyncAsync();
+        }
+        catch (Exception e) when (e is CloudException or HttpRequestException or TaskCanceledException)
+        {
+            // Нет сети, сервер лежит, токен отозван — всё это штатные ситуации для
+            // необязательного облака: приложение продолжает работать локально.
+            Debug.WriteLine($"Автосинхронизация при запуске не удалась: {e.Message}");
+        }
     }
 
     protected override async void OnExit(ExitEventArgs e)

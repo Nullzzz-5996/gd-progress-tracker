@@ -1,0 +1,1766 @@
+<!doctype html>
+<html lang="ru" data-lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Демонлист — GD Progress Tracker</title>
+<meta name="description" content="Топ-200 экстрим демонов и топ пройденных уровней. Расстановку меняют модераторы, обсуждать место может любой участник, рекорд попадает в топ после проверки видео.">
+<meta property="og:title" content="Демонлист — GD Progress Tracker">
+<meta property="og:description" content="Топ-200 экстрим демонов и топ пройденных уровней.">
+<meta property="og:type" content="website">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230b0d12'/%3E%3Crect x='8' y='8' width='16' height='16' rx='3' fill='none' stroke='%2338e1ff' stroke-width='2.5'/%3E%3Crect x='13.5' y='13.5' width='5' height='5' rx='1' fill='%23ff4d9d'/%3E%3C/svg%3E">
+
+<style>
+/* Токены и базовые стили те же, что на главной странице сайта: страница должна
+   читаться как её продолжение, а не как отдельный сервис. */
+:root{
+  --bg:#0a0c11;
+  --bg-soft:#0f131b;
+  --surface:#141924;
+  --surface-2:#1a2130;
+  --line:#232b3b;
+  --line-soft:#1b2231;
+  --fg:#e8ecf5;
+  --fg-dim:#9aa5bb;
+  --fg-faint:#6b7690;
+  --cyan:#38e1ff;
+  --pink:#ff4d9d;
+  --gold:#ffc247;
+  --green:#4ade80;
+  --red:#ff6b6b;
+  --radius:14px;
+  --maxw:1080px;
+  --font:"Segoe UI Variable Display","Segoe UI",ui-sans-serif,system-ui,-apple-system,Roboto,Helvetica,Arial,sans-serif;
+  --mono:ui-monospace,"Cascadia Mono",Consolas,"SF Mono",Menlo,monospace;
+}
+
+*,*::before,*::after{box-sizing:border-box}
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--fg);
+  font-family:var(--font);
+  font-size:17px;
+  line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+}
+h1,h2,h3{margin:0;line-height:1.15;letter-spacing:-.02em;font-weight:650}
+p{margin:0}
+a{color:inherit}
+
+html[data-lang="ru"] [data-l="en"]{display:none}
+html[data-lang="en"] [data-l="ru"]{display:none}
+
+.wrap{width:100%;max-width:var(--maxw);margin:0 auto;padding:0 24px}
+
+/* ---------- шапка ---------- */
+.site-header{
+  position:sticky;top:0;z-index:50;
+  background:rgba(10,12,17,.82);
+  backdrop-filter:blur(14px);
+  -webkit-backdrop-filter:blur(14px);
+  border-bottom:1px solid var(--line-soft);
+}
+.site-header .wrap{display:flex;align-items:center;gap:16px;height:62px}
+.brand{display:flex;align-items:center;gap:10px;text-decoration:none;font-weight:650;letter-spacing:-.01em;white-space:nowrap}
+.brand svg{flex:none}
+.brand span{font-size:15.5px}
+.header-spacer{flex:1}
+.header-link{
+  color:var(--fg-dim);text-decoration:none;font-size:14.5px;
+  padding:7px 12px;border-radius:9px;transition:color .15s,background .15s;
+}
+.header-link:hover{color:var(--fg);background:var(--surface)}
+.header-link[aria-current="page"]{color:var(--fg);background:var(--surface)}
+
+.lang{display:flex;background:var(--surface);border:1px solid var(--line);border-radius:9px;padding:2px}
+.lang button{
+  appearance:none;border:0;background:none;cursor:pointer;
+  font:inherit;font-size:13px;font-weight:600;letter-spacing:.03em;
+  color:var(--fg-faint);padding:4px 10px;border-radius:7px;
+  transition:color .15s,background .15s;
+}
+.lang button:hover{color:var(--fg-dim)}
+.lang button[aria-pressed="true"]{background:var(--surface-2);color:var(--fg);box-shadow:inset 0 0 0 1px var(--line)}
+
+/* ---------- заголовок страницы ---------- */
+.page-head{padding:46px 0 26px}
+.eyebrow{
+  font-size:12.5px;font-weight:700;letter-spacing:.13em;text-transform:uppercase;
+  color:var(--fg-faint);margin-bottom:12px;
+}
+.page-head h1{font-size:clamp(30px,4.6vw,44px);font-weight:700;letter-spacing:-.03em;text-wrap:balance}
+.page-head .lead{margin-top:14px;max-width:62ch;color:var(--fg-dim);font-size:16.5px}
+
+/* ---------- панель аккаунта ---------- */
+.account{
+  display:flex;flex-wrap:wrap;align-items:center;gap:12px;
+  background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);
+  padding:14px 18px;margin-top:26px;font-size:14.5px;
+}
+.account .who{display:flex;align-items:center;gap:10px;min-width:0}
+.account .who b{font-weight:650;overflow-wrap:anywhere}
+.account .spacer{flex:1}
+
+.role-tag{
+  font-size:11.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;
+  border-radius:999px;padding:3px 9px;white-space:nowrap;
+  background:var(--surface-2);border:1px solid var(--line);color:var(--fg-faint);
+}
+.role-tag.mod{background:rgba(255,194,71,.1);border-color:rgba(255,194,71,.3);color:var(--gold)}
+/* Владелец выделен отдельным цветом: это единственная роль, которая банит. */
+.role-tag.owner{background:rgba(255,77,157,.12);border-color:rgba(255,77,157,.35);color:var(--pink)}
+.role-tag.banned{background:rgba(255,107,107,.12);border-color:rgba(255,107,107,.35);color:var(--red)}
+/* Ник в таблице топа: значок роли идёт следом и не переносится на другую строку. */
+.player{margin-right:8px}
+
+/* ---------- вкладки ---------- */
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--line-soft);margin-top:30px}
+.tabs button{
+  appearance:none;background:none;border:0;cursor:pointer;font:inherit;
+  font-size:15.5px;font-weight:600;color:var(--fg-faint);
+  padding:12px 16px;border-bottom:2px solid transparent;margin-bottom:-1px;
+  transition:color .15s,border-color .15s;
+}
+.tabs button:hover{color:var(--fg-dim)}
+.tabs button[aria-selected="true"]{color:var(--fg);border-bottom-color:var(--cyan)}
+
+.pane{padding:28px 0 72px}
+.pane[hidden]{display:none}
+
+/* ---------- общие мелочи ---------- */
+.btn{
+  display:inline-flex;align-items:center;gap:8px;
+  font:inherit;font-size:14.5px;font-weight:620;
+  text-decoration:none;cursor:pointer;
+  padding:9px 17px;border-radius:10px;border:1px solid transparent;
+  transition:transform .12s ease,box-shadow .18s ease,background .18s ease,border-color .18s ease;
+}
+.btn-primary{background:linear-gradient(180deg,#4ce6ff,#22c3e8);color:#04222c;box-shadow:0 8px 26px -12px rgba(56,225,255,.75)}
+.btn-primary:hover{transform:translateY(-1px)}
+.btn-secondary{background:var(--surface);border-color:var(--line);color:var(--fg)}
+.btn-secondary:hover{background:var(--surface-2);border-color:#2e384c}
+.btn-quiet{background:none;border-color:var(--line);color:var(--fg-dim);font-size:13.5px;padding:7px 13px}
+.btn-quiet:hover{color:var(--fg);background:var(--surface-2)}
+.btn-danger{background:none;border-color:rgba(255,107,107,.32);color:var(--red);font-size:13.5px;padding:7px 13px}
+.btn-danger:hover{background:rgba(255,107,107,.09)}
+.btn:disabled{opacity:.5;cursor:default;transform:none}
+
+input,select,textarea{
+  font:inherit;font-size:14.5px;
+  background:var(--bg-soft);color:var(--fg);
+  border:1px solid var(--line);border-radius:9px;padding:9px 12px;
+  width:100%;
+}
+input:focus,select:focus,textarea:focus,button:focus-visible,a:focus-visible{
+  outline:2px solid var(--cyan);outline-offset:2px;
+}
+textarea{resize:vertical;min-height:78px;line-height:1.55}
+label{display:block;font-size:13px;font-weight:600;color:var(--fg-dim);margin-bottom:6px}
+.field{margin-bottom:14px}
+.check{display:flex;align-items:flex-start;gap:10px;font-size:14px;color:var(--fg-dim);line-height:1.5}
+.check input{width:auto;flex:none;margin-top:3px}
+
+.notice{
+  border:1px solid var(--line);border-radius:var(--radius);
+  background:var(--bg-soft);padding:14px 18px;font-size:14.5px;color:var(--fg-dim);
+  margin-bottom:22px;
+}
+.notice.warn{border-color:rgba(255,194,71,.28);background:rgba(255,194,71,.06);color:#e8d9b4}
+.notice.bad{border-color:rgba(255,107,107,.3);background:rgba(255,107,107,.07);color:#f2c4c4}
+.notice.good{border-color:rgba(74,222,128,.28);background:rgba(74,222,128,.06);color:#c2ecd0}
+.notice b{color:var(--fg)}
+
+.muted{color:var(--fg-faint);font-size:14.5px}
+.hint{color:var(--fg-faint);font-size:13px;margin-top:6px}
+
+/* ---------- демонлист ---------- */
+.tier-head{
+  display:flex;align-items:baseline;gap:12px;
+  margin:34px 0 12px;padding-bottom:9px;border-bottom:1px solid var(--line-soft);
+}
+.tier-head:first-child{margin-top:0}
+.tier-head h2{font-size:15px;font-weight:700;letter-spacing:.09em;text-transform:uppercase}
+.tier-head .range{font-family:var(--mono);font-size:13px;color:var(--fg-faint)}
+.tier-head p{font-size:13.5px;color:var(--fg-faint);margin-left:auto;text-align:right}
+
+.rows{display:flex;flex-direction:column;gap:6px}
+
+.row{
+  background:var(--surface);border:1px solid var(--line);border-radius:11px;
+  transition:border-color .15s;
+}
+.row:hover{border-color:#2f3a4f}
+.row.open{border-color:#33415a}
+
+.row-main{
+  display:grid;
+  grid-template-columns:54px minmax(0,1fr) auto;
+  align-items:center;gap:14px;
+  width:100%;background:none;border:0;color:inherit;font:inherit;text-align:left;
+  padding:12px 16px;cursor:pointer;border-radius:11px;
+}
+/* Заголовок строки: слева кнопка, раскрывающая демона, справа — стрелки
+   перестановки. Стрелки лежат рядом с кнопкой, а не внутри неё: вложенная
+   кнопка невалидна и по ней нельзя кликнуть отдельно от внешней. */
+.row-head{display:flex;align-items:stretch}
+.row-head .row-main{flex:1;min-width:0}
+.row-tools{display:flex;align-items:center;gap:4px;padding:0 12px 0 0}
+.row-tools button{
+  appearance:none;background:var(--surface-2);border:1px solid var(--line);
+  color:var(--fg-dim);border-radius:8px;width:30px;height:30px;flex:none;
+  display:grid;place-items:center;cursor:pointer;font:inherit;font-size:14px;line-height:1;
+  transition:border-color .15s,color .15s;
+}
+.row-tools button:hover:not(:disabled){border-color:var(--cyan);color:var(--cyan)}
+/* Крайние места двигать некуда: кнопка гаснет, а не отправляет запрос впустую. */
+.row-tools button:disabled{opacity:.3;cursor:default}
+
+.pos{
+  font-family:var(--mono);font-variant-numeric:tabular-nums;
+  font-size:17px;font-weight:700;color:var(--fg-faint);text-align:right;
+}
+.row.t-main .pos{color:var(--cyan)}
+.row.t-top .pos{color:var(--gold)}
+
+.row-name{min-width:0}
+.row-name .n{font-weight:640;font-size:16px;overflow-wrap:anywhere}
+.row-name .by{font-size:13.5px;color:var(--fg-faint);overflow-wrap:anywhere}
+
+.row-meta{display:flex;align-items:center;gap:14px;white-space:nowrap}
+.req{
+  font-family:var(--mono);font-variant-numeric:tabular-nums;
+  font-size:13px;color:var(--fg-dim);
+  background:var(--surface-2);border:1px solid var(--line);border-radius:7px;padding:2px 8px;
+}
+.op-count{font-size:13.5px;color:var(--fg-faint);font-variant-numeric:tabular-nums}
+.op-count.has{color:var(--pink)}
+.chev{color:var(--fg-faint);transition:transform .18s ease;flex:none}
+.row.open .chev{transform:rotate(180deg)}
+
+.row-body{border-top:1px solid var(--line-soft);padding:18px 16px}
+.row-body[hidden]{display:none}
+.body-cols{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:26px;align-items:start}
+
+.opinion{border-left:2px solid var(--line);padding:2px 0 2px 13px;margin-bottom:15px}
+.opinion:last-child{margin-bottom:0}
+.opinion .head{display:flex;flex-wrap:wrap;align-items:baseline;gap:9px;font-size:13.5px;margin-bottom:3px}
+.opinion .head b{font-weight:650;font-size:14.5px}
+.opinion .head time{color:var(--fg-faint);font-variant-numeric:tabular-nums}
+.opinion .text{font-size:15px;color:var(--fg-dim);overflow-wrap:anywhere}
+.suggest{
+  font-family:var(--mono);font-size:12.5px;font-weight:600;
+  color:var(--pink);background:rgba(255,77,157,.09);
+  border:1px solid rgba(255,77,157,.24);border-radius:999px;padding:1px 8px;
+}
+.side{background:var(--bg-soft);border:1px solid var(--line-soft);border-radius:11px;padding:16px}
+.side h4{margin:0 0 12px;font-size:12.5px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--fg-faint)}
+.side + .side{margin-top:14px}
+.side-row{display:flex;gap:8px;align-items:flex-end}
+.side-row .field{flex:1;margin-bottom:0}
+
+/* ---------- топ пройденных ---------- */
+.table-scroll{overflow-x:auto;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:14.5px;min-width:640px}
+th,td{text-align:left;padding:11px 15px;border-bottom:1px solid var(--line-soft)}
+th{
+  font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--fg-faint);background:var(--bg-soft);white-space:nowrap;
+}
+tr:last-child td{border-bottom:0}
+td.num{font-family:var(--mono);font-variant-numeric:tabular-nums;text-align:right;white-space:nowrap}
+td.place{font-family:var(--mono);font-variant-numeric:tabular-nums;font-weight:700;color:var(--gold)}
+td a{color:var(--cyan);text-decoration:none}
+td a:hover{text-decoration:underline}
+
+.status{font-size:11.5px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;border-radius:999px;padding:2px 9px;white-space:nowrap}
+.status.pending{background:rgba(255,194,71,.1);border:1px solid rgba(255,194,71,.3);color:var(--gold)}
+.status.approved{background:rgba(74,222,128,.1);border:1px solid rgba(74,222,128,.3);color:var(--green)}
+.status.rejected{background:rgba(255,107,107,.1);border:1px solid rgba(255,107,107,.3);color:var(--red)}
+
+.block{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:22px;margin-bottom:26px}
+.block h3{font-size:18px;margin-bottom:6px}
+.block > p{color:var(--fg-dim);font-size:14.5px;margin-bottom:18px;max-width:62ch}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:0 16px}
+.form-grid .full{grid-column:1 / -1}
+
+.queue-item{border:1px solid var(--line);border-radius:11px;padding:16px;margin-bottom:12px;background:var(--bg-soft)}
+.queue-item:last-child{margin-bottom:0}
+.queue-head{display:flex;flex-wrap:wrap;align-items:baseline;gap:10px;margin-bottom:8px}
+.queue-head b{font-size:16px;font-weight:650}
+.queue-actions{display:flex;flex-wrap:wrap;gap:8px;align-items:flex-end;margin-top:14px}
+.queue-actions .field{margin-bottom:0}
+.queue-actions .grow{flex:1;min-width:150px}
+
+footer{border-top:1px solid var(--line-soft);padding:34px 0 44px;background:var(--bg-soft)}
+footer .wrap{display:flex;flex-wrap:wrap;gap:14px 26px;align-items:center;font-size:14px;color:var(--fg-faint)}
+footer a{color:var(--fg-dim);text-decoration:none}
+footer a:hover{color:var(--fg);text-decoration:underline}
+.disclaimer{flex-basis:100%;font-size:13px;line-height:1.55;color:var(--fg-faint);max-width:74ch}
+
+@media (max-width:860px){
+  .body-cols{grid-template-columns:1fr}
+}
+@media (max-width:640px){
+  body{font-size:16px}
+  .wrap{padding:0 18px}
+  .brand span{display:none}
+  .form-grid{grid-template-columns:1fr}
+  .row-main{grid-template-columns:40px minmax(0,1fr);gap:11px;padding:11px 13px}
+  .row-meta{grid-column:2;justify-content:flex-start;gap:11px}
+  .tier-head{flex-wrap:wrap}
+  .tier-head p{margin-left:0;text-align:left;flex-basis:100%}
+}
+@media (prefers-reduced-motion:reduce){
+  *{transition:none !important;animation:none !important}
+}
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="wrap">
+    <a class="brand" href="index.html">
+      <svg width="26" height="26" viewBox="0 0 32 32" aria-hidden="true">
+        <rect x="4" y="4" width="24" height="24" rx="6" fill="#141924" stroke="#232b3b"/>
+        <rect x="10" y="10" width="12" height="12" rx="2.5" fill="none" stroke="#38e1ff" stroke-width="2"/>
+        <rect x="14.25" y="14.25" width="3.5" height="3.5" rx=".8" fill="#ff4d9d"/>
+      </svg>
+      <span>GD Progress Tracker</span>
+    </a>
+    <div class="header-spacer"></div>
+    <a class="header-link" href="index.html#features"><span data-l="ru">Возможности</span><span data-l="en">Features</span></a>
+    <a class="header-link" href="demonlist.html" aria-current="page"><span data-l="ru">Демонлист</span><span data-l="en">Demonlist</span></a>
+    <div class="lang" role="group" aria-label="Язык / Language">
+      <button type="button" data-set-lang="ru" aria-pressed="true">RU</button>
+      <button type="button" data-set-lang="en" aria-pressed="false">EN</button>
+    </div>
+  </div>
+</header>
+
+<main>
+<div class="wrap">
+
+  <div class="page-head">
+    <p class="eyebrow"><span data-l="ru">Сообщество</span><span data-l="en">Community</span></p>
+    <h1>
+      <span data-l="ru">Демонлист</span>
+      <span data-l="en">Demonlist</span>
+    </h1>
+    <p class="lead">
+      <span data-l="ru">Топ-200 экстрим демонов и топ пройденных уровней. Расстановку меняют только аккаунты с правами — остальные высказывают своё мнение о месте. Рекорд попадает в топ после того, как модератор посмотрит видео с кликами.</span>
+      <span data-l="en">The top 200 extreme demons and the leaderboard of completed levels. Only accounts with rights change the placement — everyone else says what they think of it. A record joins the leaderboard after a moderator watches the video with clicks.</span>
+    </p>
+  </div>
+
+  <!-- Панель аккаунта: она же форма входа, она же подпись «кто ты здесь». -->
+  <div class="account" id="account">
+    <span class="muted" data-l="ru">Проверяем вход…</span>
+    <span class="muted" data-l="en">Checking your session…</span>
+  </div>
+
+  <div class="tabs" role="tablist">
+    <button type="button" role="tab" id="tab-demons" aria-controls="pane-demons" aria-selected="true">
+      <span data-l="ru">Топ-200 демонов</span><span data-l="en">Top 200 demons</span>
+    </button>
+    <button type="button" role="tab" id="tab-records" aria-controls="pane-records" aria-selected="false">
+      <span data-l="ru">Топ пройденных</span><span data-l="en">Completed levels</span>
+    </button>
+    <!-- Вкладка владельца: скрыта, пока профиль не скажет, что банить можно. -->
+    <button type="button" role="tab" id="tab-manage" aria-controls="pane-manage" aria-selected="false" hidden>
+      <span data-l="ru">Участники</span><span data-l="en">Members</span>
+    </button>
+  </div>
+
+  <section class="pane" id="pane-demons" role="tabpanel" aria-labelledby="tab-demons">
+    <div id="demons-notice"></div>
+    <div id="demons-list">
+      <p class="muted" data-l="ru">Загружаем список…</p>
+      <p class="muted" data-l="en">Loading the list…</p>
+    </div>
+  </section>
+
+  <section class="pane" id="pane-records" role="tabpanel" aria-labelledby="tab-records" hidden>
+    <div id="records-notice"></div>
+    <div id="records-submit"></div>
+    <div id="records-queue"></div>
+
+    <h3 style="margin-bottom:6px">
+      <span data-l="ru">Топ пройденных уровней</span><span data-l="en">Completed levels</span>
+    </h3>
+    <p class="muted" style="margin-bottom:16px">
+      <span data-l="ru">Только проверенные рекорды. Место в топе проставляет модератор.</span>
+      <span data-l="en">Verified records only. A moderator assigns the place.</span>
+    </p>
+    <div id="records-top"></div>
+
+    <div id="records-mine"></div>
+  </section>
+
+  <section class="pane" id="pane-manage" role="tabpanel" aria-labelledby="tab-manage" hidden>
+    <div id="manage-notice"></div>
+    <div id="manage"></div>
+  </section>
+
+</div>
+</main>
+
+<footer>
+  <div class="wrap">
+    <a href="index.html">GD Progress Tracker</a>
+    <span data-l="ru">Демонлист сообщества</span>
+    <span data-l="en">Community demonlist</span>
+    <p class="disclaimer">
+      <span data-l="ru">Стартовая расстановка взята из глобального демонлиста (pointercrate.com) и дальше живёт своей жизнью: её ведут модераторы этого сайта. Неофициальный сторонний инструмент, не связан с RobTop Games. Geometry Dash — товарный знак RobTop Games AB.</span>
+      <span data-l="en">The initial placement is taken from the global demonlist (pointercrate.com) and lives on its own from there — this site's moderators maintain it. An unofficial third-party tool, not affiliated with RobTop Games. Geometry Dash is a trademark of RobTop Games AB.</span>
+    </p>
+  </div>
+</footer>
+
+<script>
+/* --------------------------------------------------------------------
+   ЕДИНСТВЕННАЯ СТРОКА ДЛЯ ПРАВКИ — адрес сервера демонлиста
+   (проект GdTracker.Api). Пока он не поднят, оставь пустую строку:
+   страница покажет стартовую расстановку из data/demonlist.json только
+   на чтение и честно скажет, что вход и заявки пока недоступны.
+
+   Одно исключение: страница, открытая с localhost, сама берёт сервер по адресу
+   http://localhost:5080 — тот же, что предлагает приложение и поднимает
+   tools/run-sync-server.ps1. Иначе эту строку пришлось бы править туда-обратно
+   при каждой локальной проверке, а на публичном сайте она осталась бы с
+   localhost. Заполненное значение важнее и работает везде.
+
+   THE ONLY LINE TO EDIT — the demonlist server address.
+-------------------------------------------------------------------- */
+var API_BASE = "";
+
+/* Стартовая расстановка, вшитая в страницу: [место, название, автор,
+   верификатор, id уровня, видео, требуемый процент]. Она показывается, пока
+   сервер не подключён или не отвечает, и берётся отсюда, а не из отдельного
+   файла, — иначе страница, открытая с диска (file://), осталась бы пустой:
+   запрос к соседнему файлу браузер с такого адреса не выпускает.
+   Обновляется скриптом tools/fetch-demonlist.mjs, править руками не нужно. */
+/* DEMONLIST-SEED-BEGIN */
+  var SEED = [
+    [1,"Society","Neomarbilan","[WBT] wPopoff",127323087,"https://www.youtube.com/watch?v=3CoEaH1CM7o",66],
+    [2,"Thinking Space II","CairoX","[67] Zoink",119544028,"https://www.youtube.com/watch?v=CELNmHwln_c",79],
+    [3,"Amethyst","iMist","[WBT] wPopoff",119550490,"https://www.youtube.com/watch?v=4lfkzz1VCbA",59],
+    [4,"Flamewall","Narwall","[400] CuatrocientosYT",126242564,"https://www.youtube.com/watch?v=x4Io4zkWVRw",68],
+    [5,"Tidal Wave","OniLink","[67] Zoink",86407629,"https://www.youtube.com/watch?v=9fsZ014qB3s",72],
+    [6,"Green Bullet","cherryteam","[UFA] Nickname09",142896409,"https://www.youtube.com/watch?v=JG-qcvVkZFw",68],
+    [7,"ORBIT","MindCap","[67] Zoink",133175713,"https://www.youtube.com/watch?v=QKcv8DkNPd0",65],
+    [8,"Antarctic Lights","declanlc","Axinity",144988390,"https://www.youtube.com/watch?v=Uue4ZRhVf-I",75],
+    [9,"Nullscapes","Kiba","[67] Zoink",109780665,"https://www.youtube.com/watch?v=EztneTPp5CU",68],
+    [10,"Quanteuse processing","Renn241","[67] Zoink",117692518,"https://www.youtube.com/watch?v=j5NC0u1Q91Q",60],
+    [11,"BOOBAWAMBA","Akunakunn","eastshark",110816181,"https://www.youtube.com/watch?v=20fYiqLAo_E",63],
+    [12,"The Bloop","[TARIQ] murkkat","[67] Zoink",135661111,"https://www.youtube.com/watch?v=ROuXHSKEhHA",67],
+    [13,"Every End","MindCap","[FOWL] Hqmy",116174063,"https://www.youtube.com/watch?v=AO--mVVFtKI",67],
+    [14,"Penumbral","cherryteam","[UFA] w3rty",134942736,"https://www.youtube.com/watch?v=nVHPFf13M-I",80],
+    [15,"Silent clubstep","TheRealSailent","[DL] zoe",4125776,"https://www.youtube.com/watch?v=GR4OMkS3SN8",63],
+    [16,"Ashley Wave Trials","oddmod","[67] Zoink",62912799,"https://www.youtube.com/watch?v=aTxt76U3e2Q",77],
+    [17,"Ultra Paracosm","declanlc","[HOLA] Wity",138704906,"https://www.youtube.com/watch?v=4V24spYQWuE",37],
+    [18,"andromeda","Insxne97","[WBT] Taiago",114283297,"https://www.youtube.com/watch?v=mk3TDemdkC0",66],
+    [19,"KILLSTEALER","rynoxious","[OG B] kloone",138781722,"https://www.youtube.com/watch?v=uhH4oqWrsfo",69],
+    [20,"Subsuming Vortex","[TCD] Cursed","[TCD] Cursed",127997391,"https://www.youtube.com/watch?v=0eYG1ogJpIQ",66],
+    [21,"Anathema","nikroplays","[IQB7] Whizkid05",112313819,"https://www.youtube.com/watch?v=_uKwmjHmySI",77],
+    [22,"Avernus","PockeWindfish","[67] Zoink",89496627,"https://www.youtube.com/watch?v=16Zh8jssanc",67],
+    [23,"Acheron","ryamu","[67] Zoink",73667628,"https://www.youtube.com/watch?v=sBKR6aUorzA",70],
+    [24,"Spectre","xander","PersonHuman42",110815379,"https://www.youtube.com/watch?v=MzsSLKJrLSI",75],
+    [25,"Menace","Arraegen","[IQB7] Whizkid05",107805281,"https://www.youtube.com/watch?v=nnkgghxxsEE",73],
+    [26,"Abyss of Darkness","Exen","[TCD] Cursed",49896559,"https://www.youtube.com/watch?v=ejJkpqcMMCY",75],
+    [27,"Defeated Circles","GXQ","[67] Zoink",120012581,"https://www.youtube.com/watch?v=nU5AQPzd2YA",73],
+    [28,"FOREST OF SPIKES","bims","Brian_Cheese",145709435,"https://www.youtube.com/watch?v=WJYh3dW8Bfo",66],
+    [29,"Tunnel of Despair","Exen","[67] Zoink",91351939,"https://www.youtube.com/watch?v=LpS4JREhW98",79],
+    [30,"Kyouki","｛出見塩｝","｛出見塩｝",86018142,"https://www.youtube.com/watch?v=KDa5c0CJTHs",72],
+    [31,"Based After Based","Akunakunn","DiamondSplash",110534288,"https://www.youtube.com/watch?v=yQBFyUvB3lY",74],
+    [32,"The Lightning Rod","Lavatrex","Lavatrex",93917076,"https://www.youtube.com/watch?v=nQDTi077O6M",63],
+    [33,"Slaughterhouse","icedcave","[TCD] Doggie",27690100,"https://www.youtube.com/watch?v=kpcF1-QAHQc",75],
+    [34,"Subterminal Point","SyQual","[ILUV] PoCle",113599729,"https://www.youtube.com/watch?v=h2wmRMgACH4",71],
+    [35,"KOCMOC","cherryteam","[67] Zoink",87665224,"https://www.youtube.com/watch?v=2CxE-UWCIG4",73],
+    [36,"cognitohazard","MercuryDT","[IQB7] Whizkid05",130891319,"https://www.youtube.com/watch?v=T5g0r16X_ZA",75],
+    [37,"Maniacal Chains","LordDivinity","spcreat",48991380,"https://www.youtube.com/watch?v=TzeMJeIu6bY",85],
+    [38,"BEING HOME","Turtl123","[OG] goobs",130327668,"https://www.youtube.com/watch?v=kt7FnUzK8CY",73],
+    [39,"Deimos","ItsHybrid","[TCD] Doggie",93091893,"https://www.youtube.com/watch?v=b2yHaIk5zio",70],
+    [40,"Sacrifice","Laniakea","Laniakea",141052363,"https://www.youtube.com/watch?v=Sth67PA8XBU",72],
+    [41,"CHIL","McCoco","McCoco",114281093,"https://www.youtube.com/watch?v=DROMiCc2ZRM",78],
+    [42,"zorin","태리","[미소노 미카] 구아이",134541844,"https://www.youtube.com/watch?v=U19vmpenb9g",62],
+    [43,"Sakupen Circles","[TCD] Diamond","[TCD] Diamond",76962930,"https://www.youtube.com/watch?v=ofG2mJi9kEA",69],
+    [44,"The Salt Factory","[UFA] Nickname09","[UFA] Nickname09",113045735,"https://www.youtube.com/watch?v=lQ7M-Sgov24",66],
+    [45,"Master of Puppets","TheZinkYT","[TMG] Scotchtape",136396693,"https://www.youtube.com/watch?v=JBZ-lrBgkl0",83],
+    [46,"Silentlocked","GDSkele","TFIBB",113959291,"https://www.youtube.com/watch?v=O-IQeUdEGvI",68],
+    [47,"Eyes in the Water","hawkyre","[DL] LordVadercraft",95851008,"https://www.youtube.com/watch?v=yvLwiOy3KEA",71],
+    [48,"Voltage","ThePurgatory","[OG B] maybee",131599104,"https://www.youtube.com/watch?v=wBRvBN9tmlc",57],
+    [49,"KOSETSU","fwe","[WBT] Taiago",109439644,"https://www.youtube.com/watch?v=hZ8vFX8z_BU",68],
+    [50,"Through The Gates","TeamTheDashers","[67] Zoink",49072489,"https://www.youtube.com/watch?v=4yHA6jux5UI",90],
+    [51,"Firework","[TCD] Trick","[TCD] Trick",75206202,"https://www.youtube.com/watch?v=QBe5x2o9v2w",71],
+    [52,"NOMAD","ReeseVT","Laniakea",115077305,"https://www.youtube.com/watch?v=H2TkHbEX__A",72],
+    [53,"Snowbound","[JUICE] Amplitron","[JUICE] Amplitron",120289520,"https://www.youtube.com/watch?v=cjHwgbtAkXU",68],
+    [54,"CONVULSION","stellar","[IQB7] Whizkid05",113322063,"https://www.youtube.com/watch?v=qeRKuyU3eGI",64],
+    [55,"NervHell","ASVTeam","ChopBlox",143718114,"https://www.youtube.com/watch?v=1zrvPgDAoaA",64],
+    [56,"poocubed","Liisp","Kyasshukodo",85133223,"https://www.youtube.com/watch?v=fzL31vai1ms",66],
+    [57,"Calibrate","[SARK] Bamvie","[떡볶이과자] Blebae",136981369,"https://www.youtube.com/watch?v=6WYnZryX_mg",63],
+    [58,"MINUSdry","CDMusic","Varium",89414220,"https://www.youtube.com/watch?v=YvA8ehhzz0Q",75],
+    [59,"Saul Goodman","Renn241","bloom",90477539,"https://www.youtube.com/watch?v=hjs5PjUaw9k",70],
+    [60,"Apocalyptic Trilogy","APTeamOfficial","Polterghast",113443235,"https://www.youtube.com/watch?v=RUBbpsTR5eU",73],
+    [61,"Sevvend Clubstep","cherryteam","[UFA] Vorten",120255728,"https://www.youtube.com/watch?v=TvA8EJTJFCc",66],
+    [62,"The Hallucination","SyQual","VoTcHi",81139702,"https://www.youtube.com/watch?v=tYbXsNkO9HE",66],
+    [63,"Pinnacle of Life","skzyl","[DL] vonic",144012996,"https://www.youtube.com/watch?v=gQl5iY1ekyE",71],
+    [64,"COMBUSTION","[SKWAD] Cersia","[SKWAD] Slithium",94359172,"https://www.youtube.com/watch?v=3cTR4XUcA28",76],
+    [65,"Haunted Ship","awesomeme360","[STACK] Washed",143523624,"https://www.youtube.com/watch?v=22l59QGmL48",61],
+    [66,"Loops of Fury","[TCC] Enfur","[TCC] Cork",126571887,"https://www.youtube.com/watch?v=9HBG3i5zbw8",73],
+    [67,"Deadlier Clubstep","HeroZombie80","Jenath",96314787,"https://www.youtube.com/watch?v=eRhgaF0r5Q0",70],
+    [68,"Stellar Night","icedcave","Tuggy",83244159,"https://www.youtube.com/watch?v=XpBY-eMYZTE",78],
+    [69,"Prismline","ItsHarryy","Wain",135148907,"https://www.youtube.com/watch?v=pIHOHz3i0Rw",71],
+    [70,"Edge of Destiny","CDMusic","Polterghast",89187968,"https://www.youtube.com/watch?v=rUphe3H59yU",73],
+    [71,"Losing Your Mind","GDgalaxygaming","[OG B] Laysah",139508889,"https://www.youtube.com/watch?v=LXp7t5gjyX8",67],
+    [72,"Solar Flare","Linear","[1319] swiborg",90390075,"https://www.youtube.com/watch?v=eHQNgty8ypY",69],
+    [73,"The Catacombs","[SKWAD] Cersia","[SKWAD] Slithium",104232191,"https://www.youtube.com/watch?v=T9-75lfKVQg",60],
+    [74,"LIMBO","MindCap","[1319] BUNNYGRAM",86084399,"https://www.youtube.com/watch?v=kXYMbaMVOZg",64],
+    [75,"Gaggatrondra","JCMoon","Zeronium",114990369,"https://www.youtube.com/watch?v=A4G41vw6Cf0",68],
+    [76,"Make Paul Dance","Bemq","Airi~",115860808,"https://www.youtube.com/watch?v=XQoF35hNKpg",57],
+    [77,"Belladonna","cherryteam","[PRIME] exsii",94969889,"https://www.youtube.com/watch?v=saHSgoU1JQQ",70],
+    [78,"Codependence","TCTeam","[IH82P] Pukklez",62556400,"https://www.youtube.com/watch?v=IKGk41hSnDo",78],
+    [79,"Collapse","[COMET] Nexel","[COMET] Nexel",113256247,"https://www.youtube.com/watch?v=RCFpXyf6bn0",66],
+    [80,"Mayhem","[DL] LordVadercraft","[DL] LordVadercraft",82544060,"https://www.youtube.com/watch?v=U6e6DD32noM",57],
+    [81,"CHROMACAVE","HappyMoby","[FOWL] geodom",131497860,"https://www.youtube.com/watch?v=tfpsMZI6z-o",82],
+    [82,"The Plunge","Dolabill","Gokill",113220284,"https://www.youtube.com/watch?v=8gW1-_u1K0Y",67],
+    [83,"Fracture","Arrow","Dezstro",99703915,"https://www.youtube.com/watch?v=R_-chk3SRFI",66],
+    [84,"walter white","Renn241","[OG B] Laysah",81011195,"https://www.youtube.com/watch?v=KzK62PkWOJ0",65],
+    [85,"Infinite Chaos","CairoX","Victurkey",119689515,"https://www.youtube.com/watch?v=wOMVERxU5IA",70],
+    [86,"BRITNEY NO SCLEARS","wabas","[TMG] Scotchtape",125317359,"https://www.youtube.com/watch?v=ff_mQSXwjhU",76],
+    [87,"Operation Evolution","Halzion","cobrablitz",114999625,"https://www.youtube.com/watch?v=WsVF-ayipvY",76],
+    [88,"Damascus","Dzeser","Timo",93339534,"https://www.youtube.com/watch?v=MWQyCUGt76Y",69],
+    [89,"Decks Dark","[SKG] Madison Yuko","[IQB7] Whizkid05",95719795,"https://www.youtube.com/watch?v=l52ApE4HWkY",77],
+    [90,"SARYYX NEVER CLEAR","artos","skzyl",95998005,"https://www.youtube.com/watch?v=rRlyvmjcz_4",74],
+    [91,"The Yangire","Dorami","Dorami",110500920,"https://www.youtube.com/watch?v=V3FjIorIfWg",73],
+    [92,"Climax","HushLC","Wain",95049815,"https://www.youtube.com/watch?v=E4ppq2WeAAs",70],
+    [93,"ORDINARY","vit12","[WBT] wPopoff",105593215,"https://www.youtube.com/watch?v=4QiHP3jpGnk",74],
+    [94,"TrakineS","Laranjoo","[WBT] mariner",125788781,"https://www.youtube.com/watch?v=oKuoI-_JzKU",77],
+    [95,"Wavterminal","Skyavoxii","Frice",128093374,"https://www.youtube.com/watch?v=dlvsCE3xYkQ",73],
+    [96,"Sinister Silence","Wahffle","DarkTD",82249742,"https://www.youtube.com/watch?v=dJCdTMQxHMo",69],
+    [97,"THE JET ENGINE","[TARIQ] Billzer","[TARIQ] eviljoe",122941596,"https://www.youtube.com/watch?v=8Q20XU__LoQ",71],
+    [98,"Trickshot","[DL] vonic","[DL] vonic",136135870,"https://www.youtube.com/watch?v=IMLjnmnIWRc",100],
+    [99,"Midnight","[SKG] Madison Yuko","[BLOOM] nei",96083028,"https://www.youtube.com/watch?v=NhkN_a9cNi8",74],
+    [100,"Doppler","At424","[IH82P] Danieljgd",133489881,"https://www.youtube.com/watch?v=xSP43i61SLM",100],
+    [101,"Cimmerian Shade","spcreat","spcreat",93340783,"https://www.youtube.com/watch?v=lUNvV1k19HA",81],
+    [102,"PSYCHOPATH","DeniPol","[USSR] BONN GD",103925676,"https://www.youtube.com/watch?v=1luL7tTE8p8",70],
+    [103,"arcturus","Maxfs","ultrakawaHD",72315402,"https://www.youtube.com/watch?v=a_Bqa8l9Xtc",74],
+    [104,"Diabolic ClubStep","Sevant","Sevant",73214186,"https://www.youtube.com/watch?v=BN7DxkMaQfg",100],
+    [105,"BEELINE","[DOOBY] Galaxxyss","[IH82P] Motor8",93792764,"https://www.youtube.com/watch?v=nt6T9YDb6gw",71],
+    [106,"DreamStep","[LARP] Blaster1337","[LARP] youngs6",129235528,"https://www.youtube.com/watch?v=EK5-0OB1tmc",100],
+    [107,"Sonic Wave Infinity","APTeamOfficial","[1319] Xanii",69685815,"https://www.youtube.com/watch?v=C3-l_fFikpQ",68],
+    [108,"Tartarus","-","-",59075347,"https://www.youtube.com/watch?v=JptG7rwti1U",64],
+    [109,"Coalescence","[JUICE] Amplitron","[JUICE] Amplitron",108708033,"https://www.youtube.com/watch?v=do-a2EzZ4R8",69],
+    [110,"Waterfall","cherryteam","[DL] LordVadercraft",110991117,"https://www.youtube.com/watch?v=VKuVdqneG9Y",71],
+    [111,"Jigsaw","NekonGames","Gokill",95031870,"https://www.youtube.com/watch?v=FPfSqlI0T30",70],
+    [112,"Delta","[FaZe] Drakosa","[TCD] Doggie",93917362,"https://www.youtube.com/watch?v=_rr3J8DkIm4",69],
+    [113,"Between Duality","[COMET] Nexel","[TSC] destr",137757402,"https://www.youtube.com/watch?v=uOb-ajQ4bgw",100],
+    [114,"BPATA MPAKA","Inex","[OG B] maybee",109947627,"https://www.youtube.com/watch?v=sSbHYzYgYfA",71],
+    [115,"The Wonder of You","HangerLord","Helix",94858072,"https://www.youtube.com/watch?v=iQ3RzYCvLvA",100],
+    [116,"Natural Disaster","[OG B] Laysah","[OG B] Laysah",107741051,"https://www.youtube.com/watch?v=_0GqdSFmG_8",71],
+    [117,"Dualist","SyncTM","[HOLA] Draks_Loves_U",130464801,"https://www.youtube.com/watch?v=6ntYaDqBqu4",100],
+    [118,"Sanctity","[JUICE] Amplitron","[JUICE] Amplitron",135547923,"https://www.youtube.com/watch?v=rtU2oDBz9X0",100],
+    [119,"The Golden","BoBoBoBoBoBoBo","nSwish",60978746,"https://www.youtube.com/watch?v=Ah-PcqwqRTQ",72],
+    [120,"Oblivion","[DLNW] Dice88","[DLNW] Dice88",71025973,"https://www.youtube.com/watch?v=ZcmDAm50BB0",72],
+    [121,"Viprin UFO","hawkyre","[CHIL] Cookie",107238250,"https://www.youtube.com/watch?v=LTMW9Py-nHE",66],
+    [122,"NETWORK","Agat3","vulcanium4",95176417,"https://www.youtube.com/watch?v=K7wJi01J5D8",76],
+    [123,"Terminal Rampancy","Xyriak","Bigthunder556",90057148,"https://www.youtube.com/watch?v=29hRhhqQTLc",73],
+    [124,"Verdant Landscape","Nisha","Nisha",76543324,"https://www.youtube.com/watch?v=wjZxkS5KC0A",63],
+    [125,"Levigo","Swib","[DTC] Kandai",97086864,"https://www.youtube.com/watch?v=AROmUo7DNkE",100],
+    [126,"UNKNOWN","NineDice","[TCD] Diamond",88203501,"https://www.youtube.com/watch?v=a1sQxQqU6EM",83],
+    [127,"ATOMIC CANNON Mk III","Lieb","Zeronium",104672501,"https://www.youtube.com/watch?v=xlAI_wVvnx8",66],
+    [128,"SPIRIT OVERCLOCK","TheRealXFuture","[ABA] Riley",132751236,"https://www.youtube.com/watch?v=WECBlbM0LJk",100],
+    [129,"Shukketsu","[SKG] Madison Yuko","[YAHO] Baeru",75286957,"https://www.youtube.com/watch?v=nkG4hKJIz2g",78],
+    [130,"idontknowwhatthisis","YeldA","YeldA",137334994,"https://www.youtube.com/watch?v=Dg9Q6s8EOlg",100],
+    [131,"Checked Steam","gruzy","[IQB7] Whizkid05",105748155,"https://www.youtube.com/watch?v=cq6047eYGXs",70],
+    [132,"Critical Heat","Zeniux","[WBT] hstorm",88442157,"https://www.youtube.com/watch?v=UjYIt2jy_BY",69],
+    [133,"WOBBLING MACHINE","Smarted","[POB2P] conski",87130877,"https://www.youtube.com/watch?v=RKX6VOsICOg",100],
+    [134,"Crystal Crusher","Zeniux","GuitGuit",93732702,"https://www.youtube.com/watch?v=qirwgz-haVQ",67],
+    [135,"limbo but uwu ig idk","Akunakunn","[JOB] ViperVenom95",110705712,"https://www.youtube.com/watch?v=3B36N-qfOD8",77],
+    [136,"Graceful","[1319] D A G","[1319] D A G",71885708,"https://www.youtube.com/watch?v=5kOD37vQHKE",100],
+    [137,"paranoia","[JUICE] Amplitron","[JUICE] Amplitron",113364415,"https://www.youtube.com/watch?v=Aw83i8Zmh_0",100],
+    [138,"Starlit Stroll","[TCC] Enfur","[TCC] TheButcher",115380769,"https://www.youtube.com/watch?v=U7MM74dTXuI",100],
+    [139,"The Paroxysm of Rage","Zacanaii","[RF] turtle",87071894,"https://www.youtube.com/watch?v=nq3i1qJQeEk",65],
+    [140,"Blood Echo","Farva","[1319] swiborg",112242564,"https://www.youtube.com/watch?v=fSvk4tLlQzQ",100],
+    [141,"Aerial Gleam","Endlevel","[TCD] Doggie",79771070,"https://www.youtube.com/watch?v=eyZjKtrGVYw",63],
+    [142,"DISCONNECT","MCres","Elinore",127023313,"https://www.youtube.com/watch?v=HxHo-LzwSao",100],
+    [143,"VOID","nikoberry","[IQB7] Whizkid05",100990392,"https://www.youtube.com/watch?v=kN1FUoucoSc",100],
+    [144,"Henken","PLoLek","Gokill",80714349,"https://www.youtube.com/watch?v=M--2oQKrV68",100],
+    [145,"Trueffet","SyQual","[YAHO] Baeru",71434979,"https://www.youtube.com/watch?v=yHESkazVD4Q",69],
+    [146,"azure blast","AlbinoSnail","[YAHO] DNM121",120060187,"https://www.youtube.com/watch?v=TN0FQ3KBv4w",100],
+    [147,"Kenos","npesta","npesta",58673581,"https://www.youtube.com/watch?v=Bs1kVySdUtI",69],
+    [148,"Fragile","Endlevel","[PRIME] vaen",65588448,"https://www.youtube.com/watch?v=XfXzGv0oALw",64],
+    [149,"chrome hearts","Roadbose","[YAHO] Sangalchi",128385946,"https://www.youtube.com/watch?v=7o3I45B8-yY",100],
+    [150,"Starlight Summit","[BDAY] hazelmrow","[BDAY] hazelmrow",114530859,"https://www.youtube.com/watch?v=LB9xx41M4Ns",100],
+    [151,"Esfera","SyQual","[YAHO] Baeru",78435955,"https://www.youtube.com/watch?v=GK0Z8rgziH4",77],
+    [152,"Silent Lunch","DreamTide","[DL] LordVadercraft",137586316,"https://www.youtube.com/watch?v=V8pu6Rrer8M",100],
+    [153,"Destruction 19","bosjoker","[DAMN!] razsta4ax",99495619,"https://www.youtube.com/watch?v=UUyzGg_4mqs",82],
+    [154,"in this","enci","[ETPS] Xplode",122389640,"https://www.youtube.com/watch?v=gQiOdxOyNGg",100],
+    [155,"NEUTRA","Jenkins GD","AeonAir",88611404,"https://www.youtube.com/watch?v=0fNBFwNS1qg",80],
+    [156,"ROCKBOTTOM","bims","[BLKHL] ZaZa GD",122196131,"https://www.youtube.com/watch?v=HAyxOJ1XuBk",100],
+    [157,"Dark Dimension","ThePurgatory","TheNixuzGD200",125617849,"https://www.youtube.com/watch?v=g2DrT9bHjOI",100],
+    [158,"Swing Swing","[COMET] Kaza","[IQB7] Whizkid05",112231282,"https://www.youtube.com/watch?v=_hL9hFU3WI4",67],
+    [159,"Guideless Goobering","[TCC] Enfur","Zytrox",105625871,"https://www.youtube.com/watch?v=pFxdGKYQrcg",100],
+    [160,"Hard Machine","Komp","Varium",72744364,"https://www.youtube.com/watch?v=6i0pdTDAo1c",79],
+    [161,"DISSONANCE","[meow] ivyteal","[COMET] zSquidKnight",108141323,"https://www.youtube.com/watch?v=IfFser-f9c0",73],
+    [162,"Crackhead Circles","AlrexX","[OG B] teraaa",95524621,"https://www.youtube.com/watch?v=_4MDq8Us5gM",67],
+    [163,"Time Lapse","HappyMoby","chloechu",97705490,"https://www.youtube.com/watch?v=QWrDOemVBLk",100],
+    [164,"Zodiac","Bianox","-",52374843,"https://www.youtube.com/watch?v=HCQK_y8JutU",75],
+    [165,"Lotus Flower","StarkytheSalad","BrianTheBurger",75813671,"https://www.youtube.com/watch?v=pTgOHcwJhd0",70],
+    [166,"Scream Machine","TMco","WatchPiggy",96035641,"https://www.youtube.com/watch?v=n-KeSGEX7Jg",72],
+    [167,"Goober Rage Stage","bonscarrot","trenbabypaleo",130183035,"https://www.youtube.com/watch?v=1rrouUCPXhY",100],
+    [168,"Axinie","[IQB7] SaturMan","[IQB7] SaturMan",107299600,"https://www.youtube.com/watch?v=LjfO2fqnozI",77],
+    [169,"GLUNGUS ADVENTURES","bims","[TCD] Conix",138615726,"https://www.youtube.com/watch?v=0a2BX5I3v94",100],
+    [170,"Judgement Knights","HangerLord","Helix",110913375,"https://www.youtube.com/watch?v=MzzY8nWfxnk",72],
+    [171,"BLITZ","chloechu","[COMET] sock",137248479,"https://www.youtube.com/watch?v=p5NquHWeWZ0",100],
+    [172,"Widestep","｛出見塩｝","｛出見塩｝",69289606,"https://www.youtube.com/watch?v=GhLFsr9skXs",79],
+    [173,"Lithium","L4tezk","[SARK] Bamvie",97364686,"https://www.youtube.com/watch?v=IfVM56qNVdA",100],
+    [174,"Keres","ItsHybrid","Crisis",74391640,"https://www.youtube.com/watch?v=MFFIjZP7PxQ",64],
+    [175,"IRIS","[COMET] Kaza","[COMET] bnuuy",123853954,"https://www.youtube.com/watch?v=WiFwAU8pgr4",100],
+    [176,"Galeforce","OniLink","[DL] Blitzer",115313314,"https://www.youtube.com/watch?v=G6VF2Gvmpz0",100],
+    [177,"Cold Sweat","para","Kapinapi",63996127,"https://www.youtube.com/watch?v=tBpEPXGhQug",61],
+    [178,"Frost Spirit","Quaybus","Varium",95767653,"https://www.youtube.com/watch?v=KXbaRnRpm58",77],
+    [179,"Ascent","Rimexon","[DL] LordVadercraft",112046512,"https://www.youtube.com/watch?v=sII8zQZIJlg",63],
+    [180,"Promethean","Endlevel","RicoLP",69333212,"https://www.youtube.com/watch?v=19kE_Yo8puE",85],
+    [181,"Thinking Space","Atomic","Atomic",54953085,"https://www.youtube.com/watch?v=iHf2nanWjvE",84],
+    [182,"Dry Out Copyable 2","[FaZe] tenzk","s3batr0nic",106522770,"https://www.youtube.com/watch?v=FXW9J9CaREU",77],
+    [183,"Calculator Core","Walroose","-",58355141,"https://www.youtube.com/watch?v=VrgNFsF2NGw",59],
+    [184,"Renevant","nikroplays","rori",58161496,"https://www.youtube.com/watch?v=2Y8kBw8YxO8",60],
+    [185,"ConClusion","DreamZoneGD","Browar",96471171,"https://www.youtube.com/watch?v=wpuPFFqnJFY",58],
+    [186,"We Are Not The Same","mbed","GuitGuit",90104288,"https://www.youtube.com/watch?v=yLLd4mpeYC4",100],
+    [187,"Trotil","cherryteam","[USSR] ItzTayfun",94578424,"https://www.youtube.com/watch?v=kblnO7LfQn4",65],
+    [188,"Disconnected Descent","TheSkeletonGMD","Lia",118664383,"https://www.youtube.com/watch?v=TP7OAAVH-uA",100],
+    [189,"Instinct","Krazyman50","[DL] Blitzer",94043690,"https://www.youtube.com/watch?v=6W3Gvi9ft0w",55],
+    [190,"Sky Shredder","Dorvict","Dorvict",88136707,"https://www.youtube.com/watch?v=Z-69-4RKRgk",49],
+    [191,"shimmer","[JUICE] Amplitron","[JUICE] Amplitron",94156085,"https://www.youtube.com/watch?v=J89j-_l7ezg",55],
+    [192,"Crimson Planet","TrueOmega","Wooshi",45866767,"https://www.youtube.com/watch?v=euMInLjyG6k",53],
+    [193,"DIRECTIONS","[meow] wokecat","[TMG] SwordBx",88233955,"https://www.youtube.com/watch?v=-SEgSgxpRxo",45],
+    [194,"ATOMIC CANNON Mk II","Lieb","Zeronium",91180835,"https://www.youtube.com/watch?v=4-lOnZsfhNQ",49],
+    [195,"Axiom Asterism","Filqh","[BHO] bazettuk",114340057,"https://www.youtube.com/watch?v=sxWIHRzxr3A",100],
+    [196,"Indivine","MercuryDT","Bigthunder556",112586799,"https://www.youtube.com/watch?v=g2CVts-tX70",100],
+    [197,"Cognition","Endlevel","nSwish",57600307,"https://www.youtube.com/watch?v=XkKlOjww6aQ",53],
+    [198,"Neon Skyline","recillia","[S9] MahjongLegend",88822041,"https://www.youtube.com/watch?v=MIONYC4SLK4",100],
+    [199,"CORRODERE","[MOOSH] Moosh","[COMET] Oscar ☄️",90597202,"https://www.youtube.com/watch?v=-V87Bh44lAU",64],
+    [200,"Cosmic Cyclone","APTeamOfficial","[HOLA] DoSh7t",76159410,"https://www.youtube.com/watch?v=0I9xCfTOpXg",66]
+  ];
+  /* DEMONLIST-SEED-END */
+
+(function () {
+  "use strict";
+
+  var API = (API_BASE || localApi()).replace(/\/+$/, "");
+
+  /* Сервер для локальной отладки. Только когда саму страницу отдаёт localhost:
+     на публичном сайте адрес другой, и подставлять туда localhost нельзя.
+     С file:// не срабатывает намеренно — оттуда запрос всё равно не выпустит
+     проверка источника на сервере. */
+  function localApi() {
+    var host = location.hostname;
+    return (host === "localhost" || host === "127.0.0.1") ? "http://localhost:5080" : "";
+  }
+  var TOKEN_KEY = "gdt-demonlist-token";
+
+  /* Границы разделов те же, что в глобальном демонлисте: первые 75 мест —
+     основной список, до 150 — расширенный, дальше легаси. */
+  var TIERS = [
+    { from: 1,   to: 75,  cls: "t-top",  ru: "Основной список", en: "Main list",
+      noteRu: "Места 1–75: рекорды идут в общий зачёт.",
+      noteEn: "Places 1–75: records count towards the overall standings." },
+    { from: 76,  to: 150, cls: "t-main", ru: "Расширенный список", en: "Extended list",
+      noteRu: "Места 76–150: рекорды принимаются, в общий зачёт не идут.",
+      noteEn: "Places 76–150: records are accepted but do not count." },
+    { from: 151, to: 200, cls: "",       ru: "Легаси", en: "Legacy",
+      noteRu: "Места 151–200: список ведётся как архив.",
+      noteEn: "Places 151–200: kept as an archive." }
+  ];
+
+  var T = {
+    offline:      ["Сервер демонлиста не подключён. Ниже — стартовая расстановка из глобального демонлиста, только для чтения: войти, высказаться и подать заявку пока нельзя.",
+                   "The demonlist server is not connected. Below is the initial placement from the global demonlist, read-only: signing in, commenting and submitting are unavailable."],
+    unreachable:  ["Сервер демонлиста не отвечает. Показана стартовая расстановка, только для чтения.",
+                   "The demonlist server is not responding. Showing the initial placement, read-only."],
+    loadFailed:   ["Не удалось загрузить список.", "Could not load the list."],
+    signIn:       ["Войти", "Sign in"],
+    signUp:       ["Создать аккаунт", "Create account"],
+    signOut:      ["Выйти", "Sign out"],
+    email:        ["Почта (для регистрации)", "Email (to sign up)"],
+    password:     ["Пароль", "Password"],
+    usernameHint: ["Ник", "Username"],
+    emailNeed:    ["Для регистрации нужна почта.", "Signing up needs an email address."],
+    usernameNeed: ["Придумай ник — под ним тебя увидят в списке.",
+                   "Pick a username — that is how the list will show you."],
+    guest:        ["Ты не вошёл — список читается, но мнение и заявку оставить нельзя.",
+                   "You are not signed in — the list is readable, but you cannot comment or submit."],
+    roleMember:   ["участник", "member"],
+    roleMod:      ["модератор", "moderator"],
+    roleAdmin:    ["администратор", "administrator"],
+    roleOwner:    ["владелец", "owner"],
+    opinions:     ["Мнения о месте", "Opinions on the placement"],
+    noOpinions:   ["Об этом месте пока никто не высказался.", "Nobody has commented on this placement yet."],
+    yourOpinion:  ["Твоё мнение", "Your opinion"],
+    opinionText:  ["Что не так с этим местом?", "What is wrong with this placement?"],
+    suggestPos:   ["Считаешь, место должно быть другим", "The place you think it deserves"],
+    optional:     ["необязательно", "optional"],
+    post:         ["Отправить", "Post"],
+    remove:       ["Удалить", "Delete"],
+    needAccount:  ["Мнение оставляют вошедшие участники.", "Signed-in members can leave an opinion."],
+    modTools:     ["Инструменты модератора", "Moderator tools"],
+    newPos:       ["Новое место", "New place"],
+    move:         ["Переставить", "Move"],
+    moveUp:       ["Поднять на место выше", "Move one place up"],
+    moveDown:     ["Опустить на место ниже", "Move one place down"],
+    dropDemon:    ["Убрать из списка", "Remove from list"],
+    dropConfirm:  ["Убрать демона из списка? Места ниже подтянутся вверх.",
+                   "Remove this demon from the list? Everything below moves up."],
+    submitTitle:  ["Подать заявку на рекорд", "Submit a record"],
+    submitLead:   ["Рекорд попадает в топ только после проверки. Нужна ссылка на видео, где виден или слышен индикатор кликов — без него заявку не рассматривают.",
+                   "A record joins the leaderboard only after review. A video link showing or sounding out the click indicator is required — submissions without it are not reviewed."],
+    level:        ["Уровень", "Level"],
+    fromList:     ["Из демонлиста", "From the demonlist"],
+    otherLevel:   ["Другой уровень (укажи название)", "Another level (type the name)"],
+    levelName:    ["Название уровня", "Level name"],
+    progress:     ["Процент", "Progress"],
+    videoUrl:     ["Ссылка на видео", "Video link"],
+    clicks:       ["На видео виден или слышен индикатор кликов", "The video shows or sounds out the click indicator"],
+    comment:      ["Комментарий к заявке", "Note for the moderator"],
+    send:         ["Отправить заявку", "Submit"],
+    sent:         ["Заявка отправлена — она появится в топе после проверки модератором.",
+                   "Submitted — it will appear in the leaderboard once a moderator reviews it."],
+    needAccountR: ["Чтобы подать заявку, нужен аккаунт. Войди или создай его выше.",
+                   "Submitting a record needs an account. Sign in or create one above."],
+    queue:        ["Заявки на рассмотрении", "Submissions awaiting review"],
+    queueLead:    ["Посмотри видео и убедись, что клики видны или слышны. Одобренная заявка встаёт в топ на указанное место; поле места пустое — рекорд уходит в конец.",
+                   "Watch the video and check that the clicks are visible or audible. An approved record takes the place you type; leave the place empty and it goes to the end."],
+    queueEmpty:   ["Непросмотренных заявок нет.", "No submissions are waiting."],
+    place:        ["Место", "Place"],
+    placeEnd:     ["пусто — в конец", "empty — append"],
+    approve:      ["Одобрить", "Approve"],
+    reject:       ["Отклонить", "Reject"],
+    reviewNote:   ["Пояснение", "Note"],
+    topEmpty:     ["В топе пока никого. Первый проверенный рекорд встанет сюда.",
+                   "The leaderboard is empty. The first verified record will appear here."],
+    myRecords:    ["Мои заявки", "My submissions"],
+    player:       ["Игрок", "Player"],
+    proof:        ["Видео", "Video"],
+    watch:        ["Смотреть", "Watch"],
+    submitted:    ["Подана", "Submitted"],
+    statusName:   { Pending: ["на проверке", "pending"], Approved: ["принят", "approved"], Rejected: ["отклонён", "rejected"] },
+    demonAt:      ["в списке №", "list place #"],
+    reqShort:     ["от", "from"],
+
+    /* --- хозяйство владельца --- */
+    manage:       ["Участники", "Members"],
+    manageLead:   ["Список аккаунтов. Полный бан закрывает вход и облако, бан в демонлисте оставляет и то и другое, но убирает участника из списка: ни мнений, ни заявок, а прежние записи пропадают из публичного топа. Оба бана снимаются той же кнопкой.",
+                   "The accounts list. A full ban closes sign-in and the cloud; a demonlist ban leaves both but removes the member from the list: no opinions, no submissions, and their existing entries disappear from the public leaderboard. Either ban is lifted with the same button."],
+    findUser:     ["Ник или почта", "Username or email"],
+    find:         ["Найти", "Search"],
+    noUsers:      ["Никого не нашлось.", "Nobody found."],
+    banAccount:   ["Забанить аккаунт", "Ban the account"],
+    unbanAccount: ["Снять бан аккаунта", "Lift the account ban"],
+    banList:      ["Забанить в демонлисте", "Ban from the demonlist"],
+    unbanList:    ["Снять бан в демонлисте", "Lift the demonlist ban"],
+    banReason:    ["Причина", "Reason"],
+    banReasonAsk: ["Причина бана (её увидит забаненный):", "Reason for the ban (the banned member sees it):"],
+    banned:       ["забанен", "banned"],
+    listBanned:   ["бан в демонлисте", "demonlist ban"],
+    setRole:      ["Выдать роль", "Assign role"],
+    youListBanned:["Ты забанен в демонлисте: список читается, но оставить мнение или подать заявку нельзя.",
+                   "You are banned from the demonlist: the list is readable, but you cannot comment or submit."]
+  };
+
+  /* ---------------- язык ---------------- */
+
+  var lang = "ru";
+
+  function t(key) {
+    var pair = T[key];
+    return pair ? (lang === "ru" ? pair[0] : pair[1]) : key;
+  }
+
+  var TITLES = {
+    ru: "Демонлист — GD Progress Tracker",
+    en: "Demonlist — GD Progress Tracker"
+  };
+
+  function applyLang(next) {
+    lang = (next === "en") ? "en" : "ru";
+    var root = document.documentElement;
+    root.setAttribute("data-lang", lang);
+    root.setAttribute("lang", lang);
+    document.title = TITLES[lang];
+
+    var buttons = document.querySelectorAll("[data-set-lang]");
+    for (var i = 0; i < buttons.length; i++) {
+      buttons[i].setAttribute("aria-pressed", buttons[i].getAttribute("data-set-lang") === lang ? "true" : "false");
+    }
+    renderAll();
+  }
+
+  /* ---------------- утилиты ---------------- */
+
+  /* Всё, что пришло от других участников, вставляется в разметку только
+     через эту функцию: иначе чужое мнение станет чужим скриптом. */
+  function esc(value) {
+    return String(value === null || value === undefined ? "" : value)
+      .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+  }
+
+  function date(iso) {
+    var d = new Date(iso);
+    if (isNaN(d)) return "";
+    return d.toLocaleDateString(lang === "ru" ? "ru-RU" : "en-US",
+      { year: "numeric", month: "short", day: "numeric" });
+  }
+
+  /* Ссылку из чужой заявки нельзя вставлять как есть: javascript: в href —
+     это выполнение кода по клику. Пропускаем только http и https. */
+  function safeUrl(value) {
+    var raw = String(value || "").trim();
+    return /^https?:\/\//i.test(raw) ? raw : "";
+  }
+
+  function el(id) { return document.getElementById(id); }
+
+  function setHtml(id, html) {
+    var node = el(id);
+    if (node) node.innerHTML = html;
+  }
+
+  function notice(kind, text) {
+    return '<div class="notice ' + kind + '">' + esc(text) + "</div>";
+  }
+
+  /* ---------------- состояние ---------------- */
+
+  var state = {
+    demons: [],          // весь список
+    opinions: {},        // id демона -> массив мнений
+    openDemon: null,     // раскрытая строка
+    records: [],         // публичный топ
+    mine: [],            // свои заявки
+    pending: [],         // очередь модерации
+    users: [],           // список аккаунтов — только для владельца
+    userQuery: "",       // строка поиска по этому списку
+    me: null,            // профиль или null
+    token: null,
+    online: false,       // отвечает ли сервер
+    tab: "demons",
+    busy: false,
+    flash: null          // {kind, text} — одноразовое сообщение
+  };
+
+  try { state.token = localStorage.getItem(TOKEN_KEY); } catch (e) { /* приватный режим */ }
+
+  function saveToken(value) {
+    state.token = value;
+    try {
+      if (value) localStorage.setItem(TOKEN_KEY, value);
+      else localStorage.removeItem(TOKEN_KEY);
+    } catch (e) { /* приватный режим — токен живёт до перезагрузки */ }
+  }
+
+  /* ---------------- обращения к серверу ---------------- */
+
+  function api(path, options) {
+    var opts = options || {};
+    var headers = { "Content-Type": "application/json" };
+    if (state.token) headers.Authorization = "Bearer " + state.token;
+
+    return fetch(API + path, {
+      method: opts.method || "GET",
+      headers: headers,
+      body: opts.body ? JSON.stringify(opts.body) : undefined
+    }).then(function (res) {
+      if (res.status === 204) return null;
+      return res.json().catch(function () { return null; }).then(function (data) {
+        if (res.ok) return data;
+        // Токен просрочен или аккаунт удалён — выходим, чтобы не долбиться дальше.
+        if (res.status === 401 && state.token) {
+          saveToken(null);
+          state.me = null;
+        }
+        var message = (data && data.message) || ("HTTP " + res.status);
+        throw new Error(message);
+      });
+    });
+  }
+
+  function fail(error) {
+    state.flash = { kind: "bad", text: error && error.message ? error.message : t("loadFailed") };
+    state.busy = false;
+    renderAll();
+  }
+
+  /* ---------------- загрузка ---------------- */
+
+  function boot() {
+    if (!API) return loadStatic(t("offline"));
+
+    return api("/api/community/demons")
+      .then(function (demons) {
+        state.demons = demons || [];
+        state.online = true;
+        return state.token ? loadProfile() : null;
+      })
+      .then(loadRecords)
+      .then(function () { renderAll(); })
+      .catch(function () { return loadStatic(t("unreachable")); });
+  }
+
+  /* Запасной путь: снимок стартовой расстановки, который лежит рядом со
+     страницей. Читать список можно всегда, даже когда сервера нет. */
+  function loadStatic(message) {
+    state.online = false;
+    state.flash = { kind: "warn", text: message };
+
+    state.demons = SEED.map(function (e) {
+      return {
+        id: "static-" + e[0],
+        position: e[0],
+        name: e[1],
+        publisher: e[2],
+        verifier: e[3],
+        levelId: e[4],
+        video: e[5],
+        requirement: e[6],
+        opinionCount: 0
+      };
+    });
+
+    renderAll();
+    return Promise.resolve();
+  }
+
+  function loadProfile() {
+    return api("/api/community/me")
+      .then(function (me) {
+        state.me = me;
+        if (!me) return null;
+        return Promise.all([me.canModerate ? loadPending() : null, loadUsers()]);
+      })
+      .catch(function () { state.me = null; });
+  }
+
+  function loadRecords() {
+    var jobs = [api("/api/community/records").then(function (r) { state.records = r || []; })];
+    if (state.me) {
+      jobs.push(api("/api/community/records/mine").then(function (r) { state.mine = r || []; }));
+    }
+    return Promise.all(jobs);
+  }
+
+  function loadPending() {
+    return api("/api/community/records/pending")
+      .then(function (r) { state.pending = r || []; })
+      .catch(function () { state.pending = []; });
+  }
+
+  /* Список аккаунтов доступен только владельцу: у остальных запрос отвечает 403,
+     поэтому его и не отправляем. */
+  function loadUsers() {
+    if (!state.me || !state.me.canBan) { state.users = []; return Promise.resolve(); }
+
+    var query = state.userQuery ? "?query=" + encodeURIComponent(state.userQuery) : "";
+    return api("/api/community/users" + query)
+      .then(function (list) { state.users = list || []; })
+      .catch(function () { state.users = []; });
+  }
+
+  /* ---------------- аккаунт ---------------- */
+
+  function renderAccount() {
+    var box = el("account");
+    if (!box) return;
+
+    if (!state.online) {
+      box.innerHTML = '<span class="muted">' + esc(t("guest")) + "</span>";
+      return;
+    }
+
+    if (state.me) {
+      box.innerHTML =
+        '<div class="who">' +
+          "<b>" + esc(state.me.username) + "</b>" +
+          roleTag(state.me.role) +
+        "</div>" +
+        '<div class="spacer"></div>' +
+        '<button type="button" class="btn btn-quiet" data-act="signout">' + esc(t("signOut")) + "</button>";
+      return;
+    }
+
+    box.innerHTML =
+      '<form class="who" id="signin-form" style="flex-wrap:wrap;gap:8px;flex:1">' +
+        '<input type="text" name="username" required autocomplete="username" maxlength="20" placeholder="' + esc(t("usernameHint")) + '" style="width:auto;flex:1;min-width:150px">' +
+        '<input type="email" name="email" autocomplete="email" placeholder="' + esc(t("email")) + '" style="width:auto;flex:1;min-width:170px">' +
+        '<input type="password" name="password" required minlength="8" autocomplete="current-password" placeholder="' + esc(t("password")) + '" style="width:auto;flex:1;min-width:150px">' +
+        '<button type="submit" class="btn btn-primary" data-mode="login">' + esc(t("signIn")) + "</button>" +
+        '<button type="button" class="btn btn-secondary" data-act="register">' + esc(t("signUp")) + "</button>" +
+      "</form>";
+  }
+
+  /* Значок роли рядом с ником. Роль приходит строкой: сервер отдаёт перечисление именами. */
+  function roleTag(role) {
+    if (role === "Owner") return '<span class="role-tag owner">' + esc(t("roleOwner")) + "</span>";
+
+    var key = role === "Administrator" ? "roleAdmin"
+            : role === "Moderator" ? "roleMod" : "roleMember";
+    var privileged = role === "Administrator" || role === "Moderator";
+    return '<span class="role-tag' + (privileged ? " mod" : "") + '">' + esc(t(key)) + "</span>";
+  }
+
+  /* Подпись для забаненного в демонлисте: с причиной, если владелец её указал. */
+  function banNote() {
+    var reason = state.me && state.me.listBanReason;
+    return reason ? t("youListBanned") + " " + t("banReason") + ": " + reason : t("youListBanned");
+  }
+
+  function authenticate(mode, login, password, username) {
+    state.busy = true;
+    renderAll();
+
+    /* Поле «email» в теле запроса — историческое имя: сервер принимает в нём и
+       ник, и почту. При входе туда уходит ник, при регистрации — почта, а ник
+       едет отдельным полем. */
+    api("/api/auth/" + mode, { method: "POST", body: { email: login, password: password, username: username || null } })
+      .then(function (auth) {
+        saveToken(auth.accessToken);
+        return loadProfile();
+      })
+      .then(loadRecords)
+      .then(function () {
+        state.busy = false;
+        state.flash = null;
+        renderAll();
+      })
+      .catch(fail);
+  }
+
+  /* ---------------- демонлист ---------------- */
+
+  function tierOf(position) {
+    for (var i = 0; i < TIERS.length; i++) {
+      if (position >= TIERS[i].from && position <= TIERS[i].to) return TIERS[i];
+    }
+    return TIERS[TIERS.length - 1];
+  }
+
+  function renderDemons() {
+    setHtml("demons-notice", state.flash && state.tab === "demons"
+      ? notice(state.flash.kind, state.flash.text) : "");
+
+    if (!state.demons.length) {
+      setHtml("demons-list", '<p class="muted">' + esc(t("loadFailed")) + "</p>");
+      return;
+    }
+
+    var html = "";
+    var currentTier = null;
+
+    for (var i = 0; i < state.demons.length; i++) {
+      var d = state.demons[i];
+      var tier = tierOf(d.position);
+
+      if (tier !== currentTier) {
+        if (currentTier) html += "</div>";
+        currentTier = tier;
+        html +=
+          '<div class="tier-head">' +
+            "<h2>" + esc(lang === "ru" ? tier.ru : tier.en) + "</h2>" +
+            '<span class="range">' + tier.from + "–" + tier.to + "</span>" +
+            "<p>" + esc(lang === "ru" ? tier.noteRu : tier.noteEn) + "</p>" +
+          "</div>" +
+          '<div class="rows">';
+      }
+
+      html += demonRow(d, tier);
+    }
+
+    if (currentTier) html += "</div>";
+    setHtml("demons-list", html);
+  }
+
+  function demonRow(d, tier) {
+    var open = state.openDemon === d.id;
+    var by = [d.publisher, d.verifier].filter(Boolean);
+    var byText = by.length
+      ? (lang === "ru" ? "автор " : "by ") + by[0] + (by[1] ? (lang === "ru" ? " · верифицировал " : " · verified by ") + by[1] : "")
+      : "";
+
+    return '<div class="row ' + tier.cls + (open ? " open" : "") + '" data-demon="' + esc(d.id) + '">' +
+      '<div class="row-head">' +
+      '<button type="button" class="row-main" data-act="toggle" data-id="' + esc(d.id) + '" aria-expanded="' + (open ? "true" : "false") + '">' +
+        '<span class="pos">' + d.position + "</span>" +
+        '<span class="row-name">' +
+          '<span class="n">' + esc(d.name) + "</span><br>" +
+          '<span class="by">' + esc(byText) + "</span>" +
+        "</span>" +
+        '<span class="row-meta">' +
+          '<span class="req">' + esc(t("reqShort")) + " " + (d.requirement || 100) + "%</span>" +
+          (d.opinionCount ? '<span class="op-count has">' + d.opinionCount + " ✎</span>" : "") +
+          '<svg class="chev" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>' +
+        "</span>" +
+      "</button>" +
+      rowTools(d) +
+      "</div>" +
+      '<div class="row-body"' + (open ? "" : " hidden") + ">" + (open ? demonBody(d) : "") + "</div>" +
+    "</div>";
+  }
+
+  /* Кто правит расстановку: модератор, администратор и владелец. Право одно на
+     всех троих — сервер проверяет его тем же способом. */
+  function canEditList() {
+    return state.online && state.me && state.me.canModerate;
+  }
+
+  /* Стрелки перестановки прямо в строке: место меняется одним нажатием, без
+     раскрытия демона и без ввода номера. Точное место по-прежнему задаётся
+     полем в раскрытой панели — оно нужно, когда двигать надо далеко. */
+  function rowTools(d) {
+    if (!canEditList()) return "";
+
+    return '<div class="row-tools">' +
+      arrowButton(d, "up", "↑", d.position <= 1) +
+      arrowButton(d, "down", "↓", d.position >= state.demons.length) +
+    "</div>";
+  }
+
+  function arrowButton(d, direction, glyph, disabled) {
+    var label = t(direction === "up" ? "moveUp" : "moveDown");
+    return '<button type="button" data-act="bump" data-id="' + esc(d.id) + '"' +
+      ' data-dir="' + direction + '"' + (disabled ? " disabled" : "") +
+      ' title="' + esc(label) + '" aria-label="' + esc(label) + '">' + glyph + "</button>";
+  }
+
+  function demonBody(d) {
+    var list = state.opinions[d.id];
+    var opinionsHtml;
+
+    if (!state.online) {
+      opinionsHtml = '<p class="muted">' + esc(t("guest")) + "</p>";
+    } else if (!list) {
+      opinionsHtml = '<p class="muted">…</p>';
+    } else if (!list.length) {
+      opinionsHtml = '<p class="muted">' + esc(t("noOpinions")) + "</p>";
+    } else {
+      opinionsHtml = list.map(function (o) {
+        var mine = state.me && state.me.userId === o.authorId;
+        var canDrop = mine || (state.me && state.me.canModerate);
+        return '<div class="opinion">' +
+          '<div class="head">' +
+            "<b>" + esc(o.authorName) + "</b>" +
+            roleTag(o.authorRole) +
+            (o.suggestedPosition ? '<span class="suggest">→ №' + o.suggestedPosition + "</span>" : "") +
+            "<time>" + esc(date(o.createdAtUtc)) + "</time>" +
+            (canDrop ? '<button type="button" class="btn btn-quiet" style="padding:2px 8px;font-size:12px" data-act="drop-opinion" data-id="' + esc(o.id) + '">' + esc(t("remove")) + "</button>" : "") +
+          "</div>" +
+          '<div class="text">' + esc(o.text) + "</div>" +
+        "</div>";
+      }).join("");
+    }
+
+    var side = "";
+
+    // Забаненному в демонлисте форму не показываем вовсе: сервер всё равно
+    // ответит отказом, а несработавшая кнопка хуже честной подписи.
+    if (state.online && state.me && state.me.listBanned) {
+      side += '<div class="side"><h4>' + esc(t("yourOpinion")) + "</h4>" +
+              '<p class="muted">' + esc(banNote()) + "</p></div>";
+    } else if (state.online && state.me) {
+      side +=
+        '<div class="side">' +
+          "<h4>" + esc(t("yourOpinion")) + "</h4>" +
+          '<form data-act="opinion" data-id="' + esc(d.id) + '">' +
+            '<div class="field">' +
+              "<label>" + esc(t("suggestPos")) + " <span class=\"muted\" style=\"font-weight:400\">(" + esc(t("optional")) + ")</span></label>" +
+              '<input type="number" name="position" min="1" max="' + state.demons.length + '" placeholder="' + d.position + '">' +
+            "</div>" +
+            '<div class="field">' +
+              "<label>" + esc(t("opinionText")) + "</label>" +
+              '<textarea name="text" required minlength="3" maxlength="1000"></textarea>' +
+            "</div>" +
+            '<button type="submit" class="btn btn-primary" style="width:100%;justify-content:center">' + esc(t("post")) + "</button>" +
+          "</form>" +
+        "</div>";
+    } else if (state.online) {
+      side += '<div class="side"><h4>' + esc(t("yourOpinion")) + "</h4>" +
+              '<p class="muted">' + esc(t("needAccount")) + "</p></div>";
+    }
+
+    if (canEditList()) {
+      side +=
+        '<div class="side">' +
+          "<h4>" + esc(t("modTools")) + "</h4>" +
+          '<form data-act="move" data-id="' + esc(d.id) + '" class="side-row">' +
+            '<div class="field"><label>' + esc(t("newPos")) + "</label>" +
+              '<input type="number" name="position" min="1" max="' + state.demons.length + '" value="' + d.position + '" required></div>' +
+            '<button type="submit" class="btn btn-secondary">' + esc(t("move")) + "</button>" +
+          "</form>" +
+          '<button type="button" class="btn btn-danger" style="margin-top:12px;width:100%;justify-content:center" data-act="drop-demon" data-id="' + esc(d.id) + '">' +
+            esc(t("dropDemon")) +
+          "</button>" +
+        "</div>";
+    }
+
+    var video = safeUrl(d.video);
+    var links = "";
+    if (video) {
+      links += '<p style="margin-top:14px"><a href="' + esc(video) + '" target="_blank" rel="noopener noreferrer" style="color:var(--cyan);text-decoration:none">▶ ' + esc(t("watch")) + "</a>" +
+               (d.levelId ? ' <span class="muted" style="margin-left:10px">ID ' + esc(d.levelId) + "</span>" : "") + "</p>";
+    } else if (d.levelId) {
+      links += '<p class="muted" style="margin-top:14px">ID ' + esc(d.levelId) + "</p>";
+    }
+
+    return '<div class="body-cols">' +
+      "<div><h4 style=\"margin:0 0 12px;font-size:12.5px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--fg-faint)\">" +
+        esc(t("opinions")) + "</h4>" + opinionsHtml + links + "</div>" +
+      "<div>" + side + "</div>" +
+    "</div>";
+  }
+
+  function toggleDemon(id) {
+    if (state.openDemon === id) {
+      state.openDemon = null;
+      renderAll();
+      return;
+    }
+
+    state.openDemon = id;
+    renderAll();
+
+    if (!state.online || state.opinions[id]) return;
+
+    api("/api/community/demons/" + id + "/opinions")
+      .then(function (list) {
+        state.opinions[id] = list || [];
+        renderAll();
+      })
+      .catch(function () {
+        state.opinions[id] = [];
+        renderAll();
+      });
+  }
+
+  /* ---------------- топ пройденных ---------------- */
+
+  function renderRecords() {
+    setHtml("records-notice", state.flash && state.tab === "records"
+      ? notice(state.flash.kind, state.flash.text) : "");
+
+    renderSubmitForm();
+    renderQueue();
+    renderTop();
+    renderMine();
+  }
+
+  function renderSubmitForm() {
+    if (!state.online) { setHtml("records-submit", ""); return; }
+
+    if (!state.me) {
+      setHtml("records-submit", notice("", t("needAccountR")));
+      return;
+    }
+
+    if (state.me.listBanned) {
+      setHtml("records-submit", notice("bad", banNote()));
+      return;
+    }
+
+    var options = state.demons.map(function (d) {
+      return '<option value="' + esc(d.id) + '">№' + d.position + " — " + esc(d.name) + " (" + esc(t("reqShort")) + " " + (d.requirement || 100) + "%)</option>";
+    }).join("");
+
+    setHtml("records-submit",
+      '<div class="block">' +
+        "<h3>" + esc(t("submitTitle")) + "</h3>" +
+        "<p>" + esc(t("submitLead")) + "</p>" +
+        '<form id="submit-record" class="form-grid">' +
+          '<div class="field full">' +
+            "<label>" + esc(t("level")) + "</label>" +
+            '<select name="demonId">' +
+              '<option value="">' + esc(t("otherLevel")) + "</option>" +
+              options +
+            "</select>" +
+          "</div>" +
+          '<div class="field">' +
+            "<label>" + esc(t("levelName")) + "</label>" +
+            '<input type="text" name="levelName" maxlength="200" placeholder="' + esc(t("fromList")) + '">' +
+          "</div>" +
+          '<div class="field">' +
+            "<label>" + esc(t("progress")) + " %</label>" +
+            '<input type="number" name="progress" min="1" max="100" value="100" required>' +
+          "</div>" +
+          '<div class="field full">' +
+            "<label>" + esc(t("videoUrl")) + "</label>" +
+            '<input type="url" name="videoUrl" required placeholder="https://youtube.com/watch?v=…">' +
+          "</div>" +
+          '<div class="field full">' +
+            "<label>" + esc(t("comment")) + " <span class=\"muted\" style=\"font-weight:400\">(" + esc(t("optional")) + ")</span></label>" +
+            '<textarea name="comment" maxlength="1000"></textarea>' +
+          "</div>" +
+          '<div class="field full">' +
+            '<label class="check"><input type="checkbox" name="hasClicks" required><span>' + esc(t("clicks")) + "</span></label>" +
+          "</div>" +
+          '<div class="full"><button type="submit" class="btn btn-primary">' + esc(t("send")) + "</button></div>" +
+        "</form>" +
+      "</div>");
+  }
+
+  function renderQueue() {
+    if (!state.online || !state.me || !state.me.canModerate) { setHtml("records-queue", ""); return; }
+
+    var body = state.pending.length
+      ? state.pending.map(queueItem).join("")
+      : '<p class="muted">' + esc(t("queueEmpty")) + "</p>";
+
+    setHtml("records-queue",
+      '<div class="block">' +
+        "<h3>" + esc(t("queue")) + " <span class=\"muted\" style=\"font-weight:400\">(" + state.pending.length + ")</span></h3>" +
+        "<p>" + esc(t("queueLead")) + "</p>" +
+        body +
+      "</div>");
+  }
+
+  function queueItem(r) {
+    var video = safeUrl(r.videoUrl);
+    return '<div class="queue-item">' +
+      '<div class="queue-head">' +
+        "<b>" + esc(r.levelName) + "</b>" +
+        '<span class="muted">' + esc(r.playerName) + " · " + r.progress + "%</span>" +
+        roleTag(r.playerRole) +
+        (r.demonPosition ? '<span class="muted">' + esc(t("demonAt")) + r.demonPosition + "</span>" : "") +
+        '<span class="muted">' + esc(date(r.submittedAtUtc)) + "</span>" +
+      "</div>" +
+      (video ? '<p><a href="' + esc(video) + '" target="_blank" rel="noopener noreferrer" style="color:var(--cyan);text-decoration:none">▶ ' + esc(video) + "</a></p>" : "") +
+      (r.comment ? '<p class="muted" style="margin-top:6px">' + esc(r.comment) + "</p>" : "") +
+      '<form class="queue-actions" data-act="review" data-id="' + esc(r.id) + '">' +
+        '<div class="field" style="width:110px">' +
+          "<label>" + esc(t("place")) + "</label>" +
+          '<input type="number" name="placement" min="1" placeholder="' + esc(t("placeEnd")) + '">' +
+        "</div>" +
+        '<div class="field grow">' +
+          "<label>" + esc(t("reviewNote")) + "</label>" +
+          '<input type="text" name="note" maxlength="1000">' +
+        "</div>" +
+        '<button type="submit" class="btn btn-primary" data-decision="approve">' + esc(t("approve")) + "</button>" +
+        '<button type="submit" class="btn btn-danger" data-decision="reject">' + esc(t("reject")) + "</button>" +
+      "</form>" +
+    "</div>";
+  }
+
+  function renderTop() {
+    if (!state.online) {
+      setHtml("records-top", '<p class="muted">' + esc(t("guest")) + "</p>");
+      return;
+    }
+
+    if (!state.records.length) {
+      setHtml("records-top", '<p class="muted">' + esc(t("topEmpty")) + "</p>");
+      return;
+    }
+
+    var rows = state.records.map(function (r) {
+      var video = safeUrl(r.videoUrl);
+      return "<tr>" +
+        '<td class="place">' + (r.placement || "—") + "</td>" +
+        '<td><span class="player">' + esc(r.playerName) + "</span>" + roleTag(r.playerRole) + "</td>" +
+        "<td>" + esc(r.levelName) +
+          (r.demonPosition ? ' <span class="muted">· ' + esc(t("demonAt")) + r.demonPosition + "</span>" : "") + "</td>" +
+        '<td class="num">' + r.progress + "%</td>" +
+        "<td>" + (video ? '<a href="' + esc(video) + '" target="_blank" rel="noopener noreferrer">' + esc(t("watch")) + "</a>" : "—") + "</td>" +
+      "</tr>";
+    }).join("");
+
+    setHtml("records-top",
+      '<div class="table-scroll"><table>' +
+        "<thead><tr>" +
+          "<th>" + esc(t("place")) + "</th>" +
+          "<th>" + esc(t("player")) + "</th>" +
+          "<th>" + esc(t("level")) + "</th>" +
+          "<th>" + esc(t("progress")) + "</th>" +
+          "<th>" + esc(t("proof")) + "</th>" +
+        "</tr></thead><tbody>" + rows + "</tbody>" +
+      "</table></div>");
+  }
+
+  function renderMine() {
+    if (!state.online || !state.me || !state.mine.length) { setHtml("records-mine", ""); return; }
+
+    var rows = state.mine.map(function (r) {
+      var pair = T.statusName[r.status] || ["", ""];
+      return "<tr>" +
+        "<td>" + esc(r.levelName) + "</td>" +
+        '<td class="num">' + r.progress + "%</td>" +
+        '<td><span class="status ' + esc(String(r.status).toLowerCase()) + '">' + esc(lang === "ru" ? pair[0] : pair[1]) + "</span></td>" +
+        '<td class="num">' + (r.placement || "—") + "</td>" +
+        "<td>" + esc(date(r.submittedAtUtc)) + "</td>" +
+        '<td class="muted">' + esc(r.reviewNote || "") + "</td>" +
+      "</tr>";
+    }).join("");
+
+    setHtml("records-mine",
+      '<h3 style="margin:38px 0 14px">' + esc(t("myRecords")) + "</h3>" +
+      '<div class="table-scroll"><table>' +
+        "<thead><tr>" +
+          "<th>" + esc(t("level")) + "</th>" +
+          "<th>" + esc(t("progress")) + "</th>" +
+          "<th>" + esc(lang === "ru" ? "Статус" : "Status") + "</th>" +
+          "<th>" + esc(t("place")) + "</th>" +
+          "<th>" + esc(t("submitted")) + "</th>" +
+          "<th>" + esc(t("reviewNote")) + "</th>" +
+        "</tr></thead><tbody>" + rows + "</tbody>" +
+      "</table></div>");
+  }
+
+  /* ---------------- участники (владелец) ---------------- */
+
+  function renderManage() {
+    var allowed = state.online && state.me && state.me.canBan;
+    var tab = el("tab-manage");
+    if (tab) tab.hidden = !allowed;
+
+    // Права могли пропасть вместе с выходом из аккаунта, а вкладка осталась
+    // открытой: возвращаем на список демонов, иначе экран будет пустым.
+    if (!allowed) {
+      setHtml("manage", "");
+      setHtml("manage-notice", "");
+      if (state.tab === "manage") { state.tab = "demons"; applyTab(); }
+      return;
+    }
+
+    setHtml("manage-notice", state.flash && state.tab === "manage"
+      ? notice(state.flash.kind, state.flash.text) : "");
+
+    var rows = state.users.length
+      ? state.users.map(userRow).join("")
+      : '<p class="muted">' + esc(t("noUsers")) + "</p>";
+
+    setHtml("manage",
+      '<div class="block">' +
+        "<h3>" + esc(t("manage")) + "</h3>" +
+        "<p>" + esc(t("manageLead")) + "</p>" +
+        '<form class="queue-actions" data-act="user-search" style="margin-bottom:18px">' +
+          '<div class="field grow">' +
+            "<label>" + esc(t("findUser")) + "</label>" +
+            '<input type="search" name="query" maxlength="254" value="' + esc(state.userQuery) + '">' +
+          "</div>" +
+          '<button type="submit" class="btn btn-secondary">' + esc(t("find")) + "</button>" +
+        "</form>" +
+        rows +
+      "</div>");
+  }
+
+  function userRow(u) {
+    var self = state.me && state.me.userId === u.userId;
+    // Владельца и равного себе не банят — сервер такой запрос отклонит,
+    // поэтому и кнопок у такой строки нет.
+    var actionable = !self && u.role !== "Owner";
+
+    var tags = roleTag(u.role) +
+      (u.banned ? '<span class="role-tag banned">' + esc(t("banned")) + "</span>" : "") +
+      (u.listBanned ? '<span class="role-tag banned">' + esc(t("listBanned")) + "</span>" : "");
+
+    var reasons = "";
+    if (u.banned && u.banReason) reasons += '<p class="muted">' + esc(t("banReason")) + ": " + esc(u.banReason) + "</p>";
+    if (u.listBanned && u.listBanReason) reasons += '<p class="muted">' + esc(t("banReason")) + ": " + esc(u.listBanReason) + "</p>";
+
+    var buttons = "";
+    if (actionable) {
+      buttons =
+        '<div class="queue-actions" style="margin-top:10px">' +
+          '<button type="button" class="btn ' + (u.banned ? "btn-secondary" : "btn-danger") + '"' +
+            ' data-act="ban" data-id="' + esc(u.userId) + '" data-on="' + (u.banned ? "0" : "1") + '">' +
+            esc(t(u.banned ? "unbanAccount" : "banAccount")) +
+          "</button>" +
+          '<button type="button" class="btn ' + (u.listBanned ? "btn-secondary" : "btn-danger") + '"' +
+            ' data-act="list-ban" data-id="' + esc(u.userId) + '" data-on="' + (u.listBanned ? "0" : "1") + '">' +
+            esc(t(u.listBanned ? "unbanList" : "banList")) +
+          "</button>" +
+        "</div>";
+    }
+
+    return '<div class="queue-item">' +
+      '<div class="queue-head">' +
+        "<b>" + esc(u.username) + "</b>" +
+        tags +
+        '<span class="muted">' + esc(u.email) + "</span>" +
+        '<span class="muted">' + esc(date(u.createdAtUtc)) + "</span>" +
+      "</div>" +
+      reasons +
+      buttons +
+    "</div>";
+  }
+
+  /* ---------------- отрисовка целиком ---------------- */
+
+  function renderAll() {
+    renderAccount();
+    renderDemons();
+    renderRecords();
+    renderManage();
+  }
+
+  /* Раскладка вкладок по состоянию. Отдельно от switchTab: её зовёт и отрисовка,
+     когда вкладка владельца исчезает вместе с правами, а вызывать оттуда
+     renderAll нельзя — получилась бы бесконечная перерисовка. */
+  function applyTab() {
+    var names = ["demons", "records", "manage"];
+    for (var i = 0; i < names.length; i++) {
+      var name = names[i];
+      var button = el("tab-" + name);
+      if (button) button.setAttribute("aria-selected", state.tab === name ? "true" : "false");
+      var pane = el("pane-" + name);
+      if (pane) pane.hidden = state.tab !== name;
+    }
+  }
+
+  function switchTab(name) {
+    state.tab = name;
+    applyTab();
+    renderAll();
+  }
+
+  /* ---------------- действия ---------------- */
+
+  function refreshDemons() {
+    return api("/api/community/demons").then(function (list) {
+      state.demons = list || [];
+    });
+  }
+
+  /* Сбрасывает кэш мнений и перечитывает раскрытого демона: после бана список
+     мнений меняется, а закэшированный показывал бы забаненного и дальше. */
+  function refreshOpinions() {
+    state.opinions = {};
+
+    var id = state.openDemon;
+    if (!id || !state.online) return Promise.resolve();
+
+    return api("/api/community/demons/" + id + "/opinions")
+      .then(function (list) { state.opinions[id] = list || []; })
+      .catch(function () { state.opinions[id] = []; });
+  }
+
+  document.addEventListener("click", function (event) {
+    var target = event.target.closest("[data-act]");
+    if (!target || target.tagName === "FORM") return;
+
+    var act = target.getAttribute("data-act");
+    var id = target.getAttribute("data-id");
+
+    if (act === "toggle") { toggleDemon(id); return; }
+
+    if (act === "signout") {
+      saveToken(null);
+      state.me = null;
+      state.mine = [];
+      state.pending = [];
+      state.users = [];
+      renderAll();
+      return;
+    }
+
+    if (act === "ban" || act === "list-ban") {
+      var turningOn = target.getAttribute("data-on") === "1";
+      var reason = null;
+
+      // Причину спрашиваем только при выдаче бана: снятие пояснений не требует.
+      if (turningOn) {
+        reason = window.prompt(t("banReasonAsk"), "");
+        if (reason === null) return;
+      }
+
+      api("/api/community/users/" + id + (act === "ban" ? "/ban" : "/list-ban"), {
+        method: "PUT",
+        body: { banned: turningOn, reason: reason || null }
+      })
+        // Бан меняет и публичные списки: забаненный уходит из топа и из мнений.
+        .then(function () {
+          return Promise.all([loadUsers(), loadRecords(), refreshDemons(), refreshOpinions()]);
+        })
+        .then(function () { state.flash = null; renderAll(); })
+        .catch(fail);
+      return;
+    }
+
+    if (act === "register") {
+      var form = el("signin-form");
+      if (!form || !form.reportValidity()) return;
+
+      // Ник обязателен именно при регистрации: под ним аккаунт будет виден в списке.
+      if (!form.username.value.trim()) {
+        state.flash = { kind: "warn", text: t("usernameNeed") };
+        renderAll();
+        return;
+      }
+
+      // Почта обязательна только здесь, поэтому её проверяет не браузер, а мы:
+      // при входе поле остаётся пустым и мешать не должно.
+      if (!form.email.value.trim()) {
+        state.flash = { kind: "warn", text: t("emailNeed") };
+        renderAll();
+        return;
+      }
+
+      authenticate("register", form.email.value, form.password.value, form.username.value);
+      return;
+    }
+
+    if (act === "bump") {
+      var step = target.getAttribute("data-dir") === "up" ? -1 : 1;
+      var moved = null;
+      for (var i = 0; i < state.demons.length; i++) {
+        if (state.demons[i].id === id) { moved = state.demons[i]; break; }
+      }
+
+      // Демона могли снять из списка в другой вкладке — тогда двигать нечего.
+      if (!moved) return;
+
+      var next = moved.position + step;
+      if (next < 1 || next > state.demons.length) return;
+
+      api("/api/community/demons/" + id + "/position", { method: "PUT", body: { position: next } })
+        .then(refreshDemons)
+        .then(function () { state.flash = null; renderAll(); })
+        .catch(fail);
+      return;
+    }
+
+    if (act === "drop-opinion") {
+      var demonId = state.openDemon;
+      api("/api/community/opinions/" + id, { method: "DELETE" })
+        .then(function () {
+          state.opinions[demonId] = (state.opinions[demonId] || []).filter(function (o) { return o.id !== id; });
+          return refreshDemons();
+        })
+        .then(renderAll)
+        .catch(fail);
+      return;
+    }
+
+    if (act === "drop-demon") {
+      if (!window.confirm(t("dropConfirm"))) return;
+      api("/api/community/demons/" + id, { method: "DELETE" })
+        .then(function () {
+          state.openDemon = null;
+          delete state.opinions[id];
+          return refreshDemons();
+        })
+        .then(renderAll)
+        .catch(fail);
+      return;
+    }
+  });
+
+  /* Какая из двух кнопок отправила форму рассмотрения — approve или reject. */
+  var lastDecision = null;
+  document.addEventListener("click", function (event) {
+    var btn = event.target.closest("[data-decision]");
+    if (btn) lastDecision = btn.getAttribute("data-decision");
+  }, true);
+
+  document.addEventListener("submit", function (event) {
+    var form = event.target;
+    event.preventDefault();
+
+    if (form.id === "signin-form") {
+      authenticate("login", form.username.value, form.password.value);
+      return;
+    }
+
+    var act = form.getAttribute("data-act");
+    var id = form.getAttribute("data-id");
+
+    if (act === "opinion") {
+      var position = form.position.value ? parseInt(form.position.value, 10) : null;
+      api("/api/community/demons/" + id + "/opinions", {
+        method: "POST",
+        body: { text: form.text.value, suggestedPosition: position }
+      })
+        .then(function (created) {
+          state.opinions[id] = [created].concat(state.opinions[id] || []);
+          state.flash = null;
+          return refreshDemons();
+        })
+        .then(renderAll)
+        .catch(fail);
+      return;
+    }
+
+    if (act === "user-search") {
+      state.userQuery = form.query.value.trim();
+      loadUsers().then(function () { state.flash = null; renderAll(); }).catch(fail);
+      return;
+    }
+
+    if (act === "move") {
+      api("/api/community/demons/" + id + "/position", {
+        method: "PUT",
+        body: { position: parseInt(form.position.value, 10) }
+      })
+        .then(refreshDemons)
+        .then(function () { state.flash = null; renderAll(); })
+        .catch(fail);
+      return;
+    }
+
+    if (act === "review") {
+      var approve = lastDecision !== "reject";
+      var placement = form.placement.value ? parseInt(form.placement.value, 10) : null;
+      api("/api/community/records/" + id + "/review", {
+        method: "POST",
+        body: { approve: approve, placement: placement, note: form.note.value || null }
+      })
+        .then(function () { return Promise.all([loadPending(), loadRecords()]); })
+        .then(function () { state.flash = null; renderAll(); })
+        .catch(fail);
+      return;
+    }
+
+    if (form.id === "submit-record") {
+      api("/api/community/records", {
+        method: "POST",
+        body: {
+          demonId: form.demonId.value || null,
+          levelName: form.levelName.value || null,
+          progress: parseInt(form.progress.value, 10),
+          videoUrl: form.videoUrl.value,
+          hasClicks: form.hasClicks.checked,
+          comment: form.comment.value || null
+        }
+      })
+        .then(function () {
+          state.flash = { kind: "good", text: t("sent") };
+          return loadRecords();
+        })
+        .then(renderAll)
+        .catch(fail);
+      return;
+    }
+  });
+
+  el("tab-demons").addEventListener("click", function () { switchTab("demons"); });
+  el("tab-records").addEventListener("click", function () { switchTab("records"); });
+  el("tab-manage").addEventListener("click", function () { switchTab("manage"); });
+
+  var langButtons = document.querySelectorAll("[data-set-lang]");
+  for (var b = 0; b < langButtons.length; b++) {
+    langButtons[b].addEventListener("click", function () {
+      var next = this.getAttribute("data-set-lang");
+      applyLang(next);
+      try { localStorage.setItem("gdt-lang", next); } catch (e) { /* приватный режим */ }
+    });
+  }
+
+  var saved = null;
+  try { saved = localStorage.getItem("gdt-lang"); } catch (e) { /* приватный режим */ }
+  lang = saved === "en" ? "en" : (saved === "ru" ? "ru" : ((navigator.language || "ru").toLowerCase().indexOf("ru") === 0 ? "ru" : "en"));
+
+  applyLang(lang);
+  boot();
+})();
+</script>
+
+</body>
+</html>

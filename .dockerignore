@@ -1,0 +1,19 @@
+# Контекст сборки сервера синхронизации: всё лишнее только замедляет docker build.
+**/bin/
+**/obj/
+.git/
+.vs/
+.vscode/
+artifacts/
+docs/
+installer/
+tests/
+tools/
+src/GdTracker.App/
+src/GdTracker.ViewModels/
+src/GdTracker.Data/
+src/GdTracker.GameSync/
+src/GdTracker.Cloud/
+src/GdTracker.Api/App_Data/
+*.png
+*.log

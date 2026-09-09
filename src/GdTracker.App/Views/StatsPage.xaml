@@ -1,11 +1,16 @@
 ﻿<!-- Цвет текста страницы задан явно (TextElement.Foreground): неявный стиль TextBlock
      из WPF-UI задаёт только шрифт, поэтому обычные TextBlock оставались чёрными по
-     умолчанию WPF и сливались с фоном в тёмной и неоновой темах. -->
+     умолчанию WPF и сливались с фоном в тёмной и неоновой темах.
+
+     ScrollViewer.CanContentScroll="False" отключает внешний DynamicScrollViewer из WPF-UI:
+     с ним страница измерялась с бесконечной высотой, поэтому ScrollViewer ниже никогда не
+     мог прокручиваться, но колесо мыши всё равно поглощал — вкладка не скроллилась вовсе. -->
 <Page x:Class="GdTracker.App.Views.StatsPage"
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:lvc="clr-namespace:LiveChartsCore.SkiaSharpView.WPF;assembly=LiveChartsCore.SkiaSharpView.WPF"
       TextElement.Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+      ScrollViewer.CanContentScroll="False"
       Title="StatsPage">
     <Page.Resources>
         <Style x:Key="StatCard" TargetType="Border">
@@ -17,7 +22,9 @@
         </Style>
     </Page.Resources>
 
-    <ScrollViewer VerticalScrollBarVisibility="Auto">
+    <!-- PreviewMouseWheel: графики LiveCharts поглощают колесо мыши (у них это жест зума),
+         поэтому прокрутку над графиком перехватываем на этапе туннелирования. -->
+    <ScrollViewer VerticalScrollBarVisibility="Auto" PreviewMouseWheel="OnPreviewMouseWheel">
         <StackPanel Margin="24">
             <TextBlock Text="Статистика" FontSize="28" FontWeight="SemiBold" Margin="0,0,0,16" />
 

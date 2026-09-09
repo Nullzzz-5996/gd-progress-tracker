@@ -1,0 +1,2006 @@
+{
+  "source": "pointercrate.com",
+  "fetchedAtUtc": "2026-09-08T17:30:09.489Z",
+  "entries": [
+    {
+      "position": 1,
+      "name": "Society",
+      "publisher": "Neomarbilan",
+      "verifier": "[WBT] wPopoff",
+      "levelId": 127323087,
+      "video": "https://www.youtube.com/watch?v=3CoEaH1CM7o",
+      "thumbnail": "https://i.ytimg.com/vi/3CoEaH1CM7o/mqdefault.jpg",
+      "requirement": 66
+    },
+    {
+      "position": 2,
+      "name": "Thinking Space II",
+      "publisher": "CairoX",
+      "verifier": "[67] Zoink",
+      "levelId": 119544028,
+      "video": "https://www.youtube.com/watch?v=CELNmHwln_c",
+      "thumbnail": "https://i.ytimg.com/vi/CELNmHwln_c/mqdefault.jpg",
+      "requirement": 79
+    },
+    {
+      "position": 3,
+      "name": "Amethyst",
+      "publisher": "iMist",
+      "verifier": "[WBT] wPopoff",
+      "levelId": 119550490,
+      "video": "https://www.youtube.com/watch?v=4lfkzz1VCbA",
+      "thumbnail": "https://i.ytimg.com/vi/4lfkzz1VCbA/mqdefault.jpg",
+      "requirement": 59
+    },
+    {
+      "position": 4,
+      "name": "Flamewall",
+      "publisher": "Narwall",
+      "verifier": "[400] CuatrocientosYT",
+      "levelId": 126242564,
+      "video": "https://www.youtube.com/watch?v=x4Io4zkWVRw",
+      "thumbnail": "https://i.ytimg.com/vi/wS4VXKN-ses/mqdefault.jpg",
+      "requirement": 68
+    },
+    {
+      "position": 5,
+      "name": "Tidal Wave",
+      "publisher": "OniLink",
+      "verifier": "[67] Zoink",
+      "levelId": 86407629,
+      "video": "https://www.youtube.com/watch?v=9fsZ014qB3s",
+      "thumbnail": "https://i.ytimg.com/vi/9fsZ014qB3s/mqdefault.jpg",
+      "requirement": 72
+    },
+    {
+      "position": 6,
+      "name": "Green Bullet",
+      "publisher": "cherryteam",
+      "verifier": "[UFA] Nickname09",
+      "levelId": 142896409,
+      "video": "https://www.youtube.com/watch?v=JG-qcvVkZFw",
+      "thumbnail": "https://i.ytimg.com/vi/JG-qcvVkZFw/mqdefault.jpg",
+      "requirement": 68
+    },
+    {
+      "position": 7,
+      "name": "ORBIT",
+      "publisher": "MindCap",
+      "verifier": "[67] Zoink",
+      "levelId": 133175713,
+      "video": "https://www.youtube.com/watch?v=QKcv8DkNPd0",
+      "thumbnail": "https://i.ytimg.com/vi/QKcv8DkNPd0/mqdefault.jpg",
+      "requirement": 65
+    },
+    {
+      "position": 8,
+      "name": "Antarctic Lights",
+      "publisher": "declanlc",
+      "verifier": "Axinity",
+      "levelId": 144988390,
+      "video": "https://www.youtube.com/watch?v=Uue4ZRhVf-I",
+      "thumbnail": "https://i.ytimg.com/vi/Uue4ZRhVf-I/mqdefault.jpg",
+      "requirement": 75
+    },
+    {
+      "position": 9,
+      "name": "Nullscapes",
+      "publisher": "Kiba",
+      "verifier": "[67] Zoink",
+      "levelId": 109780665,
+      "video": "https://www.youtube.com/watch?v=EztneTPp5CU",
+      "thumbnail": "https://i.ytimg.com/vi/EztneTPp5CU/mqdefault.jpg",
+      "requirement": 68
+    },
+    {
+      "position": 10,
+      "name": "Quanteuse processing",
+      "publisher": "Renn241",
+      "verifier": "[67] Zoink",
+      "levelId": 117692518,
+      "video": "https://www.youtube.com/watch?v=j5NC0u1Q91Q",
+      "thumbnail": "https://i.ytimg.com/vi/j5NC0u1Q91Q/mqdefault.jpg",
+      "requirement": 60
+    },
+    {
+      "position": 11,
+      "name": "BOOBAWAMBA",
+      "publisher": "Akunakunn",
+      "verifier": "eastshark",
+      "levelId": 110816181,
+      "video": "https://www.youtube.com/watch?v=20fYiqLAo_E",
+      "thumbnail": "https://i.ytimg.com/vi/20fYiqLAo_E/mqdefault.jpg",
+      "requirement": 63
+    },
+    {
+      "position": 12,
+      "name": "The Bloop",
+      "publisher": "[TARIQ] murkkat",
+      "verifier": "[67] Zoink",
+      "levelId": 135661111,
+      "video": "https://www.youtube.com/watch?v=ROuXHSKEhHA",
+      "thumbnail": "https://i.ytimg.com/vi/ROuXHSKEhHA/mqdefault.jpg",
+      "requirement": 67
+    },
+    {
+      "position": 13,
+      "name": "Every End",
+      "publisher": "MindCap",
+      "verifier": "[FOWL] Hqmy",
+      "levelId": 116174063,
+      "video": "https://www.youtube.com/watch?v=AO--mVVFtKI",
+      "thumbnail": "https://i.ytimg.com/vi/AO--mVVFtKI/mqdefault.jpg",
+      "requirement": 67
+    },
+    {
+      "position": 14,
+      "name": "Penumbral",
+      "publisher": "cherryteam",
+      "verifier": "[UFA] w3rty",
+      "levelId": 134942736,
+      "video": "https://www.youtube.com/watch?v=nVHPFf13M-I",
+      "thumbnail": "https://i.ytimg.com/vi/nVHPFf13M-I/mqdefault.jpg",
+      "requirement": 80
+    },
+    {
+      "position": 15,
+      "name": "Silent clubstep",
+      "publisher": "TheRealSailent",
+      "verifier": "[DL] zoe",
+      "levelId": 4125776,
+      "video": "https://www.youtube.com/watch?v=GR4OMkS3SN8",
+      "thumbnail": "https://i.ytimg.com/vi/GR4OMkS3SN8/mqdefault.jpg",
+      "requirement": 63
+    },
+    {
+      "position": 16,
+      "name": "Ashley Wave Trials",
+      "publisher": "oddmod",
+      "verifier": "[67] Zoink",
+      "levelId": 62912799,
+      "video": "https://www.youtube.com/watch?v=aTxt76U3e2Q",
+      "thumbnail": "https://i.ytimg.com/vi/aTxt76U3e2Q/mqdefault.jpg",
+      "requirement": 77
+    },
+    {
+      "position": 17,
+      "name": "Ultra Paracosm",
+      "publisher": "declanlc",
+      "verifier": "[HOLA] Wity",
+      "levelId": 138704906,
+      "video": "https://www.youtube.com/watch?v=4V24spYQWuE",
+      "thumbnail": "https://i.ytimg.com/vi/4V24spYQWuE/mqdefault.jpg",
+      "requirement": 37
+    },
+    {
+      "position": 18,
+      "name": "andromeda",
+      "publisher": "Insxne97",
+      "verifier": "[WBT] Taiago",
+      "levelId": 114283297,
+      "video": "https://www.youtube.com/watch?v=mk3TDemdkC0",
+      "thumbnail": "https://i.ytimg.com/vi/mk3TDemdkC0/mqdefault.jpg",
+      "requirement": 66
+    },
+    {
+      "position": 19,
+      "name": "KILLSTEALER",
+      "publisher": "rynoxious",
+      "verifier": "[OG B] kloone",
+      "levelId": 138781722,
+      "video": "https://www.youtube.com/watch?v=uhH4oqWrsfo",
+      "thumbnail": "https://i.ytimg.com/vi/uhH4oqWrsfo/mqdefault.jpg",
+      "requirement": 69
+    },
+    {
+      "position": 20,
+      "name": "Subsuming Vortex",
+      "publisher": "[TCD] Cursed",
+      "verifier": "[TCD] Cursed",
+      "levelId": 127997391,
+      "video": "https://www.youtube.com/watch?v=0eYG1ogJpIQ",
+      "thumbnail": "https://i.ytimg.com/vi/0eYG1ogJpIQ/mqdefault.jpg",
+      "requirement": 66
+    },
+    {
+      "position": 21,
+      "name": "Anathema",
+      "publisher": "nikroplays",
+      "verifier": "[IQB7] Whizkid05",
+      "levelId": 112313819,
+      "video": "https://www.youtube.com/watch?v=_uKwmjHmySI",
+      "thumbnail": "https://i.ytimg.com/vi/_uKwmjHmySI/mqdefault.jpg",
+      "requirement": 77
+    },
+    {
+      "position": 22,
+      "name": "Avernus",
+      "publisher": "PockeWindfish",
+      "verifier": "[67] Zoink",
+      "levelId": 89496627,
+      "video": "https://www.youtube.com/watch?v=16Zh8jssanc",
+      "thumbnail": "https://i.ytimg.com/vi/16Zh8jssanc/mqdefault.jpg",
+      "requirement": 67
+    },
+    {
+      "position": 23,
+      "name": "Acheron",
+      "publisher": "ryamu",
+      "verifier": "[67] Zoink",
+      "levelId": 73667628,
+      "video": "https://www.youtube.com/watch?v=sBKR6aUorzA",
+      "thumbnail": "https://i.ytimg.com/vi/RMRBhZJrgkw/mqdefault.jpg",
+      "requirement": 70
+    },
+    {
+      "position": 24,
+      "name": "Spectre",
+      "publisher": "xander",
+      "verifier": "PersonHuman42",
+      "levelId": 110815379,
+      "video": "https://www.youtube.com/watch?v=MzsSLKJrLSI",
+      "thumbnail": "https://i.ytimg.com/vi/MzsSLKJrLSI/mqdefault.jpg",
+      "requirement": 75
+    },
+    {
+      "position": 25,
+      "name": "Menace",
+      "publisher": "Arraegen",
+      "verifier": "[IQB7] Whizkid05",
+      "levelId": 107805281,
+      "video": "https://www.youtube.com/watch?v=nnkgghxxsEE",
+      "thumbnail": "https://i.ytimg.com/vi/nnkgghxxsEE/mqdefault.jpg",
+      "requirement": 73
+    },
+    {
+      "position": 26,
+      "name": "Abyss of Darkness",
+      "publisher": "Exen",
+      "verifier": "[TCD] Cursed",
+      "levelId": 49896559,
+      "video": "https://www.youtube.com/watch?v=ejJkpqcMMCY",
+      "thumbnail": "https://i.ytimg.com/vi/ejJkpqcMMCY/mqdefault.jpg",
+      "requirement": 75
+    },
+    {
+      "position": 27,
+      "name": "Defeated Circles",
+      "publisher": "GXQ",
+      "verifier": "[67] Zoink",
+      "levelId": 120012581,
+      "video": "https://www.youtube.com/watch?v=nU5AQPzd2YA",
+      "thumbnail": "https://i.ytimg.com/vi/nU5AQPzd2YA/mqdefault.jpg",
+      "requirement": 73
+    },
+    {
+      "position": 28,
+      "name": "FOREST OF SPIKES",
+      "publisher": "bims",
+      "verifier": "Brian_Cheese",
+      "levelId": 145709435,
+      "video": "https://www.youtube.com/watch?v=WJYh3dW8Bfo",
+      "thumbnail": "https://i.ytimg.com/vi/WJYh3dW8Bfo/mqdefault.jpg",
+      "requirement": 66
+    },
+    {
+      "position": 29,
+      "name": "Tunnel of Despair",
+      "publisher": "Exen",
+      "verifier": "[67] Zoink",
+      "levelId": 91351939,
+      "video": "https://www.youtube.com/watch?v=LpS4JREhW98",
+      "thumbnail": "https://i.ytimg.com/vi/LpS4JREhW98/mqdefault.jpg",
+      "requirement": 79
+    },
+    {
+      "position": 30,
+      "name": "Kyouki",
+      "publisher": "｛出見塩｝",
+      "verifier": "｛出見塩｝",
+      "levelId": 86018142,
+      "video": "https://www.youtube.com/watch?v=KDa5c0CJTHs",
+      "thumbnail": "https://i.ytimg.com/vi/KDa5c0CJTHs/mqdefault.jpg",
+      "requirement": 72
+    },
+    {
+      "position": 31,
+      "name": "Based After Based",
+      "publisher": "Akunakunn",
+      "verifier": "DiamondSplash",
+      "levelId": 110534288,
+      "video": "https://www.youtube.com/watch?v=yQBFyUvB3lY",
+      "thumbnail": "https://i.ytimg.com/vi/yQBFyUvB3lY/mqdefault.jpg",
+      "requirement": 74
+    },
+    {
+      "position": 32,
+      "name": "The Lightning Rod",
+      "publisher": "Lavatrex",
+      "verifier": "Lavatrex",
+      "levelId": 93917076,
+      "video": "https://www.youtube.com/watch?v=nQDTi077O6M",
+      "thumbnail": "https://i.ytimg.com/vi/nQDTi077O6M/mqdefault.jpg",
+      "requirement": 63
+    },
+    {
+      "position": 33,
+      "name": "Slaughterhouse",
+      "publisher": "icedcave",
+      "verifier": "[TCD] Doggie",
+      "levelId": 27690100,
+      "video": "https://www.youtube.com/watch?v=kpcF1-QAHQc",
+      "thumbnail": "https://i.ytimg.com/vi/X2uKSNUJPWI/mqdefault.jpg",
+      "requirement": 75
+    },
+    {
+      "position": 34,
+      "name": "Subterminal Point",
+      "publisher": "SyQual",
+      "verifier": "[ILUV] PoCle",
+      "levelId": 113599729,
+      "video": "https://www.youtube.com/watch?v=h2wmRMgACH4",
+      "thumbnail": "https://i.ytimg.com/vi/h2wmRMgACH4/mqdefault.jpg",
+      "requirement": 71
+    },
+    {
+      "position": 35,
+      "name": "KOCMOC",
+      "publisher": "cherryteam",
+      "verifier": "[67] Zoink",
+      "levelId": 87665224,
+      "video": "https://www.youtube.com/watch?v=2CxE-UWCIG4",
+      "thumbnail": "https://i.ytimg.com/vi/2CxE-UWCIG4/mqdefault.jpg",
+      "requirement": 73
+    },
+    {
+      "position": 36,
+      "name": "cognitohazard",
+      "publisher": "MercuryDT",
+      "verifier": "[IQB7] Whizkid05",
+      "levelId": 130891319,
+      "video": "https://www.youtube.com/watch?v=T5g0r16X_ZA",
+      "thumbnail": "https://i.ytimg.com/vi/T5g0r16X_ZA/mqdefault.jpg",
+      "requirement": 75
+    },
+    {
+      "position": 37,
+      "name": "Maniacal Chains",
+      "publisher": "LordDivinity",
+      "verifier": "spcreat",
+      "levelId": 48991380,
+      "video": "https://www.youtube.com/watch?v=TzeMJeIu6bY",
+      "thumbnail": "https://i.ytimg.com/vi/TzeMJeIu6bY/mqdefault.jpg",
+      "requirement": 85
+    },
+    {
+      "position": 38,
+      "name": "BEING HOME",
+      "publisher": "Turtl123",
+      "verifier": "[OG] goobs",
+      "levelId": 130327668,
+      "video": "https://www.youtube.com/watch?v=kt7FnUzK8CY",
+      "thumbnail": "https://i.ytimg.com/vi/kt7FnUzK8CY/mqdefault.jpg",
+      "requirement": 73
+    },
+    {
+      "position": 39,
+      "name": "Deimos",
+      "publisher": "ItsHybrid",
+      "verifier": "[TCD] Doggie",
+      "levelId": 93091893,
+      "video": "https://www.youtube.com/watch?v=b2yHaIk5zio",
+      "thumbnail": "https://i.ytimg.com/vi/421xfxmjSn0/mqdefault.jpg",
+      "requirement": 70
+    },
+    {
+      "position": 40,
+      "name": "Sacrifice",
+      "publisher": "Laniakea",
+      "verifier": "Laniakea",
+      "levelId": 141052363,
+      "video": "https://www.youtube.com/watch?v=Sth67PA8XBU",
+      "thumbnail": "https://i.ytimg.com/vi/Sth67PA8XBU/mqdefault.jpg",
+      "requirement": 72
+    },
+    {
+      "position": 41,
+      "name": "CHIL",
+      "publisher": "McCoco",
+      "verifier": "McCoco",
+      "levelId": 114281093,
+      "video": "https://www.youtube.com/watch?v=DROMiCc2ZRM",
+      "thumbnail": "https://i.ytimg.com/vi/DROMiCc2ZRM/mqdefault.jpg",
+      "requirement": 78
+    },
+    {
+      "position": 42,
+      "name": "zorin",
+      "publisher": "태리",
+      "verifier": "[미소노 미카] 구아이",
+      "levelId": 134541844,
+      "video": "https://www.youtube.com/watch?v=U19vmpenb9g",
+      "thumbnail": "https://i.ytimg.com/vi/U19vmpenb9g/mqdefault.jpg",
+      "requirement": 62
+    },
+    {
+      "position": 43,
+      "name": "Sakupen Circles",
+      "publisher": "[TCD] Diamond",
+      "verifier": "[TCD] Diamond",
+      "levelId": 76962930,
+      "video": "https://www.youtube.com/watch?v=ofG2mJi9kEA",
+      "thumbnail": "https://i.ytimg.com/vi/ofG2mJi9kEA/mqdefault.jpg",
+      "requirement": 69
+    },
+    {
+      "position": 44,
+      "name": "The Salt Factory",
+      "publisher": "[UFA] Nickname09",
+      "verifier": "[UFA] Nickname09",
+      "levelId": 113045735,
+      "video": "https://www.youtube.com/watch?v=lQ7M-Sgov24",
+      "thumbnail": "https://i.ytimg.com/vi/lQ7M-Sgov24/mqdefault.jpg",
+      "requirement": 66
+    },
+    {
+      "position": 45,
+      "name": "Master of Puppets",
+      "publisher": "TheZinkYT",
+      "verifier": "[TMG] Scotchtape",
+      "levelId": 136396693,
+      "video": "https://www.youtube.com/watch?v=JBZ-lrBgkl0",
+      "thumbnail": "https://i.ytimg.com/vi/JBZ-lrBgkl0/mqdefault.jpg",
+      "requirement": 83
+    },
+    {
+      "position": 46,
+      "name": "Silentlocked",
+      "publisher": "GDSkele",
+      "verifier": "TFIBB",
+      "levelId": 113959291,
+      "video": "https://www.youtube.com/watch?v=O-IQeUdEGvI",
+      "thumbnail": "https://i.ytimg.com/vi/O-IQeUdEGvI/mqdefault.jpg",
+      "requirement": 68
+    },
+    {
+      "position": 47,
+      "name": "Eyes in the Water",
+      "publisher": "hawkyre",
+      "verifier": "[DL] LordVadercraft",
+      "levelId": 95851008,
+      "video": "https://www.youtube.com/watch?v=yvLwiOy3KEA",
+      "thumbnail": "https://i.ytimg.com/vi/yvLwiOy3KEA/mqdefault.jpg",
+      "requirement": 71
+    },
+    {
+      "position": 48,
+      "name": "Voltage",
+      "publisher": "ThePurgatory",
+      "verifier": "[OG B] maybee",
+      "levelId": 131599104,
+      "video": "https://www.youtube.com/watch?v=wBRvBN9tmlc",
+      "thumbnail": "https://i.ytimg.com/vi/wBRvBN9tmlc/mqdefault.jpg",
+      "requirement": 57
+    },
+    {
+      "position": 49,
+      "name": "KOSETSU",
+      "publisher": "fwe",
+      "verifier": "[WBT] Taiago",
+      "levelId": 109439644,
+      "video": "https://www.youtube.com/watch?v=hZ8vFX8z_BU",
+      "thumbnail": "https://i.ytimg.com/vi/hZ8vFX8z_BU/mqdefault.jpg",
+      "requirement": 68
+    },
+    {
+      "position": 50,
+      "name": "Through The Gates",
+      "publisher": "TeamTheDashers",
+      "verifier": "[67] Zoink",
+      "levelId": 49072489,
+      "video": "https://www.youtube.com/watch?v=4yHA6jux5UI",
+      "thumbnail": "https://i.ytimg.com/vi/4yHA6jux5UI/mqdefault.jpg",
+      "requirement": 90
+    },
+    {
+      "position": 51,
+      "name": "Firework",
+      "publisher": "[TCD] Trick",
+      "verifier": "[TCD] Trick",
+      "levelId": 75206202,
+      "video": "https://www.youtube.com/watch?v=QBe5x2o9v2w",
+      "thumbnail": "https://i.ytimg.com/vi/QBe5x2o9v2w/mqdefault.jpg",
+      "requirement": 71
+    },
+    {
+      "position": 52,
+      "name": "NOMAD",
+      "publisher": "ReeseVT",
+      "verifier": "Laniakea",
+      "levelId": 115077305,
+      "video": "https://www.youtube.com/watch?v=H2TkHbEX__A",
+      "thumbnail": "https://i.ytimg.com/vi/H2TkHbEX__A/mqdefault.jpg",
+      "requirement": 72
+    },
+    {
+      "position": 53,
+      "name": "Snowbound",
+      "publisher": "[JUICE] Amplitron",
+      "verifier": "[JUICE] Amplitron",
+      "levelId": 120289520,
+      "video": "https://www.youtube.com/watch?v=cjHwgbtAkXU",
+      "thumbnail": "https://i.ytimg.com/vi/cjHwgbtAkXU/mqdefault.jpg",
+      "requirement": 68
+    },
+    {
+      "position": 54,
+      "name": "CONVULSION",
+      "publisher": "stellar",
+      "verifier": "[IQB7] Whizkid05",
+      "levelId": 113322063,
+      "video": "https://www.youtube.com/watch?v=qeRKuyU3eGI",
+      "thumbnail": "https://i.ytimg.com/vi/qeRKuyU3eGI/mqdefault.jpg",
+      "requirement": 64
+    },
+    {
+      "position": 55,
+      "name": "NervHell",
+      "publisher": "ASVTeam",
+      "verifier": "ChopBlox",
+      "levelId": 143718114,
+      "video": "https://www.youtube.com/watch?v=1zrvPgDAoaA",
+      "thumbnail": "https://i.ytimg.com/vi/1zrvPgDAoaA/mqdefault.jpg",
+      "requirement": 64
+    },
+    {
+      "position": 56,
+      "name": "poocubed",
+      "publisher": "Liisp",
+      "verifier": "Kyasshukodo",
+      "levelId": 85133223,
+      "video": "https://www.youtube.com/watch?v=fzL31vai1ms",
+      "thumbnail": "https://i.ytimg.com/vi/fzL31vai1ms/mqdefault.jpg",
+      "requirement": 66
+    },
+    {
+      "position": 57,
+      "name": "Calibrate",
+      "publisher": "[SARK] Bamvie",
+      "verifier": "[떡볶이과자] Blebae",
+      "levelId": 136981369,
+      "video": "https://www.youtube.com/watch?v=6WYnZryX_mg",
+      "thumbnail": "https://i.ytimg.com/vi/6WYnZryX_mg/mqdefault.jpg",
+      "requirement": 63
+    },
+    {
+      "position": 58,
+      "name": "MINUSdry",
+      "publisher": "CDMusic",
+      "verifier": "Varium",
+      "levelId": 89414220,
+      "video": "https://www.youtube.com/watch?v=YvA8ehhzz0Q",
+      "thumbnail": "https://i.ytimg.com/vi/YvA8ehhzz0Q/mqdefault.jpg",
+      "requirement": 75
+    },
+    {
+      "position": 59,
+      "name": "Saul Goodman",
+      "publisher": "Renn241",
+      "verifier": "bloom",
+      "levelId": 90477539,
+      "video": "https://www.youtube.com/watch?v=hjs5PjUaw9k",
+      "thumbnail": "https://i.ytimg.com/vi/hjs5PjUaw9k/mqdefault.jpg",
+      "requirement": 70
+    },
+    {
+      "position": 60,
+      "name": "Apocalyptic Trilogy",
+      "publisher": "APTeamOfficial",
+      "verifier": "Polterghast",
+      "levelId": 113443235,
+      "video": "https://www.youtube.com/watch?v=RUBbpsTR5eU",
+      "thumbnail": "https://i.ytimg.com/vi/RUBbpsTR5eU/mqdefault.jpg",
+      "requirement": 73
+    },
+    {
+      "position": 61,
+      "name": "Sevvend Clubstep",
+      "publisher": "cherryteam",
+      "verifier": "[UFA] Vorten",
+      "levelId": 120255728,
+      "video": "https://www.youtube.com/watch?v=TvA8EJTJFCc",
+      "thumbnail": "https://i.ytimg.com/vi/TvA8EJTJFCc/mqdefault.jpg",
+      "requirement": 66
+    },
+    {
+      "position": 62,
+      "name": "The Hallucination",
+      "publisher": "SyQual",
+      "verifier": "VoTcHi",
+      "levelId": 81139702,
+      "video": "https://www.youtube.com/watch?v=tYbXsNkO9HE",
+      "thumbnail": "https://i.ytimg.com/vi/tYbXsNkO9HE/mqdefault.jpg",
+      "requirement": 66
+    },
+    {
+      "position": 63,
+      "name": "Pinnacle of Life",
+      "publisher": "skzyl",
+      "verifier": "[DL] vonic",
+      "levelId": 144012996,
+      "video": "https://www.youtube.com/watch?v=gQl5iY1ekyE",
+      "thumbnail": "https://i.ytimg.com/vi/gQl5iY1ekyE/mqdefault.jpg",
+      "requirement": 71
+    },
+    {
+      "position": 64,
+      "name": "COMBUSTION",
+      "publisher": "[SKWAD] Cersia",
+      "verifier": "[SKWAD] Slithium",
+      "levelId": 94359172,
+      "video": "https://www.youtube.com/watch?v=3cTR4XUcA28",
+      "thumbnail": "https://i.ytimg.com/vi/3cTR4XUcA28/mqdefault.jpg",
+      "requirement": 76
+    },
+    {
+      "position": 65,
+      "name": "Haunted Ship",
+      "publisher": "awesomeme360",
+      "verifier": "[STACK] Washed",
+      "levelId": 143523624,
+      "video": "https://www.youtube.com/watch?v=22l59QGmL48",
+      "thumbnail": "https://i.ytimg.com/vi/22l59QGmL48/mqdefault.jpg",
+      "requirement": 61
+    },
+    {
+      "position": 66,
+      "name": "Loops of Fury",
+      "publisher": "[TCC] Enfur",
+      "verifier": "[TCC] Cork",
+      "levelId": 126571887,
+      "video": "https://www.youtube.com/watch?v=9HBG3i5zbw8",
+      "thumbnail": "https://i.ytimg.com/vi/9HBG3i5zbw8/mqdefault.jpg",
+      "requirement": 73
+    },
+    {
+      "position": 67,
+      "name": "Deadlier Clubstep",
+      "publisher": "HeroZombie80",
+      "verifier": "Jenath",
+      "levelId": 96314787,
+      "video": "https://www.youtube.com/watch?v=eRhgaF0r5Q0",
+      "thumbnail": "https://i.ytimg.com/vi/eRhgaF0r5Q0/mqdefault.jpg",
+      "requirement": 70
+    },
+    {
+      "position": 68,
+      "name": "Stellar Night",
+      "publisher": "icedcave",
+      "verifier": "Tuggy",
+      "levelId": 83244159,
+      "video": "https://www.youtube.com/watch?v=XpBY-eMYZTE",
+      "thumbnail": "https://i.ytimg.com/vi/XpBY-eMYZTE/mqdefault.jpg",
+      "requirement": 78
+    },
+    {
+      "position": 69,
+      "name": "Prismline",
+      "publisher": "ItsHarryy",
+      "verifier": "Wain",
+      "levelId": 135148907,
+      "video": "https://www.youtube.com/watch?v=pIHOHz3i0Rw",
+      "thumbnail": "https://i.ytimg.com/vi/pIHOHz3i0Rw/mqdefault.jpg",
+      "requirement": 71
+    },
+    {
+      "position": 70,
+      "name": "Edge of Destiny",
+      "publisher": "CDMusic",
+      "verifier": "Polterghast",
+      "levelId": 89187968,
+      "video": "https://www.youtube.com/watch?v=rUphe3H59yU",
+      "thumbnail": "https://i.ytimg.com/vi/rUphe3H59yU/mqdefault.jpg",
+      "requirement": 73
+    },
+    {
+      "position": 71,
+      "name": "Losing Your Mind",
+      "publisher": "GDgalaxygaming",
+      "verifier": "[OG B] Laysah",
+      "levelId": 139508889,
+      "video": "https://www.youtube.com/watch?v=LXp7t5gjyX8",
+      "thumbnail": "https://i.ytimg.com/vi/LXp7t5gjyX8/mqdefault.jpg",
+      "requirement": 67
+    },
+    {
+      "position": 72,
+      "name": "Solar Flare",
+      "publisher": "Linear",
+      "verifier": "[1319] swiborg",
+      "levelId": 90390075,
+      "video": "https://www.youtube.com/watch?v=eHQNgty8ypY",
+      "thumbnail": "https://i.ytimg.com/vi/eHQNgty8ypY/mqdefault.jpg",
+      "requirement": 69
+    },
+    {
+      "position": 73,
+      "name": "The Catacombs",
+      "publisher": "[SKWAD] Cersia",
+      "verifier": "[SKWAD] Slithium",
+      "levelId": 104232191,
+      "video": "https://www.youtube.com/watch?v=T9-75lfKVQg",
+      "thumbnail": "https://i.ytimg.com/vi/T9-75lfKVQg/mqdefault.jpg",
+      "requirement": 60
+    },
+    {
+      "position": 74,
+      "name": "LIMBO",
+      "publisher": "MindCap",
+      "verifier": "[1319] BUNNYGRAM",
+      "levelId": 86084399,
+      "video": "https://www.youtube.com/watch?v=kXYMbaMVOZg",
+      "thumbnail": "https://i.ytimg.com/vi/kXYMbaMVOZg/mqdefault.jpg",
+      "requirement": 64
+    },
+    {
+      "position": 75,
+      "name": "Gaggatrondra",
+      "publisher": "JCMoon",
+      "verifier": "Zeronium",
+      "levelId": 114990369,
+      "video": "https://www.youtube.com/watch?v=A4G41vw6Cf0",
+      "thumbnail": "https://i.ytimg.com/vi/A4G41vw6Cf0/mqdefault.jpg",
+      "requirement": 68
+    },
+    {
+      "position": 76,
+      "name": "Make Paul Dance",
+      "publisher": "Bemq",
+      "verifier": "Airi~",
+      "levelId": 115860808,
+      "video": "https://www.youtube.com/watch?v=XQoF35hNKpg",
+      "thumbnail": "https://i.ytimg.com/vi/XQoF35hNKpg/mqdefault.jpg",
+      "requirement": 57
+    },
+    {
+      "position": 77,
+      "name": "Belladonna",
+      "publisher": "cherryteam",
+      "verifier": "[PRIME] exsii",
+      "levelId": 94969889,
+      "video": "https://www.youtube.com/watch?v=saHSgoU1JQQ",
+      "thumbnail": "https://i.ytimg.com/vi/saHSgoU1JQQ/mqdefault.jpg",
+      "requirement": 70
+    },
+    {
+      "position": 78,
+      "name": "Codependence",
+      "publisher": "TCTeam",
+      "verifier": "[IH82P] Pukklez",
+      "levelId": 62556400,
+      "video": "https://www.youtube.com/watch?v=IKGk41hSnDo",
+      "thumbnail": "https://i.ytimg.com/vi/IKGk41hSnDo/mqdefault.jpg",
+      "requirement": 78
+    },
+    {
+      "position": 79,
+      "name": "Collapse",
+      "publisher": "[COMET] Nexel",
+      "verifier": "[COMET] Nexel",
+      "levelId": 113256247,
+      "video": "https://www.youtube.com/watch?v=RCFpXyf6bn0",
+      "thumbnail": "https://i.ytimg.com/vi/RCFpXyf6bn0/mqdefault.jpg",
+      "requirement": 66
+    },
+    {
+      "position": 80,
+      "name": "Mayhem",
+      "publisher": "[DL] LordVadercraft",
+      "verifier": "[DL] LordVadercraft",
+      "levelId": 82544060,
+      "video": "https://www.youtube.com/watch?v=U6e6DD32noM",
+      "thumbnail": "https://i.ytimg.com/vi/U6e6DD32noM/mqdefault.jpg",
+      "requirement": 57
+    },
+    {
+      "position": 81,
+      "name": "CHROMACAVE",
+      "publisher": "HappyMoby",
+      "verifier": "[FOWL] geodom",
+      "levelId": 131497860,
+      "video": "https://www.youtube.com/watch?v=tfpsMZI6z-o",
+      "thumbnail": "https://i.ytimg.com/vi/tfpsMZI6z-o/mqdefault.jpg",
+      "requirement": 82
+    },
+    {
+      "position": 82,
+      "name": "The Plunge",
+      "publisher": "Dolabill",
+      "verifier": "Gokill",
+      "levelId": 113220284,
+      "video": "https://www.youtube.com/watch?v=8gW1-_u1K0Y",
+      "thumbnail": "https://i.ytimg.com/vi/8gW1-_u1K0Y/mqdefault.jpg",
+      "requirement": 67
+    },
+    {
+      "position": 83,
+      "name": "Fracture",
+      "publisher": "Arrow",
+      "verifier": "Dezstro",
+      "levelId": 99703915,
+      "video": "https://www.youtube.com/watch?v=R_-chk3SRFI",
+      "thumbnail": "https://i.ytimg.com/vi/R_-chk3SRFI/mqdefault.jpg",
+      "requirement": 66
+    },
+    {
+      "position": 84,
+      "name": "walter white",
+      "publisher": "Renn241",
+      "verifier": "[OG B] Laysah",
+      "levelId": 81011195,
+      "video": "https://www.youtube.com/watch?v=KzK62PkWOJ0",
+      "thumbnail": "https://i.ytimg.com/vi/KzK62PkWOJ0/mqdefault.jpg",
+      "requirement": 65
+    },
+    {
+      "position": 85,
+      "name": "Infinite Chaos",
+      "publisher": "CairoX",
+      "verifier": "Victurkey",
+      "levelId": 119689515,
+      "video": "https://www.youtube.com/watch?v=wOMVERxU5IA",
+      "thumbnail": "https://i.ytimg.com/vi/wOMVERxU5IA/mqdefault.jpg",
+      "requirement": 70
+    },
+    {
+      "position": 86,
+      "name": "BRITNEY NO SCLEARS",
+      "publisher": "wabas",
+      "verifier": "[TMG] Scotchtape",
+      "levelId": 125317359,
+      "video": "https://www.youtube.com/watch?v=ff_mQSXwjhU",
+      "thumbnail": "https://i.ytimg.com/vi/ff_mQSXwjhU/mqdefault.jpg",
+      "requirement": 76
+    },
+    {
+      "position": 87,
+      "name": "Operation Evolution",
+      "publisher": "Halzion",
+      "verifier": "cobrablitz",
+      "levelId": 114999625,
+      "video": "https://www.youtube.com/watch?v=WsVF-ayipvY",
+      "thumbnail": "https://i.ytimg.com/vi/WsVF-ayipvY/mqdefault.jpg",
+      "requirement": 76
+    },
+    {
+      "position": 88,
+      "name": "Damascus",
+      "publisher": "Dzeser",
+      "verifier": "Timo",
+      "levelId": 93339534,
+      "video": "https://www.youtube.com/watch?v=MWQyCUGt76Y",
+      "thumbnail": "https://i.ytimg.com/vi/MWQyCUGt76Y/mqdefault.jpg",
+      "requirement": 69
+    },
+    {
+      "position": 89,
+      "name": "Decks Dark",
+      "publisher": "[SKG] Madison Yuko",
+      "verifier": "[IQB7] Whizkid05",
+      "levelId": 95719795,
+      "video": "https://www.youtube.com/watch?v=l52ApE4HWkY",
+      "thumbnail": "https://i.ytimg.com/vi/l52ApE4HWkY/mqdefault.jpg",
+      "requirement": 77
+    },
+    {
+      "position": 90,
+      "name": "SARYYX NEVER CLEAR",
+      "publisher": "artos",
+      "verifier": "skzyl",
+      "levelId": 95998005,
+      "video": "https://www.youtube.com/watch?v=rRlyvmjcz_4",
+      "thumbnail": "https://i.ytimg.com/vi/rRlyvmjcz_4/mqdefault.jpg",
+      "requirement": 74
+    },
+    {
+      "position": 91,
+      "name": "The Yangire",
+      "publisher": "Dorami",
+      "verifier": "Dorami",
+      "levelId": 110500920,
+      "video": "https://www.youtube.com/watch?v=V3FjIorIfWg",
+      "thumbnail": "https://i.ytimg.com/vi/V3FjIorIfWg/mqdefault.jpg",
+      "requirement": 73
+    },
+    {
+      "position": 92,
+      "name": "Climax",
+      "publisher": "HushLC",
+      "verifier": "Wain",
+      "levelId": 95049815,
+      "video": "https://www.youtube.com/watch?v=E4ppq2WeAAs",
+      "thumbnail": "https://i.ytimg.com/vi/E4ppq2WeAAs/mqdefault.jpg",
+      "requirement": 70
+    },
+    {
+      "position": 93,
+      "name": "ORDINARY",
+      "publisher": "vit12",
+      "verifier": "[WBT] wPopoff",
+      "levelId": 105593215,
+      "video": "https://www.youtube.com/watch?v=4QiHP3jpGnk",
+      "thumbnail": "https://i.ytimg.com/vi/4QiHP3jpGnk/mqdefault.jpg",
+      "requirement": 74
+    },
+    {
+      "position": 94,
+      "name": "TrakineS",
+      "publisher": "Laranjoo",
+      "verifier": "[WBT] mariner",
+      "levelId": 125788781,
+      "video": "https://www.youtube.com/watch?v=oKuoI-_JzKU",
+      "thumbnail": "https://i.ytimg.com/vi/oKuoI-_JzKU/mqdefault.jpg",
+      "requirement": 77
+    },
+    {
+      "position": 95,
+      "name": "Wavterminal",
+      "publisher": "Skyavoxii",
+      "verifier": "Frice",
+      "levelId": 128093374,
+      "video": "https://www.youtube.com/watch?v=dlvsCE3xYkQ",
+      "thumbnail": "https://i.ytimg.com/vi/dlvsCE3xYkQ/mqdefault.jpg",
+      "requirement": 73
+    },
+    {
+      "position": 96,
+      "name": "Sinister Silence",
+      "publisher": "Wahffle",
+      "verifier": "DarkTD",
+      "levelId": 82249742,
+      "video": "https://www.youtube.com/watch?v=dJCdTMQxHMo",
+      "thumbnail": "https://i.ytimg.com/vi/dJCdTMQxHMo/mqdefault.jpg",
+      "requirement": 69
+    },
+    {
+      "position": 97,
+      "name": "THE JET ENGINE",
+      "publisher": "[TARIQ] Billzer",
+      "verifier": "[TARIQ] eviljoe",
+      "levelId": 122941596,
+      "video": "https://www.youtube.com/watch?v=8Q20XU__LoQ",
+      "thumbnail": "https://i.ytimg.com/vi/8Q20XU__LoQ/mqdefault.jpg",
+      "requirement": 71
+    },
+    {
+      "position": 98,
+      "name": "Trickshot",
+      "publisher": "[DL] vonic",
+      "verifier": "[DL] vonic",
+      "levelId": 136135870,
+      "video": "https://www.youtube.com/watch?v=IMLjnmnIWRc",
+      "thumbnail": "https://i.ytimg.com/vi/IMLjnmnIWRc/mqdefault.jpg",
+      "requirement": 100
+    },
+    {
+      "position": 99,
+      "name": "Midnight",
+      "publisher": "[SKG] Madison Yuko",
+      "verifier": "[BLOOM] nei",
+      "levelId": 96083028,
+      "video": "https://www.youtube.com/watch?v=NhkN_a9cNi8",
+      "thumbnail": "https://i.ytimg.com/vi/NhkN_a9cNi8/mqdefault.jpg",
+      "requirement": 74
+    },
+    {
+      "position": 100,
+      "name": "Doppler",
+      "publisher": "At424",
+      "verifier": "[IH82P] Danieljgd",
+      "levelId": 133489881,
+      "video": "https://www.youtube.com/watch?v=xSP43i61SLM",
+      "thumbnail": "https://i.ytimg.com/vi/xSP43i61SLM/mqdefault.jpg",
+      "requirement": 100
+    },
+    {
+      "position": 101,
+      "name": "Cimmerian Shade",
+      "publisher": "spcreat",
+      "verifier": "spcreat",
+      "levelId": 93340783,
+      "video": "https://www.youtube.com/watch?v=lUNvV1k19HA",
+      "thumbnail": "https://i.ytimg.com/vi/lUNvV1k19HA/mqdefault.jpg",
+      "requirement": 81
+    },
+    {
+      "position": 102,
+      "name": "PSYCHOPATH",
+      "publisher": "DeniPol",
+      "verifier": "[USSR] BONN GD",
+      "levelId": 103925676,
+      "video": "https://www.youtube.com/watch?v=1luL7tTE8p8",
+      "thumbnail": "https://i.ytimg.com/vi/1luL7tTE8p8/mqdefault.jpg",
+      "requirement": 70
+    },
+    {
+      "position": 103,
+      "name": "arcturus",
+      "publisher": "Maxfs",
+      "verifier": "ultrakawaHD",
+      "levelId": 72315402,
+      "video": "https://www.youtube.com/watch?v=a_Bqa8l9Xtc",
+      "thumbnail": "https://i.ytimg.com/vi/a_Bqa8l9Xtc/mqdefault.jpg",
+      "requirement": 74
+    },
+    {
+      "position": 104,
+      "name": "Diabolic ClubStep",
+      "publisher": "Sevant",
+      "verifier": "Sevant",
+      "levelId": 73214186,
+      "video": "https://www.youtube.com/watch?v=BN7DxkMaQfg",
+      "thumbnail": "https://i.ytimg.com/vi/BN7DxkMaQfg/mqdefault.jpg",
+      "requirement": 100
+    },
+    {
+      "position": 105,
+      "name": "BEELINE",
+      "publisher": "[DOOBY] Galaxxyss",
+      "verifier": "[IH82P] Motor8",
+      "levelId": 93792764,
+      "video": "https://www.youtube.com/watch?v=nt6T9YDb6gw",
+      "thumbnail": "https://i.ytimg.com/vi/nt6T9YDb6gw/mqdefault.jpg",
+      "requirement": 71
+    },
+    {
+      "position": 106,
+      "name": "DreamStep",
+      "publisher": "[LARP] Blaster1337",
+      "verifier": "[LARP] youngs6",
+      "levelId": 129235528,
+      "video": "https://www.youtube.com/watch?v=EK5-0OB1tmc",
+      "thumbnail": "https://i.ytimg.com/vi/EK5-0OB1tmc/mqdefault.jpg",
+      "requirement": 100
+    },
+    {
+      "position": 107,
+      "name": "Sonic Wave Infinity",
+      "publisher": "APTeamOfficial",
+      "verifier": "[1319] Xanii",
+      "levelId": 69685815,
+      "video": "https://www.youtube.com/watch?v=C3-l_fFikpQ",
+      "thumbnail": "https://i.ytimg.com/vi/C3-l_fFikpQ/mqdefault.jpg",
+      "requirement": 68
+    },
+    {
+      "position": 108,
+      "name": "Tartarus",
+      "publisher": "-",
+      "verifier": "-",
+      "levelId": 59075347,
+      "video": "https://www.youtube.com/watch?v=JptG7rwti1U",
+      "thumbnail": "https://i.ytimg.com/vi/JptG7rwti1U/mqdefault.jpg",
+      "requirement": 64
+    },
+    {
+      "position": 109,
+      "name": "Coalescence",
+      "publisher": "[JUICE] Amplitron",
+      "verifier": "[JUICE] Amplitron",
+      "levelId": 108708033,
+      "video": "https://www.youtube.com/watch?v=do-a2EzZ4R8",
+      "thumbnail": "https://i.ytimg.com/vi/do-a2EzZ4R8/mqdefault.jpg",
+      "requirement": 69
+    },
+    {
+      "position": 110,
+      "name": "Waterfall",
+      "publisher": "cherryteam",
+      "verifier": "[DL] LordVadercraft",
+      "levelId": 110991117,
+      "video": "https://www.youtube.com/watch?v=VKuVdqneG9Y",
+      "thumbnail": "https://i.ytimg.com/vi/VKuVdqneG9Y/mqdefault.jpg",
+      "requirement": 71
+    },
+    {
+      "position": 111,
+      "name": "Jigsaw",
+      "publisher": "NekonGames",
+      "verifier": "Gokill",
+      "levelId": 95031870,
+      "video": "https://www.youtube.com/watch?v=FPfSqlI0T30",
+      "thumbnail": "https://i.ytimg.com/vi/FPfSqlI0T30/mqdefault.jpg",
+      "requirement": 70
+    },
+    {
+      "position": 112,
+      "name": "Delta",
+      "publisher": "[FaZe] Drakosa",
+      "verifier": "[TCD] Doggie",
+      "levelId": 93917362,
+      "video": "https://www.youtube.com/watch?v=_rr3J8DkIm4",
+      "thumbnail": "https://i.ytimg.com/vi/_rr3J8DkIm4/mqdefault.jpg",
+      "requirement": 69
+    },
+    {
+      "position": 113,
+      "name": "Between Duality",
+      "publisher": "[COMET] Nexel",
+      "verifier": "[TSC] destr",
+      "levelId": 137757402,
+      "video": "https://www.youtube.com/watch?v=uOb-ajQ4bgw",
+      "thumbnail": "https://i.ytimg.com/vi/sK2dyGGVV_c/mqdefault.jpg",
+      "requirement": 100
+    },
+    {
+      "position": 114,
+      "name": "BPATA MPAKA",
+      "publisher": "Inex",
+      "verifier": "[OG B] maybee",
+      "levelId": 109947627,
+      "video": "https://www.youtube.com/watch?v=sSbHYzYgYfA",
+      "thumbnail": "https://i.ytimg.com/vi/sSbHYzYgYfA/mqdefault.jpg",
+      "requirement": 71
+    },
+    {
+      "position": 115,
+      "name": "The Wonder of You",
+      "publisher": "HangerLord",
+      "verifier": "Helix",
+      "levelId": 94858072,
+      "video": "https://www.youtube.com/watch?v=iQ3RzYCvLvA",
+      "thumbnail": "https://i.ytimg.com/vi/iQ3RzYCvLvA/mqdefault.jpg",
+      "requirement": 100
+    },
+    {
+      "position": 116,
+      "name": "Natural Disaster",
+      "publisher": "[OG B] Laysah",
+      "verifier": "[OG B] Laysah",
+      "levelId": 107741051,
+      "video": "https://www.youtube.com/watch?v=_0GqdSFmG_8",
+      "thumbnail": "https://i.ytimg.com/vi/_0GqdSFmG_8/mqdefault.jpg",
+      "requirement": 71
+    },
+    {
+      "position": 117,
+      "name": "Dualist",
+      "publisher": "SyncTM",
+      "verifier": "[HOLA] Draks_Loves_U",
+      "levelId": 130464801,
+      "video": "https://www.youtube.com/watch?v=6ntYaDqBqu4",
+      "thumbnail": "https://i.ytimg.com/vi/6ntYaDqBqu4/mqdefault.jpg",
+      "requirement": 100
+    },
+    {
+      "position": 118,
+      "name": "Sanctity",
+      "publisher": "[JUICE] Amplitron",
+      "verifier": "[JUICE] Amplitron",
+      "levelId": 135547923,
+      "video": "https://www.youtube.com/watch?v=rtU2oDBz9X0",
+      "thumbnail": "https://i.ytimg.com/vi/rtU2oDBz9X0/mqdefault.jpg",
+      "requirement": 100
+    },
+    {
+      "position": 119,
+      "name": "The Golden",
+      "publisher": "BoBoBoBoBoBoBo",
+      "verifier": "nSwish",
+      "levelId": 60978746,
+      "video": "https://www.youtube.com/watch?v=Ah-PcqwqRTQ",
+      "thumbnail": "https://img.youtube.com/vi/Ah-PcqwqRTQ/maxresdefault.jpg",
+      "requirement": 72
+    },
+    {
+      "position": 120,
+      "name": "Oblivion",
+      "publisher": "[DLNW] Dice88",
+      "verifier": "[DLNW] Dice88",
+      "levelId": 71025973,
+      "video": "https://www.youtube.com/watch?v=ZcmDAm50BB0",
+      "thumbnail": "https://i.ytimg.com/vi/ZcmDAm50BB0/mqdefault.jpg",
+      "requirement": 72
+    },
+    {
+      "position": 121,
+      "name": "Viprin UFO",
+      "publisher": "hawkyre",
+      "verifier": "[CHIL] Cookie",
+      "levelId": 107238250,
+      "video": "https://www.youtube.com/watch?v=LTMW9Py-nHE",
+      "thumbnail": "https://i.ytimg.com/vi/LTMW9Py-nHE/mqdefault.jpg",
+      "requirement": 66
+    },
+    {
+      "position": 122,
+      "name": "NETWORK",
+      "publisher": "Agat3",
+      "verifier": "vulcanium4",
+      "levelId": 95176417,
+      "video": "https://www.youtube.com/watch?v=K7wJi01J5D8",
+      "thumbnail": "https://i.ytimg.com/vi/K7wJi01J5D8/mqdefault.jpg",
+      "requirement": 76
+    },
+    {
+      "position": 123,
+      "name": "Terminal Rampancy",
+      "publisher": "Xyriak",
+      "verifier": "Bigthunder556",
+      "levelId": 90057148,
+      "video": "https://www.youtube.com/watch?v=29hRhhqQTLc",
+      "thumbnail": "https://i.ytimg.com/vi/29hRhhqQTLc/mqdefault.jpg",
+      "requirement": 73
+    },
+    {
+      "position": 124,
+      "name": "Verdant Landscape",
+      "publisher": "Nisha",
+      "verifier": "Nisha",
+      "levelId": 76543324,
+      "video": "https://www.youtube.com/watch?v=wjZxkS5KC0A",
+      "thumbnail": "https://i.ytimg.com/vi/wjZxkS5KC0A/mqdefault.jpg",
+      "requirement": 63
+    },
+    {
+      "position": 125,
+      "name": "Levigo",
+      "publisher": "Swib",
+      "verifier": "[DTC] Kandai",
+      "levelId": 97086864,
+      "video": "https://www.youtube.com/watch?v=AROmUo7DNkE",
+      "thumbnail": "https://i.ytimg.com/vi/AROmUo7DNkE/mqdefault.jpg",
+      "requirement": 100
+    },
+    {
+      "position": 126,
+      "name": "UNKNOWN",
+      "publisher": "NineDice",
+      "verifier": "[TCD] Diamond",
+      "levelId": 88203501,
+      "video": "https://www.youtube.com/watch?v=a1sQxQqU6EM",
+      "thumbnail": "https://i.ytimg.com/vi/a1sQxQqU6EM/mqdefault.jpg",
+      "requirement": 83
+    },
+    {
+      "position": 127,
+      "name": "ATOMIC CANNON Mk III",
+      "publisher": "Lieb",
+      "verifier": "Zeronium",
+      "levelId": 104672501,
+      "video": "https://www.youtube.com/watch?v=xlAI_wVvnx8",
+      "thumbnail": "https://i.ytimg.com/vi/5nM4hlnLDyM/mqdefault.jpg",
+      "requirement": 66
+    },
+    {
+      "position": 128,
+      "name": "SPIRIT OVERCLOCK",
+      "publisher": "TheRealXFuture",
+      "verifier": "[ABA] Riley",
+      "levelId": 132751236,
+      "video": "https://www.youtube.com/watch?v=WECBlbM0LJk",
+      "thumbnail": "https://i.ytimg.com/vi/WECBlbM0LJk/mqdefault.jpg",
+      "requirement": 100
+    },
+    {
+      "position": 129,
+      "name": "Shukketsu",
+      "publisher": "[SKG] Madison Yuko",
+      "verifier": "[YAHO] Baeru",
+      "levelId": 75286957,
+      "video": "https://www.youtube.com/watch?v=nkG4hKJIz2g",
+      "thumbnail": "https://i.ytimg.com/vi/nkG4hKJIz2g/mqdefault.jpg",
+      "requirement": 78
+    },
+    {
+      "position": 130,
+      "name": "idontknowwhatthisis",
+      "publisher": "YeldA",
+      "verifier": "YeldA",
+      "levelId": 137334994,
+      "video": "https://www.youtube.com/watch?v=Dg9Q6s8EOlg",
+      "thumbnail": "https://i.ytimg.com/vi/Dg9Q6s8EOlg/mqdefault.jpg",
+      "requirement": 100
+    },
+    {
+      "position": 131,
+      "name": "Checked Steam",
+      "publisher": "gruzy",
+      "verifier": "[IQB7] Whizkid05",
+      "levelId": 105748155,
+      "video": "https://www.youtube.com/watch?v=cq6047eYGXs",
+      "thumbnail": "https://i.ytimg.com/vi/cq6047eYGXs/mqdefault.jpg",
+      "requirement": 70
+    },
+    {
+      "position": 132,
+      "name": "Critical Heat",
+      "publisher": "Zeniux",
+      "verifier": "[WBT] hstorm",
+      "levelId": 88442157,
+      "video": "https://www.youtube.com/watch?v=UjYIt2jy_BY",
+      "thumbnail": "https://i.ytimg.com/vi/UjYIt2jy_BY/mqdefault.jpg",
+      "requirement": 69
+    },
+    {
+      "position": 133,
+      "name": "WOBBLING MACHINE",
+      "publisher": "Smarted",
+      "verifier": "[POB2P] conski",
+      "levelId": 87130877,
+      "video": "https://www.youtube.com/watch?v=RKX6VOsICOg",
+      "thumbnail": "https://i.ytimg.com/vi/RKX6VOsICOg/mqdefault.jpg",
+      "requirement": 100
+    },
+    {
+      "position": 134,
+      "name": "Crystal Crusher",
+      "publisher": "Zeniux",
+      "verifier": "GuitGuit",
+      "levelId": 93732702,
+      "video": "https://www.youtube.com/watch?v=qirwgz-haVQ",
+      "thumbnail": "https://i.ytimg.com/vi/qirwgz-haVQ/mqdefault.jpg",
+      "requirement": 67
+    },
+    {
+      "position": 135,
+      "name": "limbo but uwu ig idk",
+      "publisher": "Akunakunn",
+      "verifier": "[JOB] ViperVenom95",
+      "levelId": 110705712,
+      "video": "https://www.youtube.com/watch?v=3B36N-qfOD8",
+      "thumbnail": "https://i.ytimg.com/vi/3B36N-qfOD8/mqdefault.jpg",
+      "requirement": 77
+    },
+    {
+      "position": 136,
+      "name": "Graceful",
+      "publisher": "[1319] D A G",
+      "verifier": "[1319] D A G",
+      "levelId": 71885708,
+      "video": "https://www.youtube.com/watch?v=5kOD37vQHKE",
+      "thumbnail": "https://i.ytimg.com/vi/5kOD37vQHKE/mqdefault.jpg",
+      "requirement": 100
+    },
+    {
+      "position": 137,
+      "name": "paranoia",
+      "publisher": "[JUICE] Amplitron",
+      "verifier": "[JUICE] Amplitron",
+      "levelId": 113364415,
+      "video": "https://www.youtube.com/watch?v=Aw83i8Zmh_0",
+      "thumbnail": "https://i.ytimg.com/vi/Aw83i8Zmh_0/mqdefault.jpg",
+      "requirement": 100
+    },
+    {
+      "position": 138,
+      "name": "Starlit Stroll",
+      "publisher": "[TCC] Enfur",
+      "verifier": "[TCC] TheButcher",
+      "levelId": 115380769,
+      "video": "https://www.youtube.com/watch?v=U7MM74dTXuI",
+      "thumbnail": "https://i.ytimg.com/vi/U7MM74dTXuI/mqdefault.jpg",
+      "requirement": 100
+    },
+    {
+      "position": 139,
+      "name": "The Paroxysm of Rage",
+      "publisher": "Zacanaii",
+      "verifier": "[RF] turtle",
+      "levelId": 87071894,
+      "video": "https://www.youtube.com/watch?v=nq3i1qJQeEk",
+      "thumbnail": "https://i.ytimg.com/vi/nq3i1qJQeEk/mqdefault.jpg",
+      "requirement": 65
+    },
+    {
+      "position": 140,
+      "name": "Blood Echo",
+      "publisher": "Farva",
+      "verifier": "[1319] swiborg",
+      "levelId": 112242564,
+      "video": "https://www.youtube.com/watch?v=fSvk4tLlQzQ",
+      "thumbnail": "https://i.ytimg.com/vi/fSvk4tLlQzQ/mqdefault.jpg",
+      "requirement": 100
+    },
+    {
+      "position": 141,
+      "name": "Aerial Gleam",
+      "publisher": "Endlevel",
+      "verifier": "[TCD] Doggie",
+      "levelId": 79771070,
+      "video": "https://www.youtube.com/watch?v=eyZjKtrGVYw",
+      "thumbnail": "https://i.ytimg.com/vi/fkLIlGDe294/mqdefault.jpg",
+      "requirement": 63
+    },
+    {
+      "position": 142,
+      "name": "DISCONNECT",
+      "publisher": "MCres",
+      "verifier": "Elinore",
+      "levelId": 127023313,
+      "video": "https://www.youtube.com/watch?v=HxHo-LzwSao",
+      "thumbnail": "https://i.ytimg.com/vi/HxHo-LzwSao/mqdefault.jpg",
+      "requirement": 100
+    },
+    {
+      "position": 143,
+      "name": "VOID",
+      "publisher": "nikoberry",
+      "verifier": "[IQB7] Whizkid05",
+      "levelId": 100990392,
+      "video": "https://www.youtube.com/watch?v=kN1FUoucoSc",
+      "thumbnail": "https://i.ytimg.com/vi/kN1FUoucoSc/mqdefault.jpg",
+      "requirement": 100
+    },
+    {
+      "position": 144,
+      "name": "Henken",
+      "publisher": "PLoLek",
+      "verifier": "Gokill",
+      "levelId": 80714349,
+      "video": "https://www.youtube.com/watch?v=M--2oQKrV68",
+      "thumbnail": "https://i.ytimg.com/vi/M--2oQKrV68/mqdefault.jpg",
+      "requirement": 100
+    },
+    {
+      "position": 145,
+      "name": "Trueffet",
+      "publisher": "SyQual",
+      "verifier": "[YAHO] Baeru",
+      "levelId": 71434979,
+      "video": "https://www.youtube.com/watch?v=yHESkazVD4Q",
+      "thumbnail": "https://i.ytimg.com/vi/yHESkazVD4Q/mqdefault.jpg",
+      "requirement": 69
+    },
+    {
+      "position": 146,
+      "name": "azure blast",
+      "publisher": "AlbinoSnail",
+      "verifier": "[YAHO] DNM121",
+      "levelId": 120060187,
+      "video": "https://www.youtube.com/watch?v=TN0FQ3KBv4w",
+      "thumbnail": "https://i.ytimg.com/vi/TN0FQ3KBv4w/mqdefault.jpg",
+      "requirement": 100
+    },
+    {
+      "position": 147,
+      "name": "Kenos",
+      "publisher": "npesta",
+      "verifier": "npesta",
+      "levelId": 58673581,
+      "video": "https://www.youtube.com/watch?v=Bs1kVySdUtI",
+      "thumbnail": "https://i.ytimg.com/vi/Bs1kVySdUtI/mqdefault.jpg",
+      "requirement": 69
+    },
+    {
+      "position": 148,
+      "name": "Fragile",
+      "publisher": "Endlevel",
+      "verifier": "[PRIME] vaen",
+      "levelId": 65588448,
+      "video": "https://www.youtube.com/watch?v=XfXzGv0oALw",
+      "thumbnail": "https://i.ytimg.com/vi/XfXzGv0oALw/mqdefault.jpg",
+      "requirement": 64
+    },
+    {
+      "position": 149,
+      "name": "chrome hearts",
+      "publisher": "Roadbose",
+      "verifier": "[YAHO] Sangalchi",
+      "levelId": 128385946,
+      "video": "https://www.youtube.com/watch?v=7o3I45B8-yY",
+      "thumbnail": "https://i.ytimg.com/vi/7o3I45B8-yY/mqdefault.jpg",
+      "requirement": 100
+    },
+    {
+      "position": 150,
+      "name": "Starlight Summit",
+      "publisher": "[BDAY] hazelmrow",
+      "verifier": "[BDAY] hazelmrow",
+      "levelId": 114530859,
+      "video": "https://www.youtube.com/watch?v=LB9xx41M4Ns",
+      "thumbnail": "https://i.ytimg.com/vi/LB9xx41M4Ns/mqdefault.jpg",
+      "requirement": 100
+    },
+    {
+      "position": 151,
+      "name": "Esfera",
+      "publisher": "SyQual",
+      "verifier": "[YAHO] Baeru",
+      "levelId": 78435955,
+      "video": "https://www.youtube.com/watch?v=GK0Z8rgziH4",
+      "thumbnail": "https://i.ytimg.com/vi/GK0Z8rgziH4/mqdefault.jpg",
+      "requirement": 77
+    },
+    {
+      "position": 152,
+      "name": "Silent Lunch",
+      "publisher": "DreamTide",
+      "verifier": "[DL] LordVadercraft",
+      "levelId": 137586316,
+      "video": "https://www.youtube.com/watch?v=V8pu6Rrer8M",
+      "thumbnail": "https://i.ytimg.com/vi/V8pu6Rrer8M/mqdefault.jpg",
+      "requirement": 100
+    },
+    {
+      "position": 153,
+      "name": "Destruction 19",
+      "publisher": "bosjoker",
+      "verifier": "[DAMN!] razsta4ax",
+      "levelId": 99495619,
+      "video": "https://www.youtube.com/watch?v=UUyzGg_4mqs",
+      "thumbnail": "https://i.ytimg.com/vi/UUyzGg_4mqs/mqdefault.jpg",
+      "requirement": 82
+    },
+    {
+      "position": 154,
+      "name": "in this",
+      "publisher": "enci",
+      "verifier": "[ETPS] Xplode",
+      "levelId": 122389640,
+      "video": "https://www.youtube.com/watch?v=gQiOdxOyNGg",
+      "thumbnail": "https://i.ytimg.com/vi/gQiOdxOyNGg/mqdefault.jpg",
+      "requirement": 100
+    },
+    {
+      "position": 155,
+      "name": "NEUTRA",
+      "publisher": "Jenkins GD",
+      "verifier": "AeonAir",
+      "levelId": 88611404,
+      "video": "https://www.youtube.com/watch?v=0fNBFwNS1qg",
+      "thumbnail": "https://i.ytimg.com/vi/0fNBFwNS1qg/mqdefault.jpg",
+      "requirement": 80
+    },
+    {
+      "position": 156,
+      "name": "ROCKBOTTOM",
+      "publisher": "bims",
+      "verifier": "[BLKHL] ZaZa GD",
+      "levelId": 122196131,
+      "video": "https://www.youtube.com/watch?v=HAyxOJ1XuBk",
+      "thumbnail": "https://img.youtube.com/vi/HAyxOJ1XuBk/mqdefault.jpg",
+      "requirement": 100
+    },
+    {
+      "position": 157,
+      "name": "Dark Dimension",
+      "publisher": "ThePurgatory",
+      "verifier": "TheNixuzGD200",
+      "levelId": 125617849,
+      "video": "https://www.youtube.com/watch?v=g2DrT9bHjOI",
+      "thumbnail": "https://i.ytimg.com/vi/g2DrT9bHjOI/mqdefault.jpg",
+      "requirement": 100
+    },
+    {
+      "position": 158,
+      "name": "Swing Swing",
+      "publisher": "[COMET] Kaza",
+      "verifier": "[IQB7] Whizkid05",
+      "levelId": 112231282,
+      "video": "https://www.youtube.com/watch?v=_hL9hFU3WI4",
+      "thumbnail": "https://i.ytimg.com/vi/_hL9hFU3WI4/mqdefault.jpg",
+      "requirement": 67
+    },
+    {
+      "position": 159,
+      "name": "Guideless Goobering",
+      "publisher": "[TCC] Enfur",
+      "verifier": "Zytrox",
+      "levelId": 105625871,
+      "video": "https://www.youtube.com/watch?v=pFxdGKYQrcg",
+      "thumbnail": "https://i.ytimg.com/vi/pFxdGKYQrcg/mqdefault.jpg",
+      "requirement": 100
+    },
+    {
+      "position": 160,
+      "name": "Hard Machine",
+      "publisher": "Komp",
+      "verifier": "Varium",
+      "levelId": 72744364,
+      "video": "https://www.youtube.com/watch?v=6i0pdTDAo1c",
+      "thumbnail": "https://i.ytimg.com/vi/6i0pdTDAo1c/mqdefault.jpg",
+      "requirement": 79
+    },
+    {
+      "position": 161,
+      "name": "DISSONANCE",
+      "publisher": "[meow] ivyteal",
+      "verifier": "[COMET] zSquidKnight",
+      "levelId": 108141323,
+      "video": "https://www.youtube.com/watch?v=IfFser-f9c0",
+      "thumbnail": "https://i.ytimg.com/vi/IfFser-f9c0/mqdefault.jpg",
+      "requirement": 73
+    },
+    {
+      "position": 162,
+      "name": "Crackhead Circles",
+      "publisher": "AlrexX",
+      "verifier": "[OG B] teraaa",
+      "levelId": 95524621,
+      "video": "https://www.youtube.com/watch?v=_4MDq8Us5gM",
+      "thumbnail": "https://i.ytimg.com/vi/_4MDq8Us5gM/mqdefault.jpg",
+      "requirement": 67
+    },
+    {
+      "position": 163,
+      "name": "Time Lapse",
+      "publisher": "HappyMoby",
+      "verifier": "chloechu",
+      "levelId": 97705490,
+      "video": "https://www.youtube.com/watch?v=QWrDOemVBLk",
+      "thumbnail": "https://i.ytimg.com/vi/QWrDOemVBLk/mqdefault.jpg",
+      "requirement": 100
+    },
+    {
+      "position": 164,
+      "name": "Zodiac",
+      "publisher": "Bianox",
+      "verifier": "-",
+      "levelId": 52374843,
+      "video": "https://www.youtube.com/watch?v=HCQK_y8JutU",
+      "thumbnail": "https://i.ytimg.com/vi/HCQK_y8JutU/mqdefault.jpg",
+      "requirement": 75
+    },
+    {
+      "position": 165,
+      "name": "Lotus Flower",
+      "publisher": "StarkytheSalad",
+      "verifier": "BrianTheBurger",
+      "levelId": 75813671,
+      "video": "https://www.youtube.com/watch?v=pTgOHcwJhd0",
+      "thumbnail": "https://i.ytimg.com/vi/pTgOHcwJhd0/mqdefault.jpg",
+      "requirement": 70
+    },
+    {
+      "position": 166,
+      "name": "Scream Machine",
+      "publisher": "TMco",
+      "verifier": "WatchPiggy",
+      "levelId": 96035641,
+      "video": "https://www.youtube.com/watch?v=n-KeSGEX7Jg",
+      "thumbnail": "https://i.ytimg.com/vi/n-KeSGEX7Jg/mqdefault.jpg",
+      "requirement": 72
+    },
+    {
+      "position": 167,
+      "name": "Goober Rage Stage",
+      "publisher": "bonscarrot",
+      "verifier": "trenbabypaleo",
+      "levelId": 130183035,
+      "video": "https://www.youtube.com/watch?v=1rrouUCPXhY",
+      "thumbnail": "https://i.ytimg.com/vi/1rrouUCPXhY/mqdefault.jpg",
+      "requirement": 100
+    },
+    {
+      "position": 168,
+      "name": "Axinie",
+      "publisher": "[IQB7] SaturMan",
+      "verifier": "[IQB7] SaturMan",
+      "levelId": 107299600,
+      "video": "https://www.youtube.com/watch?v=LjfO2fqnozI",
+      "thumbnail": "https://i.ytimg.com/vi/LjfO2fqnozI/mqdefault.jpg",
+      "requirement": 77
+    },
+    {
+      "position": 169,
+      "name": "GLUNGUS ADVENTURES",
+      "publisher": "bims",
+      "verifier": "[TCD] Conix",
+      "levelId": 138615726,
+      "video": "https://www.youtube.com/watch?v=0a2BX5I3v94",
+      "thumbnail": "https://i.ytimg.com/vi/0a2BX5I3v94/mqdefault.jpg",
+      "requirement": 100
+    },
+    {
+      "position": 170,
+      "name": "Judgement Knights",
+      "publisher": "HangerLord",
+      "verifier": "Helix",
+      "levelId": 110913375,
+      "video": "https://www.youtube.com/watch?v=MzzY8nWfxnk",
+      "thumbnail": "https://i.ytimg.com/vi/MzzY8nWfxnk/mqdefault.jpg",
+      "requirement": 72
+    },
+    {
+      "position": 171,
+      "name": "BLITZ",
+      "publisher": "chloechu",
+      "verifier": "[COMET] sock",
+      "levelId": 137248479,
+      "video": "https://www.youtube.com/watch?v=p5NquHWeWZ0",
+      "thumbnail": "https://i.ytimg.com/vi/p5NquHWeWZ0/mqdefault.jpg",
+      "requirement": 100
+    },
+    {
+      "position": 172,
+      "name": "Widestep",
+      "publisher": "｛出見塩｝",
+      "verifier": "｛出見塩｝",
+      "levelId": 69289606,
+      "video": "https://www.youtube.com/watch?v=GhLFsr9skXs",
+      "thumbnail": "https://i.ytimg.com/vi/TN8fHN_XV3o/mqdefault.jpg",
+      "requirement": 79
+    },
+    {
+      "position": 173,
+      "name": "Lithium",
+      "publisher": "L4tezk",
+      "verifier": "[SARK] Bamvie",
+      "levelId": 97364686,
+      "video": "https://www.youtube.com/watch?v=IfVM56qNVdA",
+      "thumbnail": "https://i.ytimg.com/vi/IfVM56qNVdA/mqdefault.jpg",
+      "requirement": 100
+    },
+    {
+      "position": 174,
+      "name": "Keres",
+      "publisher": "ItsHybrid",
+      "verifier": "Crisis",
+      "levelId": 74391640,
+      "video": "https://www.youtube.com/watch?v=MFFIjZP7PxQ",
+      "thumbnail": "https://i.ytimg.com/vi/MFFIjZP7PxQ/mqdefault.jpg",
+      "requirement": 64
+    },
+    {
+      "position": 175,
+      "name": "IRIS",
+      "publisher": "[COMET] Kaza",
+      "verifier": "[COMET] bnuuy",
+      "levelId": 123853954,
+      "video": "https://www.youtube.com/watch?v=WiFwAU8pgr4",
+      "thumbnail": "https://i.ytimg.com/vi/WiFwAU8pgr4/mqdefault.jpg",
+      "requirement": 100
+    },
+    {
+      "position": 176,
+      "name": "Galeforce",
+      "publisher": "OniLink",
+      "verifier": "[DL] Blitzer",
+      "levelId": 115313314,
+      "video": "https://www.youtube.com/watch?v=G6VF2Gvmpz0",
+      "thumbnail": "https://i.ytimg.com/vi/G6VF2Gvmpz0/mqdefault.jpg",
+      "requirement": 100
+    },
+    {
+      "position": 177,
+      "name": "Cold Sweat",
+      "publisher": "para",
+      "verifier": "Kapinapi",
+      "levelId": 63996127,
+      "video": "https://www.youtube.com/watch?v=tBpEPXGhQug",
+      "thumbnail": "https://i.ytimg.com/vi/tBpEPXGhQug/mqdefault.jpg",
+      "requirement": 61
+    },
+    {
+      "position": 178,
+      "name": "Frost Spirit",
+      "publisher": "Quaybus",
+      "verifier": "Varium",
+      "levelId": 95767653,
+      "video": "https://www.youtube.com/watch?v=KXbaRnRpm58",
+      "thumbnail": "https://i.ytimg.com/vi/KXbaRnRpm58/mqdefault.jpg",
+      "requirement": 77
+    },
+    {
+      "position": 179,
+      "name": "Ascent",
+      "publisher": "Rimexon",
+      "verifier": "[DL] LordVadercraft",
+      "levelId": 112046512,
+      "video": "https://www.youtube.com/watch?v=sII8zQZIJlg",
+      "thumbnail": "https://i.ytimg.com/vi/sII8zQZIJlg/mqdefault.jpg",
+      "requirement": 63
+    },
+    {
+      "position": 180,
+      "name": "Promethean",
+      "publisher": "Endlevel",
+      "verifier": "RicoLP",
+      "levelId": 69333212,
+      "video": "https://www.youtube.com/watch?v=19kE_Yo8puE",
+      "thumbnail": "https://i.ytimg.com/vi/19kE_Yo8puE/mqdefault.jpg",
+      "requirement": 85
+    },
+    {
+      "position": 181,
+      "name": "Thinking Space",
+      "publisher": "Atomic",
+      "verifier": "Atomic",
+      "levelId": 54953085,
+      "video": "https://www.youtube.com/watch?v=iHf2nanWjvE",
+      "thumbnail": "https://i.ytimg.com/vi/iHf2nanWjvE/mqdefault.jpg",
+      "requirement": 84
+    },
+    {
+      "position": 182,
+      "name": "Dry Out Copyable 2",
+      "publisher": "[FaZe] tenzk",
+      "verifier": "s3batr0nic",
+      "levelId": 106522770,
+      "video": "https://www.youtube.com/watch?v=FXW9J9CaREU",
+      "thumbnail": "https://i.ytimg.com/vi/FXW9J9CaREU/mqdefault.jpg",
+      "requirement": 77
+    },
+    {
+      "position": 183,
+      "name": "Calculator Core",
+      "publisher": "Walroose",
+      "verifier": "-",
+      "levelId": 58355141,
+      "video": "https://www.youtube.com/watch?v=VrgNFsF2NGw",
+      "thumbnail": "https://img.youtube.com/vi/VrgNFsF2NGw/maxresdefault.jpg",
+      "requirement": 59
+    },
+    {
+      "position": 184,
+      "name": "Renevant",
+      "publisher": "nikroplays",
+      "verifier": "rori",
+      "levelId": 58161496,
+      "video": "https://www.youtube.com/watch?v=2Y8kBw8YxO8",
+      "thumbnail": "https://i.ytimg.com/vi/2Y8kBw8YxO8/mqdefault.jpg",
+      "requirement": 60
+    },
+    {
+      "position": 185,
+      "name": "ConClusion",
+      "publisher": "DreamZoneGD",
+      "verifier": "Browar",
+      "levelId": 96471171,
+      "video": "https://www.youtube.com/watch?v=wpuPFFqnJFY",
+      "thumbnail": "https://i.ytimg.com/vi/wpuPFFqnJFY/mqdefault.jpg",
+      "requirement": 58
+    },
+    {
+      "position": 186,
+      "name": "We Are Not The Same",
+      "publisher": "mbed",
+      "verifier": "GuitGuit",
+      "levelId": 90104288,
+      "video": "https://www.youtube.com/watch?v=yLLd4mpeYC4",
+      "thumbnail": "https://i.ytimg.com/vi/yLLd4mpeYC4/mqdefault.jpg",
+      "requirement": 100
+    },
+    {
+      "position": 187,
+      "name": "Trotil",
+      "publisher": "cherryteam",
+      "verifier": "[USSR] ItzTayfun",
+      "levelId": 94578424,
+      "video": "https://www.youtube.com/watch?v=kblnO7LfQn4",
+      "thumbnail": "https://i.ytimg.com/vi/kblnO7LfQn4/mqdefault.jpg",
+      "requirement": 65
+    },
+    {
+      "position": 188,
+      "name": "Disconnected Descent",
+      "publisher": "TheSkeletonGMD",
+      "verifier": "Lia",
+      "levelId": 118664383,
+      "video": "https://www.youtube.com/watch?v=TP7OAAVH-uA",
+      "thumbnail": "https://i.ytimg.com/vi/TP7OAAVH-uA/mqdefault.jpg",
+      "requirement": 100
+    },
+    {
+      "position": 189,
+      "name": "Instinct",
+      "publisher": "Krazyman50",
+      "verifier": "[DL] Blitzer",
+      "levelId": 94043690,
+      "video": "https://www.youtube.com/watch?v=6W3Gvi9ft0w",
+      "thumbnail": "https://i.ytimg.com/vi/6W3Gvi9ft0w/mqdefault.jpg",
+      "requirement": 55
+    },
+    {
+      "position": 190,
+      "name": "Sky Shredder",
+      "publisher": "Dorvict",
+      "verifier": "Dorvict",
+      "levelId": 88136707,
+      "video": "https://www.youtube.com/watch?v=Z-69-4RKRgk",
+      "thumbnail": "https://i.ytimg.com/vi/Z-69-4RKRgk/mqdefault.jpg",
+      "requirement": 49
+    },
+    {
+      "position": 191,
+      "name": "shimmer",
+      "publisher": "[JUICE] Amplitron",
+      "verifier": "[JUICE] Amplitron",
+      "levelId": 94156085,
+      "video": "https://www.youtube.com/watch?v=J89j-_l7ezg",
+      "thumbnail": "https://i.ytimg.com/vi/J89j-_l7ezg/mqdefault.jpg",
+      "requirement": 55
+    },
+    {
+      "position": 192,
+      "name": "Crimson Planet",
+      "publisher": "TrueOmega",
+      "verifier": "Wooshi",
+      "levelId": 45866767,
+      "video": "https://www.youtube.com/watch?v=euMInLjyG6k",
+      "thumbnail": "https://i.ytimg.com/vi/euMInLjyG6k/mqdefault.jpg",
+      "requirement": 53
+    },
+    {
+      "position": 193,
+      "name": "DIRECTIONS",
+      "publisher": "[meow] wokecat",
+      "verifier": "[TMG] SwordBx",
+      "levelId": 88233955,
+      "video": "https://www.youtube.com/watch?v=-SEgSgxpRxo",
+      "thumbnail": "https://i.ytimg.com/vi/-SEgSgxpRxo/mqdefault.jpg",
+      "requirement": 45
+    },
+    {
+      "position": 194,
+      "name": "ATOMIC CANNON Mk II",
+      "publisher": "Lieb",
+      "verifier": "Zeronium",
+      "levelId": 91180835,
+      "video": "https://www.youtube.com/watch?v=4-lOnZsfhNQ",
+      "thumbnail": "https://i.ytimg.com/vi/4-lOnZsfhNQ/mqdefault.jpg",
+      "requirement": 49
+    },
+    {
+      "position": 195,
+      "name": "Axiom Asterism",
+      "publisher": "Filqh",
+      "verifier": "[BHO] bazettuk",
+      "levelId": 114340057,
+      "video": "https://www.youtube.com/watch?v=sxWIHRzxr3A",
+      "thumbnail": "https://i.ytimg.com/vi/LnFdka3HekA/mqdefault.jpg",
+      "requirement": 100
+    },
+    {
+      "position": 196,
+      "name": "Indivine",
+      "publisher": "MercuryDT",
+      "verifier": "Bigthunder556",
+      "levelId": 112586799,
+      "video": "https://www.youtube.com/watch?v=g2CVts-tX70",
+      "thumbnail": "https://i.ytimg.com/vi/g2CVts-tX70/mqdefault.jpg",
+      "requirement": 100
+    },
+    {
+      "position": 197,
+      "name": "Cognition",
+      "publisher": "Endlevel",
+      "verifier": "nSwish",
+      "levelId": 57600307,
+      "video": "https://www.youtube.com/watch?v=XkKlOjww6aQ",
+      "thumbnail": "https://img.youtube.com/vi/XkKlOjww6aQ/maxresdefault.jpg",
+      "requirement": 53
+    },
+    {
+      "position": 198,
+      "name": "Neon Skyline",
+      "publisher": "recillia",
+      "verifier": "[S9] MahjongLegend",
+      "levelId": 88822041,
+      "video": "https://www.youtube.com/watch?v=MIONYC4SLK4",
+      "thumbnail": "https://img.youtube.com/vi/MIONYC4SLK4/maxresdefault.jpg",
+      "requirement": 100
+    },
+    {
+      "position": 199,
+      "name": "CORRODERE",
+      "publisher": "[MOOSH] Moosh",
+      "verifier": "[COMET] Oscar ☄️",
+      "levelId": 90597202,
+      "video": "https://www.youtube.com/watch?v=-V87Bh44lAU",
+      "thumbnail": "https://i.ytimg.com/vi/-V87Bh44lAU/mqdefault.jpg",
+      "requirement": 64
+    },
+    {
+      "position": 200,
+      "name": "Cosmic Cyclone",
+      "publisher": "APTeamOfficial",
+      "verifier": "[HOLA] DoSh7t",
+      "levelId": 76159410,
+      "video": "https://www.youtube.com/watch?v=0I9xCfTOpXg",
+      "thumbnail": "https://i.ytimg.com/vi/0I9xCfTOpXg/mqdefault.jpg",
+      "requirement": 66
+    }
+  ]
+}

@@ -1,3 +1,4 @@
+using GdTracker.Cloud;
 using GdTracker.Core;
 using GdTracker.Core.Abstractions;
 using GdTracker.Core.Models;
@@ -7,8 +8,13 @@ using Microsoft.EntityFrameworkCore;
 
 namespace GdTracker.Data;
 
-/// <inheritdoc />
-public class ProgressSharingService : IProgressSharingService
+/// <summary>
+/// Обмен прогрессом. Один и тот же пакет используется и для файлов обмена
+/// (<see cref="IProgressSharingService"/>), и для облачной синхронизации
+/// (<see cref="ILocalProgressStore"/>): сборка и слияние живут здесь в единственном
+/// экземпляре, поэтому файл и облако не могут разойтись в поведении.
+/// </summary>
+public class ProgressSharingService : IProgressSharingService, ILocalProgressStore
 {
     private readonly IDbContextFactory<AppDbContext> _factory;
 
@@ -16,12 +22,27 @@ public class ProgressSharingService : IProgressSharingService
 
     public async Task ExportAsync(string filePath, CancellationToken ct = default)
     {
+        var package = await CreatePackageAsync(ct);
+        var json = ProgressPackageSerializer.Serialize(package);
+        await File.WriteAllTextAsync(filePath, json, ct);
+    }
+
+    public async Task<ImportSummary> ImportAsync(string filePath, CancellationToken ct = default)
+    {
+        var json = await File.ReadAllTextAsync(filePath, ct);
+        var package = ProgressPackageSerializer.Deserialize(json);
+        return await MergePackageAsync(package, ct);
+    }
+
+    /// <inheritdoc />
+    public async Task<ProgressPackage> CreatePackageAsync(CancellationToken ct = default)
+    {
         await using var db = await _factory.CreateDbContextAsync(ct);
         var levels = await db.Levels.AsNoTracking()
             .Include(l => l.ProgressRecords)
             .ToListAsync(ct);
 
-        var package = new ProgressPackage
+        return new ProgressPackage
         {
             ExportedAt = DateTime.UtcNow,
             Levels = levels.Select(l => new PackageLevel
@@ -43,16 +64,11 @@ public class ProgressSharingService : IProgressSharingService
                 }).ToList(),
             }).ToList(),
         };
-
-        var json = ProgressPackageSerializer.Serialize(package);
-        await File.WriteAllTextAsync(filePath, json, ct);
     }
 
-    public async Task<ImportSummary> ImportAsync(string filePath, CancellationToken ct = default)
+    /// <inheritdoc />
+    public async Task<ImportSummary> MergePackageAsync(ProgressPackage package, CancellationToken ct = default)
     {
-        var json = await File.ReadAllTextAsync(filePath, ct);
-        var package = ProgressPackageSerializer.Deserialize(json);
-
         await using var db = await _factory.CreateDbContextAsync(ct);
         var existing = await db.Levels.Include(l => l.ProgressRecords).ToListAsync(ct);
         var byGd = existing

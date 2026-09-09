@@ -1,0 +1,29 @@
+# Развёртывание сервера синхронизации на Render (https://render.com).
+# В панели Render: New → Blueprint → указать репозиторий, дальше он читает этот файл.
+services:
+  - type: web
+    name: gdtracker-sync
+    runtime: docker
+    dockerfilePath: ./src/GdTracker.Api/Dockerfile
+    dockerContext: .
+    # На бесплатном плане диски недоступны, а файловая система обнуляется при каждом
+    # перезапуске — аккаунты и снимки прогресса пропадут. Для рабочего сервера нужен
+    # платный план с диском (ниже), для пробы хватит и free без блока disk.
+    plan: starter
+    region: frankfurt
+    healthCheckPath: /health
+    envVars:
+      # Ключ подписи токенов Render сгенерирует один раз и сохранит: при его смене
+      # все выданные токены становятся недействительными и всем придётся войти заново.
+      - key: Auth__SigningKey
+        generateValue: true
+      - key: Data__Directory
+        value: /data
+      # Почта владельца — старшая роль: правит оба списка и банит аккаунты.
+      # sync: false — значение вводится в панели Render, а не лежит в репозитории.
+      - key: Community__Owners__0
+        sync: false
+    disk:
+      name: gdtracker-data
+      mountPath: /data
+      sizeGB: 1

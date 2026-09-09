@@ -1,0 +1,559 @@
+﻿<!-- Цвет текста страницы задан явно (TextElement.Foreground): неявный стиль TextBlock
+     из WPF-UI задаёт только шрифт, поэтому обычные TextBlock оставались чёрными по
+     умолчанию WPF и сливались с фоном в тёмной и неоновой темах. -->
+<Page x:Class="GdTracker.App.Views.DemonListPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+      TextElement.Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+      Title="DemonListPage">
+
+    <Page.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVisibility" />
+
+        <!-- Группировка по разделам списка: основной, расширенный, легаси.
+             Раздел вычисляет вью-модель по месту демона — на сервере его нет. -->
+        <CollectionViewSource x:Key="GroupedDemons" Source="{Binding Demons}">
+            <CollectionViewSource.GroupDescriptions>
+                <PropertyGroupDescription PropertyName="TierTitle" />
+            </CollectionViewSource.GroupDescriptions>
+        </CollectionViewSource>
+
+        <!-- Значок роли рядом с ником: тот же, что на странице «Аккаунт». -->
+        <Style x:Key="RoleBadge" TargetType="Border">
+            <Setter Property="CornerRadius" Value="10" />
+            <Setter Property="Padding" Value="7,1" />
+            <Setter Property="Margin" Value="6,0,0,0" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+            <Setter Property="Background" Value="{DynamicResource ControlFillColorDefaultBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource ControlStrokeColorDefaultBrush}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding IsPrivilegedRole}" Value="True">
+                    <Setter Property="Background" Value="{DynamicResource AccentFillColorSecondaryBrush}" />
+                    <Setter Property="BorderBrush" Value="{DynamicResource AccentFillColorDefaultBrush}" />
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="Card" TargetType="Border">
+            <Setter Property="CornerRadius" Value="8" />
+            <Setter Property="Padding" Value="14" />
+            <Setter Property="Margin" Value="0,0,0,10" />
+            <Setter Property="Background" Value="{DynamicResource ControlFillColorDefaultBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource ControlStrokeColorDefaultBrush}" />
+            <Setter Property="BorderThickness" Value="1" />
+        </Style>
+
+        <Style x:Key="SectionTitle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="16" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="Margin" Value="0,18,0,8" />
+        </Style>
+
+        <!-- Строка демона: заголовок-кнопка и раскрывающаяся часть под ним. -->
+        <DataTemplate x:Key="DemonRow">
+            <Border Style="{StaticResource Card}" Padding="0" Margin="0,0,0,6">
+                <StackPanel>
+                    <Button HorizontalContentAlignment="Stretch" Padding="12,10"
+                            Background="Transparent" BorderThickness="0"
+                            Command="{Binding Owner.ToggleDemonCommand}" CommandParameter="{Binding}">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="44" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+
+                            <TextBlock Grid.Column="0" Text="{Binding Position}" FontSize="17" FontWeight="SemiBold"
+                                       VerticalAlignment="Center" Opacity="0.75" />
+
+                            <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                <TextBlock Text="{Binding Name}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" />
+                                <TextBlock Text="{Binding ByText}" Opacity="0.6" FontSize="12"
+                                           TextTrimming="CharacterEllipsis" />
+                            </StackPanel>
+
+                            <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                                <TextBlock Text="{Binding RequirementText}" Opacity="0.6" FontSize="12"
+                                           VerticalAlignment="Center" />
+                                <TextBlock Text="{Binding OpinionCountText}" Margin="10,0,0,0" FontSize="12"
+                                           VerticalAlignment="Center"
+                                           Foreground="{DynamicResource AccentTextFillColorPrimaryBrush}"
+                                           Visibility="{Binding HasOpinions, Converter={StaticResource BoolToVisibility}}" />
+
+                                <!-- Шаг на место вверх и вниз — то же, что стрелки в строке на сайте.
+                                     Вложенная кнопка перехватывает нажатие, поэтому строка от неё не раскрывается. -->
+                                <StackPanel Orientation="Horizontal" Margin="10,0,0,0"
+                                            Visibility="{Binding Owner.CanModerate, Converter={StaticResource BoolToVisibility}}">
+                                    <Button Content="↑" Padding="8,2" FontSize="12" ToolTip="На место вверх"
+                                            Command="{Binding Owner.MoveDemonUpCommand}" CommandParameter="{Binding}"
+                                            IsEnabled="{Binding CanMoveUp}" />
+                                    <Button Content="↓" Margin="4,0,0,0" Padding="8,2" FontSize="12"
+                                            ToolTip="На место вниз"
+                                            Command="{Binding Owner.MoveDemonDownCommand}" CommandParameter="{Binding}"
+                                            IsEnabled="{Binding CanMoveDown}" />
+                                </StackPanel>
+                            </StackPanel>
+                        </Grid>
+                    </Button>
+
+                    <!-- Раскрытая часть: мнения, ссылка на видео и формы. -->
+                    <StackPanel Margin="12,0,12,12"
+                                Visibility="{Binding IsExpanded, Converter={StaticResource BoolToVisibility}}">
+                        <Separator Margin="0,0,0,10" />
+
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="280" />
+                            </Grid.ColumnDefinitions>
+
+                            <StackPanel Grid.Column="0" Margin="0,0,16,0">
+                                <TextBlock Text="МНЕНИЯ О РАЗМЕЩЕНИИ" FontSize="11.5" FontWeight="SemiBold"
+                                           Opacity="0.55" Margin="0,0,0,8" />
+
+                                <TextBlock Text="Загрузка..." Opacity="0.6"
+                                           Visibility="{Binding OpinionsLoading, Converter={StaticResource BoolToVisibility}}" />
+                                <TextBlock Text="Об этом месте пока никто не высказался." Opacity="0.6"
+                                           Visibility="{Binding HasNoOpinions, Converter={StaticResource BoolToVisibility}}" />
+
+                                <ItemsControl ItemsSource="{Binding Opinions}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Border Style="{StaticResource Card}" Padding="10" Margin="0,0,0,6">
+                                                <StackPanel>
+                                                    <StackPanel Orientation="Horizontal">
+                                                        <TextBlock Text="{Binding AuthorName}" FontWeight="SemiBold" />
+                                                        <Border Style="{StaticResource RoleBadge}">
+                                                            <TextBlock Text="{Binding RoleLabel}" FontSize="11" />
+                                                        </Border>
+                                                        <TextBlock Text="{Binding SuggestedText}" Margin="8,0,0,0"
+                                                                   VerticalAlignment="Center" FontSize="12"
+                                                                   Foreground="{DynamicResource AccentTextFillColorPrimaryBrush}"
+                                                                   Visibility="{Binding HasSuggestion, Converter={StaticResource BoolToVisibility}}" />
+                                                        <TextBlock Text="{Binding CreatedText}" Margin="8,0,0,0" Opacity="0.55"
+                                                                   FontSize="12" VerticalAlignment="Center" />
+                                                        <Button Content="Удалить" Margin="8,0,0,0" Padding="8,2" FontSize="11.5"
+                                                                Command="{Binding Owner.DeleteOpinionCommand}"
+                                                                CommandParameter="{Binding}"
+                                                                Visibility="{Binding CanRemove, Converter={StaticResource BoolToVisibility}}" />
+                                                    </StackPanel>
+                                                    <TextBlock Text="{Binding Text}" TextWrapping="Wrap" Margin="0,6,0,0" />
+                                                </StackPanel>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+
+                                <TextBlock Margin="0,8,0,0"
+                                           Visibility="{Binding HasVideo, Converter={StaticResource BoolToVisibility}}">
+                                    <Hyperlink NavigateUri="{Binding Video}" RequestNavigate="OnOpenLink">▶ Смотреть прохождение</Hyperlink>
+                                </TextBlock>
+                                <TextBlock Text="{Binding LevelIdText}" Opacity="0.55" FontSize="12" Margin="0,4,0,0"
+                                           Visibility="{Binding HasLevelId, Converter={StaticResource BoolToVisibility}}" />
+                            </StackPanel>
+
+                            <StackPanel Grid.Column="1">
+                                <!-- Форма мнения: только вошедшему и не забаненному в списке. -->
+                                <StackPanel Visibility="{Binding Owner.CanParticipate, Converter={StaticResource BoolToVisibility}}">
+                                    <TextBlock Text="ТВОЁ МНЕНИЕ" FontSize="11.5" FontWeight="SemiBold" Opacity="0.55" />
+                                    <TextBlock Text="Место, которое считаешь справедливым (необязательно)"
+                                               Opacity="0.6" FontSize="12" TextWrapping="Wrap" Margin="0,8,0,4" />
+                                    <TextBox Text="{Binding NewOpinionPosition, UpdateSourceTrigger=PropertyChanged}" />
+                                    <TextBlock Text="Что не так с текущим местом" Opacity="0.6" FontSize="12"
+                                               Margin="0,8,0,4" />
+                                    <TextBox Text="{Binding NewOpinionText, UpdateSourceTrigger=PropertyChanged}"
+                                             AcceptsReturn="True" TextWrapping="Wrap" Height="72"
+                                             VerticalScrollBarVisibility="Auto" MaxLength="1000" />
+                                    <Button Content="Высказаться" Margin="0,8,0,0" HorizontalAlignment="Stretch"
+                                            IsEnabled="{Binding Owner.IsIdle}"
+                                            Command="{Binding Owner.PostOpinionCommand}" CommandParameter="{Binding}" />
+                                </StackPanel>
+
+                                <!-- Инструменты модератора: перестановка и удаление. -->
+                                <StackPanel Margin="0,16,0,0"
+                                            Visibility="{Binding Owner.CanModerate, Converter={StaticResource BoolToVisibility}}">
+                                    <TextBlock Text="МОДЕРАЦИЯ" FontSize="11.5" FontWeight="SemiBold" Opacity="0.55" />
+                                    <TextBlock Text="Новое место" Opacity="0.6" FontSize="12" Margin="0,8,0,4" />
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+                                        <TextBox Grid.Column="0"
+                                                 Text="{Binding MovePosition, UpdateSourceTrigger=PropertyChanged}" />
+                                        <Button Grid.Column="1" Margin="8,0,0,0" Content="Переставить"
+                                                IsEnabled="{Binding Owner.IsIdle}"
+                                                Command="{Binding Owner.MoveDemonCommand}" CommandParameter="{Binding}" />
+                                    </Grid>
+                                    <Button Content="Убрать из списка" Margin="0,8,0,0" HorizontalAlignment="Stretch"
+                                            IsEnabled="{Binding Owner.IsIdle}"
+                                            Command="{Binding Owner.DeleteDemonCommand}" CommandParameter="{Binding}" />
+                                </StackPanel>
+                            </StackPanel>
+                        </Grid>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+        </DataTemplate>
+
+        <!-- Заявка в топе пройденных и в списке своих заявок. -->
+        <DataTemplate x:Key="RecordRow">
+            <Border Style="{StaticResource Card}">
+                <StackPanel>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="{Binding PlacementText}" FontWeight="SemiBold" Opacity="0.75"
+                                   MinWidth="34" VerticalAlignment="Center" />
+                        <TextBlock Text="{Binding PlayerName}" FontWeight="SemiBold" VerticalAlignment="Center" />
+                        <Border Style="{StaticResource RoleBadge}">
+                            <TextBlock Text="{Binding RoleLabel}" FontSize="11" />
+                        </Border>
+                        <TextBlock Text="{Binding LevelName}" Margin="10,0,0,0" VerticalAlignment="Center" />
+                        <TextBlock Text="{Binding DemonPositionText}" Margin="8,0,0,0" Opacity="0.55" FontSize="12"
+                                   VerticalAlignment="Center" />
+                        <TextBlock Text="{Binding ProgressText}" Margin="10,0,0,0" FontWeight="SemiBold"
+                                   VerticalAlignment="Center"
+                                   Foreground="{DynamicResource AccentTextFillColorPrimaryBrush}" />
+                        <TextBlock Text="{Binding StatusText}" Margin="10,0,0,0" Opacity="0.55" FontSize="12"
+                                   VerticalAlignment="Center" />
+                        <TextBlock Text="{Binding SubmittedText}" Margin="10,0,0,0" Opacity="0.45" FontSize="12"
+                                   VerticalAlignment="Center" />
+                    </StackPanel>
+                    <TextBlock Text="{Binding Comment}" TextWrapping="Wrap" Opacity="0.7" Margin="34,6,0,0"
+                               Visibility="{Binding HasComment, Converter={StaticResource BoolToVisibility}}" />
+                    <TextBlock Text="{Binding ReviewNote}" TextWrapping="Wrap" Opacity="0.7" Margin="34,4,0,0"
+                               Visibility="{Binding HasReviewNote, Converter={StaticResource BoolToVisibility}}" />
+                    <TextBlock Margin="34,6,0,0">
+                        <Hyperlink NavigateUri="{Binding VideoUrl}" RequestNavigate="OnOpenLink">▶ Видео</Hyperlink>
+                    </TextBlock>
+                </StackPanel>
+            </Border>
+        </DataTemplate>
+    </Page.Resources>
+
+    <Grid Margin="24,24,24,16">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <Grid Grid.Row="0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <StackPanel Grid.Column="0">
+                <TextBlock Text="Демонлист" FontSize="28" FontWeight="SemiBold" />
+                <TextBlock Margin="0,4,0,0" Opacity="0.7" TextWrapping="Wrap"
+                           Text="Тот же список, что на сайте: приложение и сайт читают один сервер, поэтому перестановки, мнения и заявки везде одни и те же. Читать можно без аккаунта — вход нужен, чтобы высказаться и подать заявку." />
+            </StackPanel>
+            <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Top">
+                <ui:ProgressRing Width="20" Height="20" IsIndeterminate="True" Margin="0,0,10,0"
+                                 Visibility="{Binding IsBusy, Converter={StaticResource BoolToVisibility}}" />
+                <Button Content="Обновить" Command="{Binding RefreshCommand}" IsEnabled="{Binding IsIdle}" />
+            </StackPanel>
+        </Grid>
+
+        <StackPanel Grid.Row="1" Margin="0,12,0,0">
+            <TextBlock Text="{Binding OfflineNotice}" TextWrapping="Wrap"
+                       Foreground="{DynamicResource WarningBrush}"
+                       Visibility="{Binding IsOffline, Converter={StaticResource BoolToVisibility}}" />
+            <TextBlock Text="{Binding ListBanNotice}" TextWrapping="Wrap" Foreground="IndianRed"
+                       Visibility="{Binding IsListBanned, Converter={StaticResource BoolToVisibility}}" />
+            <TextBlock Text="Войди на вкладке «Аккаунт», чтобы высказаться о размещении и подать заявку на рекорд."
+                       TextWrapping="Wrap" Opacity="0.7"
+                       Visibility="{Binding IsSignedOut, Converter={StaticResource BoolToVisibility}}" />
+            <TextBlock Text="{Binding Status}" TextWrapping="Wrap" Opacity="0.8" />
+            <TextBlock Text="{Binding Error}" TextWrapping="Wrap" Foreground="IndianRed" />
+        </StackPanel>
+
+        <TabControl Grid.Row="2" Margin="0,12,0,0">
+            <!-- Топ-200: расстановка демонов, мнения и инструменты модератора. -->
+            <TabItem Header="Топ-200">
+                <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="0,10,10,0">
+                    <StackPanel>
+                        <ItemsControl ItemsSource="{Binding Source={StaticResource GroupedDemons}}"
+                                      ItemTemplate="{StaticResource DemonRow}">
+                            <ItemsControl.GroupStyle>
+                                <GroupStyle>
+                                    <GroupStyle.HeaderTemplate>
+                                        <DataTemplate>
+                                            <StackPanel Margin="0,14,0,8">
+                                                <TextBlock Text="{Binding Name}" FontSize="17" FontWeight="SemiBold" />
+                                                <TextBlock Text="{Binding Items[0].TierNote}" Opacity="0.6" FontSize="12" />
+                                            </StackPanel>
+                                        </DataTemplate>
+                                    </GroupStyle.HeaderTemplate>
+                                </GroupStyle>
+                            </ItemsControl.GroupStyle>
+                        </ItemsControl>
+
+                        <!-- Добавление демона: модератор и выше. -->
+                        <StackPanel Visibility="{Binding CanModerate, Converter={StaticResource BoolToVisibility}}">
+                            <TextBlock Text="Добавить демона" Style="{StaticResource SectionTitle}" />
+                            <Border Style="{StaticResource Card}">
+                                <StackPanel>
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="90" />
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="*" />
+                                        </Grid.ColumnDefinitions>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto" />
+                                            <RowDefinition Height="Auto" />
+                                        </Grid.RowDefinitions>
+
+                                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Место" Opacity="0.6" FontSize="12" />
+                                        <TextBlock Grid.Row="0" Grid.Column="1" Text="Название" Opacity="0.6" FontSize="12"
+                                                   Margin="8,0,0,0" />
+                                        <TextBlock Grid.Row="0" Grid.Column="2" Text="Автор" Opacity="0.6" FontSize="12"
+                                                   Margin="8,0,0,0" />
+                                        <TextBlock Grid.Row="0" Grid.Column="3" Text="Верификатор" Opacity="0.6" FontSize="12"
+                                                   Margin="8,0,0,0" />
+
+                                        <TextBox Grid.Row="1" Grid.Column="0" Margin="0,4,0,0"
+                                                 Text="{Binding NewDemonPosition, UpdateSourceTrigger=PropertyChanged}" />
+                                        <TextBox Grid.Row="1" Grid.Column="1" Margin="8,4,0,0" MaxLength="200"
+                                                 Text="{Binding NewDemonName, UpdateSourceTrigger=PropertyChanged}" />
+                                        <TextBox Grid.Row="1" Grid.Column="2" Margin="8,4,0,0"
+                                                 Text="{Binding NewDemonPublisher, UpdateSourceTrigger=PropertyChanged}" />
+                                        <TextBox Grid.Row="1" Grid.Column="3" Margin="8,4,0,0"
+                                                 Text="{Binding NewDemonVerifier, UpdateSourceTrigger=PropertyChanged}" />
+                                    </Grid>
+
+                                    <Grid Margin="0,10,0,0">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="140" />
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="110" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto" />
+                                            <RowDefinition Height="Auto" />
+                                        </Grid.RowDefinitions>
+
+                                        <TextBlock Grid.Row="0" Grid.Column="0" Text="ID уровня" Opacity="0.6" FontSize="12" />
+                                        <TextBlock Grid.Row="0" Grid.Column="1" Text="Ссылка на видео" Opacity="0.6"
+                                                   FontSize="12" Margin="8,0,0,0" />
+                                        <TextBlock Grid.Row="0" Grid.Column="2" Text="Требование, %" Opacity="0.6"
+                                                   FontSize="12" Margin="8,0,0,0" />
+
+                                        <TextBox Grid.Row="1" Grid.Column="0" Margin="0,4,0,0"
+                                                 Text="{Binding NewDemonLevelId, UpdateSourceTrigger=PropertyChanged}" />
+                                        <TextBox Grid.Row="1" Grid.Column="1" Margin="8,4,0,0"
+                                                 Text="{Binding NewDemonVideo, UpdateSourceTrigger=PropertyChanged}" />
+                                        <TextBox Grid.Row="1" Grid.Column="2" Margin="8,4,0,0"
+                                                 Text="{Binding NewDemonRequirement, UpdateSourceTrigger=PropertyChanged}" />
+                                        <Button Grid.Row="1" Grid.Column="3" Margin="8,4,0,0" Content="Добавить"
+                                                IsEnabled="{Binding IsIdle}" Command="{Binding AddDemonCommand}" />
+                                    </Grid>
+                                </StackPanel>
+                            </Border>
+                        </StackPanel>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+
+            <!-- Топ пройденных уровней: заявки, очередь модератора и сам топ. -->
+            <TabItem Header="Пройденные уровни">
+                <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="0,10,10,0">
+                    <StackPanel>
+                        <!-- Заявка на рекорд: вошедшему и не забаненному в списке. -->
+                        <StackPanel Visibility="{Binding CanParticipate, Converter={StaticResource BoolToVisibility}}">
+                            <TextBlock Text="Подать заявку на рекорд" Style="{StaticResource SectionTitle}"
+                                       Margin="0,0,0,8" />
+                            <Border Style="{StaticResource Card}">
+                                <StackPanel>
+                                    <TextBlock Text="Демон из списка (или оставь пустым и укажи свой уровень)"
+                                               Opacity="0.6" FontSize="12" Margin="0,0,0,4" />
+                                    <ComboBox ItemsSource="{Binding Demons}"
+                                              SelectedItem="{Binding SelectedRecordDemon, Mode=TwoWay}"
+                                              IsEditable="False">
+                                        <ComboBox.ItemTemplate>
+                                            <DataTemplate>
+                                                <StackPanel Orientation="Horizontal">
+                                                    <TextBlock Text="{Binding Position}" MinWidth="34" Opacity="0.6" />
+                                                    <TextBlock Text="{Binding Name}" />
+                                                </StackPanel>
+                                            </DataTemplate>
+                                        </ComboBox.ItemTemplate>
+                                    </ComboBox>
+
+                                    <StackPanel Visibility="{Binding NeedsLevelName, Converter={StaticResource BoolToVisibility}}">
+                                        <TextBlock Text="Название уровня" Opacity="0.6" FontSize="12" Margin="0,10,0,4" />
+                                        <TextBox MaxLength="200"
+                                                 Text="{Binding RecordLevelName, UpdateSourceTrigger=PropertyChanged}" />
+                                    </StackPanel>
+
+                                    <Grid Margin="0,10,0,0">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="110" />
+                                            <ColumnDefinition Width="*" />
+                                        </Grid.ColumnDefinitions>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto" />
+                                            <RowDefinition Height="Auto" />
+                                        </Grid.RowDefinitions>
+
+                                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Процент" Opacity="0.6" FontSize="12" />
+                                        <TextBlock Grid.Row="0" Grid.Column="1" Text="Ссылка на видео" Opacity="0.6"
+                                                   FontSize="12" Margin="8,0,0,0" />
+                                        <TextBox Grid.Row="1" Grid.Column="0" Margin="0,4,0,0"
+                                                 Text="{Binding RecordProgress, UpdateSourceTrigger=PropertyChanged}" />
+                                        <TextBox Grid.Row="1" Grid.Column="1" Margin="8,4,0,0"
+                                                 Text="{Binding RecordVideoUrl, UpdateSourceTrigger=PropertyChanged}" />
+                                    </Grid>
+
+                                    <TextBlock Text="Комментарий к заявке" Opacity="0.6" FontSize="12" Margin="0,10,0,4" />
+                                    <TextBox MaxLength="1000" AcceptsReturn="True" TextWrapping="Wrap" Height="60"
+                                             VerticalScrollBarVisibility="Auto"
+                                             Text="{Binding RecordComment, UpdateSourceTrigger=PropertyChanged}" />
+
+                                    <CheckBox Margin="0,10,0,0" IsChecked="{Binding RecordHasClicks}"
+                                              Content="На видео слышны или видны клики" />
+                                    <Button Content="Отправить заявку" Margin="0,10,0,0" HorizontalAlignment="Left"
+                                            IsEnabled="{Binding IsIdle}" Command="{Binding SubmitRecordCommand}" />
+                                </StackPanel>
+                            </Border>
+                        </StackPanel>
+
+                        <!-- Очередь на рассмотрение: модератор и выше. -->
+                        <StackPanel Visibility="{Binding CanModerate, Converter={StaticResource BoolToVisibility}}">
+                            <TextBlock Text="Очередь заявок" Style="{StaticResource SectionTitle}" />
+                            <ItemsControl ItemsSource="{Binding PendingRecords}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border Style="{StaticResource Card}">
+                                            <StackPanel>
+                                                <StackPanel Orientation="Horizontal">
+                                                    <TextBlock Text="{Binding PlayerName}" FontWeight="SemiBold"
+                                                               VerticalAlignment="Center" />
+                                                    <Border Style="{StaticResource RoleBadge}">
+                                                        <TextBlock Text="{Binding RoleLabel}" FontSize="11" />
+                                                    </Border>
+                                                    <TextBlock Text="{Binding LevelName}" Margin="10,0,0,0"
+                                                               VerticalAlignment="Center" />
+                                                    <TextBlock Text="{Binding DemonPositionText}" Margin="8,0,0,0"
+                                                               Opacity="0.55" FontSize="12" VerticalAlignment="Center" />
+                                                    <TextBlock Text="{Binding ProgressText}" Margin="10,0,0,0"
+                                                               FontWeight="SemiBold" VerticalAlignment="Center"
+                                                               Foreground="{DynamicResource AccentTextFillColorPrimaryBrush}" />
+                                                    <TextBlock Text="{Binding SubmittedText}" Margin="10,0,0,0"
+                                                               Opacity="0.45" FontSize="12" VerticalAlignment="Center" />
+                                                </StackPanel>
+
+                                                <TextBlock Text="{Binding Comment}" TextWrapping="Wrap" Opacity="0.7"
+                                                           Margin="0,6,0,0"
+                                                           Visibility="{Binding HasComment, Converter={StaticResource BoolToVisibility}}" />
+                                                <TextBlock Margin="0,6,0,0">
+                                                    <Hyperlink NavigateUri="{Binding VideoUrl}" RequestNavigate="OnOpenLink">▶ Видео с кликами</Hyperlink>
+                                                </TextBlock>
+
+                                                <Grid Margin="0,10,0,0">
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="110" />
+                                                        <ColumnDefinition Width="*" />
+                                                        <ColumnDefinition Width="Auto" />
+                                                        <ColumnDefinition Width="Auto" />
+                                                    </Grid.ColumnDefinitions>
+                                                    <TextBox Grid.Column="0"
+                                                             ToolTip="Место в топе при одобрении. Пусто — в конец."
+                                                             Text="{Binding ReviewPlacement, UpdateSourceTrigger=PropertyChanged}" />
+                                                    <TextBox Grid.Column="1" Margin="8,0,0,0" MaxLength="1000"
+                                                             ToolTip="Пояснение к решению"
+                                                             Text="{Binding ReviewNoteInput, UpdateSourceTrigger=PropertyChanged}" />
+                                                    <Button Grid.Column="2" Margin="8,0,0,0" Content="Одобрить"
+                                                            IsEnabled="{Binding Owner.IsIdle}"
+                                                            Command="{Binding Owner.ApproveRecordCommand}"
+                                                            CommandParameter="{Binding}" />
+                                                    <Button Grid.Column="3" Margin="8,0,0,0" Content="Отклонить"
+                                                            IsEnabled="{Binding Owner.IsIdle}"
+                                                            Command="{Binding Owner.RejectRecordCommand}"
+                                                            CommandParameter="{Binding}" />
+                                                </Grid>
+                                            </StackPanel>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </StackPanel>
+
+                        <TextBlock Text="Топ пройденных уровней" Style="{StaticResource SectionTitle}" />
+                        <TextBlock Text="Одобренные заявки в порядке мест. Заявка попадает сюда только с видео, на котором видны клики."
+                                   Opacity="0.6" FontSize="12" TextWrapping="Wrap" Margin="0,0,0,8" />
+                        <ItemsControl ItemsSource="{Binding TopRecords}" ItemTemplate="{StaticResource RecordRow}" />
+
+                        <StackPanel Visibility="{Binding IsSignedIn, Converter={StaticResource BoolToVisibility}}">
+                            <TextBlock Text="Мои заявки" Style="{StaticResource SectionTitle}" />
+                            <ItemsControl ItemsSource="{Binding MyRecords}" ItemTemplate="{StaticResource RecordRow}" />
+                        </StackPanel>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+
+            <!-- Участники: список аккаунтов и баны. Видно только владельцу сервера. -->
+            <TabItem Header="Участники"
+                     Visibility="{Binding CanBan, Converter={StaticResource BoolToVisibility}}">
+                <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="0,10,10,0">
+                    <StackPanel>
+                        <TextBlock Text="Полный бан закрывает вход и синхронизацию, бан в демонлисте убирает участника только из списка. Оба обратимы и ничего не стирают."
+                                   Opacity="0.7" TextWrapping="Wrap" Margin="0,0,0,10" />
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <TextBox Grid.Column="0" Text="{Binding UserQuery, UpdateSourceTrigger=PropertyChanged}" />
+                            <Button Grid.Column="1" Margin="8,0,0,0" Content="Найти" IsEnabled="{Binding IsIdle}"
+                                    Command="{Binding SearchUsersCommand}" />
+                        </Grid>
+
+                        <ItemsControl ItemsSource="{Binding Users}" Margin="0,12,0,0">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Style="{StaticResource Card}">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="200" />
+                                                <ColumnDefinition Width="Auto" />
+                                                <ColumnDefinition Width="Auto" />
+                                            </Grid.ColumnDefinitions>
+
+                                            <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                                                <StackPanel Orientation="Horizontal">
+                                                    <TextBlock Text="{Binding Username}" FontWeight="SemiBold" />
+                                                    <Border Style="{StaticResource RoleBadge}">
+                                                        <TextBlock Text="{Binding RoleLabel}" FontSize="11" />
+                                                    </Border>
+                                                </StackPanel>
+                                                <TextBlock Text="{Binding Email}" Opacity="0.55" FontSize="12" />
+                                            </StackPanel>
+
+                                            <TextBox Grid.Column="1" VerticalAlignment="Center" MaxLength="200"
+                                                     ToolTip="Причина бана"
+                                                     Text="{Binding ReasonInput, UpdateSourceTrigger=PropertyChanged}" />
+                                            <Button Grid.Column="2" Margin="8,0,0,0" VerticalAlignment="Center"
+                                                    Content="{Binding BanButtonText}"
+                                                    IsEnabled="{Binding Owner.IsIdle}"
+                                                    Command="{Binding Owner.ToggleBanCommand}" CommandParameter="{Binding}" />
+                                            <Button Grid.Column="3" Margin="8,0,0,0" VerticalAlignment="Center"
+                                                    Content="{Binding ListBanButtonText}"
+                                                    IsEnabled="{Binding Owner.IsIdle}"
+                                                    Command="{Binding Owner.ToggleListBanCommand}" CommandParameter="{Binding}" />
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+        </TabControl>
+    </Grid>
+</Page>
