@@ -294,6 +294,109 @@ footer a:hover{color:var(--fg);text-decoration:underline}
 .disclaimer{width:100%;margin-top:6px;font-size:13px;color:#5b657c;line-height:1.55}
 
 /* ---------- адаптив ---------- */
+/* ---------- вход в аккаунт ---------- */
+.header-auth{display:flex;align-items:center;gap:8px}
+.header-auth[hidden]{display:none}
+.btn-mini{
+  font:inherit;font-size:14px;font-weight:600;
+  color:var(--fg);background:var(--surface);
+  border:1px solid var(--line);border-radius:9px;
+  padding:7px 14px;cursor:pointer;white-space:nowrap;
+  transition:background .18s ease,border-color .18s ease,color .18s ease;
+}
+.btn-mini:hover{background:var(--surface-2);border-color:#2e384c}
+.account-chip{display:flex;align-items:center;gap:8px;font-size:14px}
+.account-chip[hidden]{display:none}
+.account-name{
+  font-weight:650;color:var(--fg);
+  max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+.account-role{
+  font-size:11.5px;font-weight:600;line-height:1.5;
+  color:var(--fg-faint);background:var(--bg-soft);
+  border:1px solid var(--line);border-radius:6px;padding:2px 7px;
+}
+.account-role.priv{color:var(--gold);border-color:rgba(255,194,71,.35)}
+
+/* ---------- окно входа ----------
+   Обычный div, а не <dialog>: разметка и оформление те же во всех браузерах,
+   которые тянет остальная страница. */
+.modal{
+  position:fixed;inset:0;z-index:100;
+  display:flex;align-items:center;justify-content:center;
+  padding:20px;
+}
+.modal[hidden]{display:none}
+.modal-backdrop{
+  position:absolute;inset:0;
+  background:rgba(4,6,10,.74);
+  backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);
+}
+.modal-card{
+  position:relative;width:100%;max-width:404px;
+  max-height:calc(100vh - 40px);overflow-y:auto;
+  background:var(--surface);
+  border:1px solid var(--line);border-radius:var(--radius);
+  padding:28px 26px 24px;
+  box-shadow:0 30px 70px -18px rgba(0,0,0,.85);
+}
+.modal-x{
+  position:absolute;top:11px;right:11px;
+  width:32px;height:32px;line-height:1;
+  font:inherit;font-size:21px;color:var(--fg-faint);
+  background:none;border:0;border-radius:8px;cursor:pointer;
+}
+.modal-x:hover{color:var(--fg);background:var(--surface-2)}
+.modal-card h2{font-size:22px;padding-right:34px}
+.modal-lead{margin-top:9px;font-size:14.5px;color:var(--fg-dim)}
+
+/* Одна разметка на два режима: показывается то, что совпало с data-mode окна. */
+#auth-modal[data-mode="login"] [data-mode="register"],
+#auth-modal[data-mode="register"] [data-mode="login"]{display:none}
+
+.field{display:block;margin-top:17px}
+.field-label{display:block;margin-bottom:6px;font-size:13.5px;font-weight:600;color:var(--fg-dim)}
+.field input{
+  width:100%;font:inherit;font-size:15.5px;
+  color:var(--fg);background:var(--bg-soft);
+  border:1px solid var(--line);border-radius:10px;
+  padding:11px 13px;
+  transition:border-color .15s ease,box-shadow .15s ease;
+}
+.field input:focus{outline:none;border-color:var(--cyan);box-shadow:0 0 0 3px rgba(56,225,255,.14)}
+.field input:disabled{opacity:.5;cursor:not-allowed}
+.field-hint{display:block;margin-top:6px;font-size:12.5px;color:var(--fg-faint);line-height:1.45}
+.auth-submit{width:100%;justify-content:center;margin-top:21px}
+.auth-submit[disabled]{opacity:.6;cursor:progress;transform:none;box-shadow:none}
+.auth-msg{
+  margin-top:15px;padding:10px 12px;
+  font-size:14px;line-height:1.45;
+  border:1px solid;border-radius:9px;
+}
+.auth-msg[hidden]{display:none}
+.auth-msg.err{color:#ffb6ca;background:rgba(255,77,157,.09);border-color:rgba(255,77,157,.32)}
+.auth-msg.info{color:#bfe7f5;background:rgba(56,225,255,.07);border-color:rgba(56,225,255,.28)}
+.auth-switch{margin-top:17px;font-size:14px;color:var(--fg-dim);text-align:center}
+.linkish{
+  font:inherit;font-size:inherit;color:var(--cyan);
+  background:none;border:0;padding:0;cursor:pointer;
+  text-decoration:underline;text-underline-offset:2px;
+}
+.linkish:hover{color:#7ceeff}
+.auth-note{
+  margin-top:19px;padding-top:16px;
+  border-top:1px solid var(--line-soft);
+  font-size:12.5px;line-height:1.5;color:var(--fg-faint);
+}
+
+@media (max-width:640px){
+  /* В шапке становится тесно: раздел «Возможности» есть в самой странице. */
+  .header-link.nav-features{display:none}
+  .modal{padding:12px}
+  .modal-card{padding:24px 20px 20px}
+  .account-name{max-width:96px}
+}
+
 @media (max-width:900px){
   .grid,.steps,.facts{grid-template-columns:repeat(2,1fr)}
 }
@@ -330,8 +433,21 @@ footer a:hover{color:var(--fg);text-decoration:underline}
       <span>GD Progress Tracker</span>
     </a>
     <div class="header-spacer"></div>
-    <a class="header-link" href="#features"><span data-l="ru">Возможности</span><span data-l="en">Features</span></a>
+    <a class="header-link nav-features" href="#features"><span data-l="ru">Возможности</span><span data-l="en">Features</span></a>
+    <a class="header-link" href="demonlist.html"><span data-l="ru">Демонлист</span><span data-l="en">Demonlist</span></a>
     <a class="header-link gh-text" data-gh="repo" href="https://github.com/"><span data-l="ru">Исходники</span><span data-l="en">Source</span></a>
+    <div class="header-auth" id="header-auth" hidden>
+      <button type="button" class="btn-mini" id="auth-open" aria-haspopup="dialog">
+        <span data-l="ru">Войти</span><span data-l="en">Sign in</span>
+      </button>
+      <div class="account-chip" id="account-chip" hidden>
+        <span class="account-name" id="account-name"></span>
+        <span class="account-role" id="account-role"></span>
+        <button type="button" class="btn-mini" id="auth-signout">
+          <span data-l="ru">Выйти</span><span data-l="en">Sign out</span>
+        </button>
+      </div>
+    </div>
     <div class="lang" role="group" aria-label="Язык / Language">
       <button type="button" data-set-lang="ru" aria-pressed="true">RU</button>
       <button type="button" data-set-lang="en" aria-pressed="false">EN</button>
@@ -378,8 +494,8 @@ footer a:hover{color:var(--fg);text-decoration:underline}
     </div>
 
     <p class="meta">
-      <span data-l="ru"><b>Версия 1.0.1.1</b> · Windows 10/11 · x64 · открытый исходный код</span>
-      <span data-l="en"><b>Version 1.0.1.1</b> · Windows 10/11 · x64 · open source</span>
+      <span data-l="ru"><b>Версия 1.0.2</b> · Windows 10/11 · x64 · открытый исходный код</span>
+      <span data-l="en"><b>Version 1.0.2</b> · Windows 10/11 · x64 · open source</span>
     </p>
 
     <p class="downloads" id="downloads" hidden>
@@ -631,10 +747,96 @@ footer a:hover{color:var(--fg);text-decoration:underline}
 
 </main>
 
+<!-- ================= ОКНО ВХОДА =================
+     Показывается по кнопке в шапке. Аккаунт тот же, что на вкладке
+     «Аккаунт» в приложении, и тот же, что на странице демонлиста. -->
+<div class="modal" id="auth-modal" data-mode="login" hidden>
+  <div class="modal-backdrop" data-auth-close></div>
+
+  <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="auth-title">
+    <button type="button" class="modal-x" data-auth-close aria-label="Закрыть / Close">&times;</button>
+
+    <h2 id="auth-title">
+      <span data-mode="login"><span data-l="ru">Вход в аккаунт</span><span data-l="en">Sign in</span></span>
+      <span data-mode="register"><span data-l="ru">Новый аккаунт</span><span data-l="en">New account</span></span>
+    </h2>
+
+    <p class="modal-lead">
+      <span data-mode="login">
+        <span data-l="ru">Ник и пароль — те же, что на вкладке «Аккаунт» в приложении.</span>
+        <span data-l="en">The username and password are the same as on the Account tab in the app.</span>
+      </span>
+      <span data-mode="register">
+        <span data-l="ru">Аккаунт нужен для синхронизации между компьютерами и для демонлиста. Приложение работает и без него.</span>
+        <span data-l="en">An account is for syncing between machines and for the demonlist. The app works fine without one.</span>
+      </span>
+    </p>
+
+    <p class="auth-msg info" id="auth-offline" hidden></p>
+
+    <form id="auth-form">
+      <label class="field">
+        <span class="field-label"><span data-l="ru">Ник</span><span data-l="en">Username</span></span>
+        <input type="text" name="username" autocomplete="username" maxlength="20" spellcheck="false">
+        <span class="field-hint" data-mode="login">
+          <span data-l="ru">Если ник забылся, подойдёт и почта.</span>
+          <span data-l="en">If you have forgotten the username, your email works too.</span>
+        </span>
+        <span class="field-hint" data-mode="register">
+          <span data-l="ru">От 3 до 20 символов: буквы, цифры, дефис и подчёркивание. Под этим именем тебя увидят в демонлисте.</span>
+          <span data-l="en">3 to 20 characters: letters, digits, hyphen and underscore. This is the name the demonlist shows.</span>
+        </span>
+      </label>
+
+      <label class="field" data-mode="register">
+        <span class="field-label"><span data-l="ru">Почта</span><span data-l="en">Email</span></span>
+        <input type="email" name="email" autocomplete="email" inputmode="email" spellcheck="false">
+        <span class="field-hint">
+          <span data-l="ru">Нужна только при регистрации — входить по ней не придётся.</span>
+          <span data-l="en">Only needed to sign up — you will not have to sign in with it.</span>
+        </span>
+      </label>
+
+      <label class="field">
+        <span class="field-label"><span data-l="ru">Пароль</span><span data-l="en">Password</span></span>
+        <input type="password" name="password" id="auth-password" required minlength="8" maxlength="128" autocomplete="current-password">
+        <span class="field-hint" data-mode="register">
+          <span data-l="ru">Не короче 8 символов.</span>
+          <span data-l="en">At least 8 characters.</span>
+        </span>
+      </label>
+
+      <p class="auth-msg err" id="auth-error" hidden></p>
+
+      <button type="submit" class="btn btn-primary auth-submit" id="auth-submit">
+        <span data-mode="login"><span data-l="ru">Войти</span><span data-l="en">Sign in</span></span>
+        <span data-mode="register"><span data-l="ru">Создать аккаунт</span><span data-l="en">Create account</span></span>
+      </button>
+    </form>
+
+    <p class="auth-switch">
+      <span data-mode="login">
+        <span data-l="ru">Нет аккаунта?</span><span data-l="en">No account?</span>
+        <button type="button" class="linkish" data-auth-mode="register"><span data-l="ru">Создать</span><span data-l="en">Create one</span></button>
+      </span>
+      <span data-mode="register">
+        <span data-l="ru">Уже есть аккаунт?</span><span data-l="en">Already have one?</span>
+        <button type="button" class="linkish" data-auth-mode="login"><span data-l="ru">Войти</span><span data-l="en">Sign in</span></button>
+      </span>
+    </p>
+
+    <p class="auth-note">
+      <span data-l="ru">Пароль уходит только на сервер синхронизации, указанный в настройках страницы, и нигде не сохраняется. В браузере остаётся лишь токен входа.</span>
+      <span data-l="en">The password goes only to the sync server configured for this page and is never stored. Only the access token stays in the browser.</span>
+    </p>
+  </div>
+</div>
+
 <footer>
   <div class="wrap">
-    <span>GD Progress Tracker <span data-l="ru">версия</span><span data-l="en">version</span> 1.0.1.1</span>
+    <span>GD Progress Tracker <span data-l="ru">версия</span><span data-l="en">version</span> 1.0.2</span>
     <span class="foot-spacer"></span>
+    <a href="demonlist.html"><span data-l="ru">Демонлист</span><span data-l="en">Demonlist</span></a>
     <a data-gh="repo" href="https://github.com/">GitHub</a>
     <a data-gh="release" href="https://github.com/"><span data-l="ru">Релизы</span><span data-l="en">Releases</span></a>
     <a data-gh="issues" href="https://github.com/">Issues</a>
@@ -659,6 +861,21 @@ var GITHUB_REPO = "Nullzzz-5996/gd-progress-tracker";
    Опубликовал репозиторий и релиз — поставь true, и ссылки оживут.
    Set to true once the repository and the release are public. */
 var GITHUB_PUBLISHED = true;
+
+/* --------------------------------------------------------------------
+   ВТОРАЯ СТРОКА ДЛЯ ПРАВКИ — адрес сервера синхронизации (GdTracker.Api),
+   например "https://gdtracker-sync.onrender.com". Ровно такая же строка
+   есть в demonlist.html — адрес в обоих местах должен совпадать.
+
+   Пока строка пустая, кнопка «Войти» в шапке остаётся, но окно честно
+   говорит, что сервер не подключён, и форма не отправляется.
+
+   Адрес сайта нужно добавить в Cors:Origins на сервере — без этого
+   браузер не выпустит запрос на другой домен.
+
+   THE SECOND LINE TO EDIT — the sync server address.
+-------------------------------------------------------------------- */
+var API_BASE = "";
 
 (function () {
   "use strict";
@@ -792,6 +1009,359 @@ var GITHUB_PUBLISHED = true;
 
   loadDownloads();
 })();
+/* ==================== вход в аккаунт ====================
+   Работает с тем же API, что и приложение: POST /api/auth/login,
+   POST /api/auth/register, GET /api/account/me. */
+(function () {
+  "use strict";
+
+  var modal = document.getElementById("auth-modal");
+  var slot = document.getElementById("header-auth");
+  if (!modal || !slot) return;
+
+  /* Без fetch окно всё равно не заработает — кнопку в шапке не показываем,
+     чтобы не обещать того, чего нет. */
+  if (!window.fetch || !window.JSON) return;
+  slot.hidden = false;
+
+  var API = (API_BASE || localApi()).replace(/\/+$/, "");
+
+  /* Сервер для локальной отладки — ровно как на странице демонлиста. Работает,
+     только когда саму страницу отдаёт localhost: на публичном сайте адрес
+     другой, и подставлять туда localhost нельзя. С file:// не срабатывает
+     намеренно — оттуда запрос всё равно не выпустит проверка источника
+     на сервере. */
+  function localApi() {
+    var host = location.hostname;
+    return (host === "localhost" || host === "127.0.0.1") ? "http://localhost:5080" : "";
+  }
+
+  /* Ключ тот же, что на странице демонлиста: сайт один и аккаунт один,
+     поэтому вход здесь засчитывается и там. */
+  var TOKEN_KEY = "gdt-demonlist-token";
+
+  var openBtn = document.getElementById("auth-open");
+  var chip = document.getElementById("account-chip");
+  var nameEl = document.getElementById("account-name");
+  var roleEl = document.getElementById("account-role");
+  var signoutBtn = document.getElementById("auth-signout");
+  var form = document.getElementById("auth-form");
+  var submitBtn = document.getElementById("auth-submit");
+  var errorEl = document.getElementById("auth-error");
+  var offlineEl = document.getElementById("auth-offline");
+  var passwordEl = document.getElementById("auth-password");
+
+  var T = {
+    offline:      ["Сервер синхронизации не подключён, поэтому войти со страницы нельзя. Аккаунт заводится и работает в самом приложении, на вкладке «Аккаунт».",
+                   "The sync server is not connected, so signing in from this page is not possible. Accounts are created and used in the app itself, on the Account tab."],
+    offlineFile:  ["Страница открыта с диска (file://), а с такого адреса браузер не выпускает запросы к серверу. Открой её через localhost — например, http://localhost:5500.",
+                   "This page was opened from disk (file://), and browsers block requests to a server from such an address. Open it over localhost instead — for example http://localhost:5500."],
+    unreachable:  ["Сервер не отвечает. Попробуй позже.",
+                   "The server is not responding. Try again later."],
+    badLogin:     ["Неверный ник или пароль.", "Wrong username or password."],
+    emailTaken:   ["Аккаунт с такой почтой уже есть.", "An account with this email already exists."],
+    nameTaken:    ["Этот ник уже занят.", "This username is taken."],
+    weakPassword: ["Пароль должен быть не короче 8 символов.", "The password must be at least 8 characters long."],
+    badEmail:     ["Укажи корректный адрес почты.", "Enter a valid email address."],
+    badName:      ["Ник — от 3 до 20 символов: буквы, цифры, дефис и подчёркивание.",
+                   "A username is 3 to 20 characters: letters, digits, hyphen and underscore."],
+    needName:     ["Придумай ник — под ним тебя увидят в демонлисте.",
+                   "Pick a username — that is how the demonlist will show you."],
+    needEmail:    ["Для регистрации нужна почта.", "Signing up needs an email address."],
+    needLogin:    ["Введи ник — или почту, если ник забылся.",
+                   "Enter your username — or your email, if you have forgotten it."],
+    tooMany:      ["Слишком много попыток. Подожди минуту и попробуй снова.",
+                   "Too many attempts. Wait a minute and try again."],
+    failed:       ["Не получилось. Попробуй ещё раз.", "That did not work. Try again."],
+    roleMember:   ["участник", "member"],
+    roleMod:      ["модератор", "moderator"],
+    roleAdmin:    ["администратор", "admin"],
+    roleOwner:    ["владелец", "owner"]
+  };
+
+  function t(key) {
+    return T[key][document.documentElement.getAttribute("data-lang") === "en" ? 1 : 0];
+  }
+
+  var me = null;          // сведения о вошедшем: ник и роль
+  var errorKey = null;    // ключ показанной ошибки — чтобы пережить смену языка
+  var errorText = null;   // либо готовый текст, если он пришёл от сервера
+  var lastFocused = null;
+
+  /* ---------------- токен ---------------- */
+
+  function readToken() {
+    try { return localStorage.getItem(TOKEN_KEY); } catch (e) { return null; }
+  }
+
+  function saveToken(value) {
+    try {
+      if (value) localStorage.setItem(TOKEN_KEY, value);
+      else localStorage.removeItem(TOKEN_KEY);
+    } catch (e) { /* приватный режим */ }
+  }
+
+  /* ---------------- запросы ---------------- */
+
+  function api(path, options) {
+    options = options || {};
+
+    var headers = { "Content-Type": "application/json" };
+    var token = readToken();
+    if (options.auth && token) headers.Authorization = "Bearer " + token;
+
+    return fetch(API + path, {
+      method: options.method || "GET",
+      headers: headers,
+      body: options.body ? JSON.stringify(options.body) : undefined
+    }).then(function (res) {
+      return res.json().then(null, function () { return null; }).then(function (data) {
+        if (res.ok) return data;
+
+        var err = new Error("api");
+        err.status = res.status;
+        err.code = (data && data.code) || "";
+        err.serverMessage = (data && data.message) || "";
+        throw err;
+      });
+    }, function () {
+      // Запрос не дошёл вообще: сервер лежит, нет сети или не настроен CORS.
+      var err = new Error("network");
+      err.offline = true;
+      throw err;
+    });
+  }
+
+  /* Текст ошибки по коду от сервера. Своего перевода нет только у бана —
+     там в сообщении причина, вписанная владельцем, и она уходит как есть. */
+  function describe(err) {
+    if (err && err.offline) return { key: "unreachable" };
+    if (err && err.status === 429) return { key: "tooMany" };
+
+    var byCode = {
+      invalid_credentials: "badLogin",
+      email_taken: "emailTaken",
+      account_taken: "emailTaken",
+      username_taken: "nameTaken",
+      weak_password: "weakPassword",
+      invalid_email: "badEmail",
+      invalid_username: "badName"
+    };
+
+    var key = err && byCode[err.code];
+    if (key) return { key: key };
+    if (err && err.serverMessage) return { text: err.serverMessage };
+    return { key: "failed" };
+  }
+
+  /* ---------------- шапка ---------------- */
+
+  function roleName(role) {
+    if (role === "Owner") return t("roleOwner");
+    if (role === "Administrator") return t("roleAdmin");
+    if (role === "Moderator") return t("roleMod");
+    return t("roleMember");
+  }
+
+  function renderAccount() {
+    if (me) {
+      openBtn.hidden = true;
+      chip.hidden = false;
+      nameEl.textContent = me.username || "";
+      roleEl.textContent = roleName(me.role);
+      roleEl.className = "account-role" + (me.role && me.role !== "Member" ? " priv" : "");
+    } else {
+      openBtn.hidden = false;
+      chip.hidden = true;
+    }
+  }
+
+  /* ---------------- окно ---------------- */
+
+  function showError(key, text) {
+    errorKey = key || null;
+    errorText = text || null;
+    renderError();
+  }
+
+  function renderError() {
+    if (!errorKey && !errorText) {
+      errorEl.hidden = true;
+      errorEl.textContent = "";
+      return;
+    }
+    errorEl.textContent = errorKey ? t(errorKey) : errorText;
+    errorEl.hidden = false;
+  }
+
+  function busy(on) {
+    submitBtn.disabled = on;
+    var fields = form.querySelectorAll("input");
+    for (var i = 0; i < fields.length; i++) fields[i].disabled = on;
+  }
+
+  function setMode(mode) {
+    modal.setAttribute("data-mode", mode);
+
+    /* Скрытое поле не должно быть required: иначе браузер откажется отправлять
+       форму, не сумев показать подсказку у невидимого поля. Ник спрашивают всегда
+       (им и входят), почта видна и обязательна только при регистрации. */
+    form.username.required = true;
+    form.username.minLength = mode === "register" ? 3 : 0;
+    form.email.required = mode === "register";
+    passwordEl.setAttribute("autocomplete", mode === "register" ? "new-password" : "current-password");
+    showError(null);
+  }
+
+  function openModal(mode) {
+    lastFocused = document.activeElement;
+    setMode(mode || "login");
+
+    /* Сервер не задан — окно открывается, но объясняет, почему кнопка ничего
+       не даст, вместо молчаливой формы, которая никуда не отправится. */
+    if (!API) {
+      offlineEl.textContent = location.protocol === "file:" ? t("offlineFile") : t("offline");
+      offlineEl.hidden = false;
+      busy(true);
+    } else {
+      offlineEl.hidden = true;
+      busy(false);
+    }
+
+    modal.hidden = false;
+    document.addEventListener("keydown", onKeyDown);
+
+    if (API) {
+      var first = form.querySelector("input");
+      if (first) first.focus();
+    }
+  }
+
+  function closeModal() {
+    modal.hidden = true;
+    document.removeEventListener("keydown", onKeyDown);
+    showError(null);
+    if (lastFocused && lastFocused.focus) lastFocused.focus();
+  }
+
+  function onKeyDown(e) {
+    if (e.key === "Escape" || e.keyCode === 27) closeModal();
+  }
+
+  /* ---------------- действия ---------------- */
+
+  function submit(e) {
+    e.preventDefault();
+    if (!API) return;
+
+    var mode = modal.getAttribute("data-mode");
+    var email = form.email.value.trim();
+    var password = form.password.value;
+    var username = form.username.value.trim();
+
+    if (!username) {
+      // При входе поле — это логин, при регистрации — будущее имя в демонлисте.
+      showError(mode === "register" ? "needName" : "needLogin");
+      form.username.focus();
+      return;
+    }
+
+    if (mode === "register" && !email) {
+      showError("needEmail");
+      form.email.focus();
+      return;
+    }
+
+    showError(null);
+    busy(true);
+
+    /* Поле «email» в теле запроса — историческое имя: сервер принимает в нём и
+       ник, и почту, а переименование оставило бы без входа выпущенные версии
+       приложения. При входе туда уходит ник. */
+    var body = mode === "register"
+      ? { email: email, password: password, username: username }
+      : { email: username, password: password };
+
+    api("/api/auth/" + mode, { method: "POST", body: body })
+      .then(function (auth) {
+        saveToken(auth && auth.accessToken);
+        me = { username: auth.username, role: auth.role };
+        busy(false);
+        renderAccount();
+        form.reset();
+        closeModal();
+      })
+      .catch(function (err) {
+        busy(false);
+        var described = describe(err);
+        showError(described.key, described.text);
+      });
+  }
+
+  function signOut() {
+    saveToken(null);
+    me = null;
+    renderAccount();
+  }
+
+  /* Токен с прошлого раза проверяем молча. Не подошёл — просто забываем его:
+     страница остаётся в гостевом виде и ничего не сообщает. */
+  function restore() {
+    if (!API || !readToken()) return;
+
+    api("/api/account/me", { auth: true })
+      .then(function (info) {
+        if (!info) return;
+        me = { username: info.username, role: info.role };
+        renderAccount();
+      })
+      .catch(function (err) {
+        if (err && !err.offline) saveToken(null);
+      });
+  }
+
+  /* ---------------- привязка ---------------- */
+
+  openBtn.addEventListener("click", function () { openModal("login"); });
+  signoutBtn.addEventListener("click", signOut);
+  form.addEventListener("submit", submit);
+
+  modal.addEventListener("click", function (e) {
+    var node = e.target;
+
+    if (node.hasAttribute && node.hasAttribute("data-auth-close")) {
+      closeModal();
+      return;
+    }
+
+    var mode = node.getAttribute && node.getAttribute("data-auth-mode");
+    if (!mode && node.parentNode && node.parentNode.getAttribute) {
+      // клик пришёлся на <span> внутри кнопки переключения режима
+      mode = node.parentNode.getAttribute("data-auth-mode");
+    }
+    if (mode) {
+      setMode(mode);
+      var first = form.querySelector("input");
+      if (first && API) first.focus();
+    }
+  });
+
+  /* Смена языка: подписи переведены разметкой, а роль и сообщения — здесь. */
+  var langButtons = document.querySelectorAll("[data-set-lang]");
+  for (var i = 0; i < langButtons.length; i++) {
+    langButtons[i].addEventListener("click", function () {
+      renderAccount();
+      renderError();
+      if (!modal.hidden && !API) {
+        offlineEl.textContent = location.protocol === "file:" ? t("offlineFile") : t("offline");
+      }
+    });
+  }
+
+  renderAccount();
+  restore();
+})();
+
 </script>
 
 </body>

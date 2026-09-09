@@ -10,7 +10,7 @@
 
 ; Значения по умолчанию на случай запуска ISCC без /D — build.ps1 их переопределяет.
 #ifndef AppVersion
-  #define AppVersion "1.0.1.1"
+  #define AppVersion "1.0.2"
 #endif
 #ifndef PublishDir
   #define PublishDir "..\artifacts\publish"
